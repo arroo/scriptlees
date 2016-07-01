@@ -10,7 +10,7 @@ var PriorityQueue = require('pqueue');
 
 // Process the creeps
 var builder = require('builder');
-var guard = require('guard');
+//var guard = require('guard');
 var harvester = require('harvester');
 var healer = require('healer');
 var population = require('population');
