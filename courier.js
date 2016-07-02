@@ -237,7 +237,8 @@ Creep.prototype.runCourier = function () {
     var res;
     var site = Game.getObjectById(creep.memory.site);
 
-    if (_.sum(creep.carry) <= 0 || !site || site.energy >= site.energyCapacity) {
+	var totalCarrying = _.sum(creep.carry);
+    if (totalCarrying <= 0 || (!site || site.energy >= site.energyCapacity) && totalCarrying < 0.5 * creep.carryCapacity) {
         delete creep.memory.destination.movingTarget;
         var source = findNearestSource(creep.pos);
         if (!source) {
@@ -251,11 +252,18 @@ Creep.prototype.runCourier = function () {
         return;
     }
 
+	if (!site || site.energy >= site.energyCapacity) {
+		creep.memory.destination.movingTarget = 'movingTargetCourier';
+		creep.memory.destination.then = 'runCourier';
+		creep.setAndRun('gotoThen');
+		return;
+	}
+
     res = creep.transfer(site, RESOURCE_ENERGY);
     if (res !== OK) {
         console.log('harvester ' + creep.name + 'cannot transfer to site:' + site.id + ':' +strerror(res));
     } else {
-        creep.memory.pq = new PriorityQueue(creep.memory.pq).queue(0, site.id);
+        //creep.memory.pq = new PriorityQueue(creep.memory.pq).queue(0, site.id);
     }
     
     
