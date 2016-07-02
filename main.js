@@ -18,6 +18,7 @@ var upgrader = require('upgrader');
 var miner = require('miner');
 var courier = require('courier');
 var repairer = require('repairer');
+var tower = require('tower');
 
 module.exports.loop = function () {
 
@@ -56,8 +57,9 @@ module.exports.loop = function () {
 			return pq.queue(creepInfo);
 		}, new PriorityQueue(Game.spawns.Spawn1.memory.pq));
 		Memory.makeTempMinions = true;
-}
-
+	}
+	// process all structures that have something to do
+	Object.keys(Games.structures).forEach(id => Game.structures[id].run && Game.structures[id].run());
 	// Process the spawns
 	
 	for(var name in Game.spawns) {
