@@ -68,7 +68,7 @@ module.exports.loop = function () {
 
 	Object.keys(Game.rooms).forEach(function (name) {
 		var room = Game.rooms[name];
-		room.memory.warZone = room.getCentroid(room.find(FIND_HOSTILE_CREEPS));
+		room.memory.warZone = room.findCentroid(room.find(FIND_HOSTILE_CREEPS));
 	});
 	
 	Object.keys(Game.rooms).forEach(function (name) {

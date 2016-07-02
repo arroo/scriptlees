@@ -8,7 +8,7 @@ var needsRepair = function (thing) {
 };
 
 var howDamaged = function (thing) {
-	return things.hits / thing.hitsMax;
+	return thing.hits / thing.hitsMax;
 };
 
 var howDead = function (thing) {
