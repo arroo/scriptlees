@@ -6,7 +6,7 @@
  * var mod = require('roomPlanner');
  * mod.thing == 'a thing'; // true
  */
-require('controllerLevelInfo')
+require('controllerLevelInfo');
 Room.prototype['plan' + STRUCTURE_CONTAINER] = function (max) {
 };
 
@@ -50,14 +50,14 @@ Room.prototype['plan' + STRUCTURE_WALL] = function (max) {};
 
 Room.prototype.plan = function (max) {
 //    console.log('room ' + this.name + ' time to plan...');
-    return;
+	return;
 
-    var maxLevelPlan = this.memory.maxLevelPlan || 4; // start with something to plan
+	var maxLevelPlan = this.memory.maxLevelPlan || 4; // start with something to plan
 
 //    var existingStructures = this.find(FIND_STRUCTURES, {filter: {s => struct.my || ty}})
-    
-    var possibleStructures = this.controller.getBuildings(maxLevelPlan);
-    
-}
+	
+	var possibleStructures = this.controller.getBuildings(maxLevelPlan);
+	
+};
 
 module.exports = {};

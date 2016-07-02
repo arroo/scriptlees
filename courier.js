@@ -19,7 +19,7 @@ var FILLING = 2;
 var cat = function (arr, el) {
     arr.push(el);
     return arr;
-}
+};
 
 var findNearestSource = function (pos) {
     var room = Game.rooms[pos.roomName];
@@ -51,7 +51,7 @@ var findNearestSource = function (pos) {
     });
     
     return target;
-}
+};
 
 Spawn.prototype.makeCourier = function (init) {
     init = init || {};
@@ -78,11 +78,11 @@ Spawn.prototype.makeCourier = function (init) {
     var extraBonus = [MOVE, CARRY];
     
     return this.CreepFactory(body, mem, extras, bonus, extraBonus);
-}
+};
 
 Creep.prototype.movingTargetCourier2 = function () {
     
-}
+};
 
 Creep.prototype.movingTargetCourier = function () {
     var creep = this;
@@ -92,6 +92,7 @@ Creep.prototype.movingTargetCourier = function () {
         switch (structure.structureType) {
             case STRUCTURE_EXTENSION:
             case STRUCTURE_SPAWN:
+            case STRUCTURE_TOWER:
                 break;
             default:
                 return false;
@@ -116,7 +117,7 @@ Creep.prototype.movingTargetCourier = function () {
         return;
     }
     return target.pos;
-}
+};
 
 Creep.prototype.waitCourier = function () {
     var creep = this;
@@ -141,11 +142,11 @@ Creep.prototype.waitCourier = function () {
         creep.memory.destination.then = 'runCourier';
         creep.memory.destination.range = 1;
         creep.setAndRun('gotoThen');
-        return;
+        
     } else {
         creep.say('all full');
     }
-}
+};
 
 Creep.prototype.fillCourier = function () {
     var creep = this;
@@ -179,7 +180,7 @@ Creep.prototype.fillCourier = function () {
     if (res === ERR_NOT_ENOUGH_ENERGY) {
         creep.say('empty');
         delete creep.memory.destination.movingTarget;
-        var source = findNearestSource(creep.pos);
+        source = findNearestSource(creep.pos);
         if (!source) {
             return;
         }
@@ -191,7 +192,7 @@ Creep.prototype.fillCourier = function () {
     } else if (res !== OK) {
         console.log('error filling courier ' + creep.name + ':' + strerror(res));
     }
-}
+};
 
 Creep.prototype.upgradeCourier = function () {
     var creep = this;
@@ -217,7 +218,7 @@ Creep.prototype.upgradeCourier = function () {
         creep.memory.destination.then = 'fillCourier';
         creep.setAndRun('gotoThen');
     }
-}
+};
 
 Creep.prototype.runCourier = function () {
     var creep = this;
@@ -245,7 +246,7 @@ Creep.prototype.runCourier = function () {
         creep.memory.pq = new PriorityQueue(creep.memory.pq).queue(0, site.id);
     }
     
-    return;
-}
+    
+};
 
 module.exports = {};
