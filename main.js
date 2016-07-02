@@ -6,7 +6,7 @@ require('roomPlanner');
 
 require('init');
 var PriorityQueue = require('pqueue');
-
+var gc = require('garbagecollector');
 
 // Process the creeps
 var builder = require('builder');
@@ -23,7 +23,7 @@ var tower = require('tower');
 module.exports.loop = function () {
 
 	// Cleanup dead objects
-	require('garbagecollector');
+	gc();
 	Memory.constructionSites = Game.constructionSites;
 	for (var name in Game.creeps) {
 		var creep = Game.creeps[name];
@@ -66,6 +66,11 @@ module.exports.loop = function () {
 		population(Game.spawns[name]);
 	}
 
+	Object.keys(Game.rooms).forEach(function (name) {
+		var room = Game.rooms[name];
+		room.memory.warZone = room.getCentroid(room.find(FIND_HOSTILE_CREEPS));
+	});
+	
 	Object.keys(Game.rooms).forEach(function (name) {
 		Game.rooms[name].plan();
 	});

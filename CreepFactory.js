@@ -7,6 +7,12 @@
  * mod.thing == 'a thing'; // true
  */
 
+var cat = function (arr, el) {
+	arr.push(el);
+
+	return arr;
+};
+
 Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 	
 	extras = extras || [];
@@ -35,7 +41,7 @@ Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 	}
 	
 	// make sure room can support this creep
-	if (bodyCost(body) > this.room.energyCapacityAvailable && body.length < MAX_CREEP_SIZE) {
+	if (bodyCost(body) > this.room.energyCapacityAvailable) {
 		body.pop();
 	}
 	

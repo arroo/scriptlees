@@ -9,6 +9,11 @@
 var findClosestEmptyAdjacent = function (pos) {
 
 };
+
+var cat = function (arr, el) {
+	arr.push(el);
+	return arr;
+};
 var strerror = function (errno) {
 
 	switch (errno) {
@@ -61,5 +66,6 @@ var strerror = function (errno) {
 };
 
 module.exports = {
-	'strerror': strerror
+	'strerror': strerror,
+	'cat': cat
 };

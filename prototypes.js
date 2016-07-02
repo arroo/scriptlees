@@ -115,4 +115,51 @@ Creep.prototype.gotoThen = function () {
 	
 };
 
+Room.prototype.findCircumCentre = function (things) {
+
+
+};
+
+Room.prototype.findIncentre = function (things) {
+
+};
+
+Room.prototype.findCentroid = function (things) {
+	var room = this;
+	var poses = things.reduce(function (arr, thing) {
+
+		var pos;
+		// try to coerce thing to be a room position
+		if (typeof thing === 'undefined') {
+			return arr;
+		} else if (thing instanceof RoomPosition) {
+			pos = thing;
+		} else if (typeof thing === 'object' && typeof thing.x === 'number' && typeof thing.y === 'number') {
+			pos = room.getPositionAt(thing.x, thing.y);
+		}
+
+		if (pos) {
+			arr.push(pos);
+		}
+
+		return arr;
+	}, [])
+	.filter(pos => p.roomName === this.name);
+
+	if (!poses.length) {
+		return;
+	}
+
+	var maxX, maxY;
+	maxX = poses.reduce((t, p) => t + p.x, 0);
+	maxY = poses.reduce((t, p) => t + p.y, 0);
+
+	var avgX = Math.floor(maxX/poses.length);
+	var avgY = Math.floor(maxY/poses.length);
+
+	var centroid = this.getPositionAt(avgX, avgY);
+
+	return centroid;
+};
+
 module.exports = {};
