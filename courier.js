@@ -102,10 +102,22 @@ Creep.prototype.movingTargetCourier = function () {
     
     target = creep.pos.findClosestByPath(sinks);
 
+	// try to find a construction site to dump into a container near
+	if (!target) {
+		var site = creep.room.find(FIND_MY_CONSTRUCTION_SITES).sort(s => s.progressTotal / s.progress)[0];
+
+		if (site) {
+			target = site.pos.findClosestByRange(FIND_STRUCTURES, {filter: s => s.structureType === STRUCTURE_CONTAINER && s.id !== creep.memory.destination.source && _.sum(s.store) + creep.carry[RESOURCE_ENERGY] <= s.storeCapacity });
+		}
+	}
+
     if (!target) {
         //console.log('builder found moving target: controller')
         creep.memory.destination.then = 'upgradeCourier';
         creep.memory.destination.range = 3;
+
+
+
         target = creep.room.find(FIND_MY_CONSTRUCTION_SITES)[0];
     } else {
         creep.memory.site = target.id;

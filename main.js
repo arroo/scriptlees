@@ -59,7 +59,7 @@ module.exports.loop = function () {
 		Memory.makeTempMinions = true;
 	}
 	// process all structures that have something to do
-	Object.keys(Games.structures).forEach(id => Game.structures[id].run && Game.structures[id].run());
+	Object.keys(Game.structures).forEach(id => Game.structures[id].run && Game.structures[id].run());
 	// Process the spawns
 	
 	for(var name in Game.spawns) {

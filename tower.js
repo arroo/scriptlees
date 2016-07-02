@@ -1,5 +1,5 @@
 
-var doAction = function (action, target) {
+StructureTower.prototype.doAction = function (action, target) {
 	if (target) {
 		this[action](target);
 		return true;
@@ -8,25 +8,30 @@ var doAction = function (action, target) {
 };
 
 StructureTower.prototype.doAttacks = function () {
-	return doAction('attack', this.room.find(FIND_HOSTILE_CREEPS).sort(c => c.hits)[0]);
+	return this.doAction('attack', this.room.find(FIND_HOSTILE_CREEPS).sort(c => c.hits)[0]);
 };
 
 StructureTower.prototype.doRepairs = function () {
-	return doAction('repair', this.room.find(FIND_MY_STRUCTURES, {filter: c => c.hits < c.hitsMax}).sort(s => s.hitsMax / s.hits)[0]) ||
-		doAction('repair', this.room.find(FIND_STRUCTURES, {filter: c => c.hits < c.hitsMax}).sort(s => s.hitsMax / s.hits)[0]);
+	return this.doAction('repair', this.room.find(FIND_MY_STRUCTURES, {filter: c => c.hits < c.hitsMax}).sort(s => s.hitsMax / s.hits)[0]) ||
+		this.doAction('repair', this.room.find(FIND_STRUCTURES, {filter: c => c.hits < c.hitsMax}).sort(s => s.hitsMax / s.hits)[0]);
 };
 
 StructureTower.prototype.doHeals = function () {
-	return doAction('heal', this.pos.findClosestByRange(FIND_MY_CREEPS, {filter: c => c.hits < c.hitsMax}));
+	return this.doAction('heal', this.pos.findClosestByRange(FIND_MY_CREEPS, {filter: c => c.hits < c.hitsMax}));
 };
 
 StructureTower.prototype.doTriage = function () {
-	return doAction('heal', this.room.warZone.pos.find(FIND_MY_CREEPS, {filter: c => c.hits < c.hitsMax}).sort(c => c.hits)[0]);
+	return this.doAction('heal', this.room.warZone.pos.find(FIND_MY_CREEPS, {filter: c => c.hits < c.hitsMax}).sort(c => c.hits)[0]);
 };
 
 StructureTower.prototype.run = function () {
 
-	(this.room.warZone && (this.doAttacks() || this.doTriage())) || this.doRepairs() || this.doHeals();
+	try {
+		(this.room.warZone && (this.doAttacks() || this.doTriage())) || this.doRepairs() || this.doHeals();
+
+	} catch (error) {
+		console.log('tower ' + this.id + ' run error:', error);
+	}
 
 	return;
 	if (this.room.memory.warZone) {
