@@ -7,12 +7,12 @@ var needsRepair = function (thing) {
 	
 };
 
-var howDamaged = function (thing) {
-	return thing.hits / thing.hitsMax;
+var howDamaged = function (a, b) {
+	return (b.hits / b.hitsMax) - (a.hits / a.hitsMax);
 };
 
-var howDead = function (thing) {
-	return thing.hits;
+var howDead = function (a, b) {
+	return a.hits - b.hits;
 };
 
 StructureTower.prototype.doAction = function (action, target) {

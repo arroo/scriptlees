@@ -27,7 +27,7 @@ module.exports.loop = function () {
 	Memory.constructionSites = Game.constructionSites;
 
 	Object.keys(Game.creeps).forEach(function (name) {
-		var creep = Game.creep[name];
+		var creep = Game.creeps[name];
 		creep.memory.lastPos = creep.pos;
 		try {
 			creep.run();
