@@ -10,8 +10,10 @@
 var flags = require('flags');
 var PriorityQueue = require('pqueue');
 
-module.exports = function(spawn) {
+module.exports = {};
+Spawn.prototype.population = function() {
 //return;
+	var spawn = this;
 	if (spawn.spawning) {
 		return;
 	}
@@ -44,39 +46,6 @@ module.exports = function(spawn) {
 	spawn.memory.pq = pq;
 	
 //    console.log('after spawn loop:' + JSON.stringify(spawn.memory.pq));
-	return;
-	// Ensure each creep role is above its minimum population level in an area around each spawn
-	var roles = ['harvester', 'builder', 'guard', 'healer', 'upgrader'];
-	for(var i in roles) {
-		continue;
-		var role = roles[i];
-		var creeps = spawn.pos.findInRange(FIND_MY_CREEPS, spawn.memory.populationRange, { filter: function(creep){if(creep.memory && creep.memory.role) return creep.memory.role === role; else return false;} });
-		
-		if (creeps.length < spawn.memory.minPopulation[role]) {
-			// Missing creeps, spawn them
-			//console.log('attempting to make a(n) ' + role + ', have ' + creeps.length + ' need ' + spawn.memory.minPopulation[role]);
-			var mem = {};
-			mem.role = role;
-			var ret = spawn.createCreep(spawn.memory.creepSpecs[role], undefined, mem);
-			
-			if(_.isString(ret)) {
-				console.log('new ' + role + ':' + ret);
-			} else {
-			
-				switch (ret) {
-					case ERR_BUSY:
-					case OK:
-					case ERR_NOT_ENOUGH_ENERGY:
-						break;
-					default:
-						console.log('could not spawn ' + role + ':', ret);
-						break;
-				}
-			}
-			return;
-		}
-	}
 	
-	var madeMiner = spawn.room.find(FIND_FLAGS, { 'filter' : flags.isSourceClosure(RESOURCE_ENERGY)});
 };
 

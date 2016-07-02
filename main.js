@@ -25,15 +25,16 @@ module.exports.loop = function () {
 	// Cleanup dead objects
 	gc();
 	Memory.constructionSites = Game.constructionSites;
-	for (var name in Game.creeps) {
-		var creep = Game.creeps[name];
+
+	Object.keys(Game.creeps).forEach(function (name) {
+		var creep = Game.creep[name];
 		creep.memory.lastPos = creep.pos;
-			try {
-				creep.run();
-			} catch (error) {
-				console.log(creep.memory.genesis + ' ' + name + ' error:', error);
-		   }
-	}
+		try {
+			creep.run();
+		} catch (error) {
+			console.log(creep.memory.genesis + ' ' + name + ' run error:', error);
+		}
+	});
 
 	
 	Game.spawns.Spawn1.memory.pq = Memory.minionsToMake.reduce(function (pq, genesis) {
@@ -62,13 +63,18 @@ module.exports.loop = function () {
 	Object.keys(Game.structures).forEach(id => Game.structures[id].run && Game.structures[id].run());
 	// Process the spawns
 	
-	for(var name in Game.spawns) {
-		population(Game.spawns[name]);
-	}
+	Object.keys(Game.spawns).forEach(function (name) {
+		var spawn = Game.spawns[name];
+		spawn.population();
+	});
 
 	Object.keys(Game.rooms).forEach(function (name) {
 		var room = Game.rooms[name];
 		room.memory.warZone = room.findCentroid(room.find(FIND_HOSTILE_CREEPS));
+		if (room.memory.warZone) {
+			console.log('room ' + name + ' warzone:[' + room.memory.warZone.x + ', ' + room.memory.warZone.y + ']');
+		}
+		room.moveWarFlag();
 	});
 	
 	Object.keys(Game.rooms).forEach(function (name) {

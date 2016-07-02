@@ -48,6 +48,34 @@ var makeSource = function (type, room, pos) {
 	
 	return room.createFlag(pos, undefined, combos[type][0], combos[type][1]);
 };
+RoomPosition.prototype.createComboFlag = function (name, combo) {
+	return this.createFlag(name, combo[0], combo[1]);
+};
+
+Room.prototype.moveWarFlag = function () {
+	var room = this;
+	var flag;
+	if (!room.memory.warZone) {
+		if (room.memory.warFlag) {
+			flag = Game.flags[room.memory.warFlag];
+			if (flag) {
+				flag.remove();
+			}
+		}
+		return;
+	}
+
+	flag = Game.flags[room.memory.warFlag];
+	var warZone = room.getPositionAt(room.memory.warZone.x, room.memory.warZone.y);
+
+	if (!flag) {
+		room.memory.warFlag = warZone.createComboFlag('INTRUDERS', combos['warZone']);
+		return;
+	}
+
+	flag.setPosition(warZone);
+	
+};
 
 Creep.prototype.moveRoleFlag = function () {
 	this.memory.flags = this.memory.flags || {};
