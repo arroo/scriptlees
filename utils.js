@@ -106,7 +106,7 @@ var allPairs = function (arr, fn) {
 // this is the meat of finding minimum spanning trees
 var findMinSpanningTreeSingleRoom = function (positions) {
 
-	var seen;
+	var seen = {};
 	var weights = {};
 	var posArray = positions.reduce((a, p) => {a.push(a.length); return a}, []);
 	allPairs(posArray, function (a, b) {
@@ -122,7 +122,7 @@ var findMinSpanningTreeSingleRoom = function (positions) {
 
 	// get weights for each vertex
 	allPairs(posArray, function (a, b) {
-		if (seen[a][b] || seen[j][b]) {
+		if (seen[a][b] || seen[b][a]) {
 			return;
 		}
 
@@ -142,11 +142,11 @@ var findMinSpanningTreeSingleRoom = function (positions) {
 
 		var weight = path.length;
 
-		weight[a][b] = weight[b][a] = weight;
+		weights[a][b] = weights[b][a] = weight;
 	});
 
 	// flatten pairings to weights
-	var sortedWeightPairings = Object.keys(weight).reduce(function (arr, a) {
+	var sortedWeightPairings = Object.keys(weights).reduce(function (arr, a) {
 
 		arr = Object.keys(weights[a]).reduce(function (arr, b) {
 			var weightObj = {};
@@ -161,11 +161,33 @@ var findMinSpanningTreeSingleRoom = function (positions) {
 		return arr;
 	}, []).sort((a, b) => a.weight - b.weight);
 
-	var mst = sortedWeightPairings.reduce(function (mst, weightObj) {
-		console.log(weightObj);
+	var nodesSeen = [posArray.pop()];
+	var mst = {};
+	while (posArray.length) {
+		for (var i = 0; i < sortedWeightPairings.length; i++) {
+			var a = sortedWeightPairings[i].a;
+			var b = sortedWeightPairings[i].b;
+			var newNode;
+			if (nodesSeen.indexOf(a) > -1 && nodesSeen.indexOf(b) == -1) {
+				newNode = b;
+			}
+			if (nodesSeen.indexOf(b) > -1 && nodesSeen.indexOf(a) == -1) {
+				newNode = a;
+			}
 
-		return mst;
-	}, {});
+			if (newNode) {
+				mst[a] = mst[a] || {};
+				mst[a][b] = sortedWeightPairings[i].weight;
+				mst[b] = mst[b] || {};
+				mst[b][a] = sortedWeightPairings[i].weight;
+
+				// this only works if the whole graph is directed
+				nodesSeen.push(posArray.splice(newNode, 1));
+				break;
+			}
+		}
+
+	}
 
 	return mst;
 };
