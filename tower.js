@@ -24,13 +24,36 @@ StructureTower.prototype.doAction = function (action, target, amount) {
 };
 
 StructureTower.prototype.doAttacks = function () {
-	return this.doAction('attack', _.min(this.room.find(FIND_HOSTILE_CREEPS), howDead)) ||
-		this.doAction('attack', _.min(this.room.find(FIND_HOSTILE_STRUCTURES), howDead));
+
+	var target = _.min(this.room.find(FIND_HOSTILE_CREEPS), howDead);
+	if (target === Infinity) {
+		target = undefined;
+	}
+
+	if (!target) {
+		target = _.min(this.room.find(FIND_HOSTILE_STRUCTURES), howDead);
+	}
+	if (target === Infinity) {
+		target = undefined;
+	}
+
+	return this.doAction('attack', target);
 };
 
 StructureTower.prototype.doRepairs = function () {
-	return this.doAction('repair', _.min(this.room.find(FIND_MY_STRUCTURES, {filter: needsRepair}), howDamaged)) ||
-		this.doAction('repair', _.min(this.room.find(FIND_STRUCTURES, {filter: needsRepair}), howDamaged));
+	var target = _.min(this.room.find(FIND_MY_STRUCTURES, {filter: needsRepair}), howDamaged);
+	if (target === Infinity) {
+		target = undefined;
+	}
+
+	if (!target) {
+		target = _.min(this.room.find(FIND_STRUCTURES, {filter: needsRepair}), howDamaged);
+	}
+	if (target === Infinity) {
+		target = undefined;
+	}
+
+	return this.doAction('repair', target);
 };
 
 StructureTower.prototype.doHeals = function () {
@@ -38,7 +61,11 @@ StructureTower.prototype.doHeals = function () {
 };
 
 StructureTower.prototype.doTriage = function () {
-	return this.doAction('heal', _.min(this.room.warZone.pos.find(FIND_MY_CREEPS, {filter: needsRepair}), howDamaged));
+	var target = _.min(this.room.warZone.pos.find(FIND_MY_CREEPS, {filter: needsRepair}), howDamaged);
+	if (target === Infinity) {
+		target = undefined;
+	}
+	return this.doAction('heal', target);
 };
 
 StructureTower.prototype.run = function () {
