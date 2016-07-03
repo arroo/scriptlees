@@ -17,47 +17,19 @@ var findNearestSource = function (pos) {
 	var sources = [];
 	
 	sources = room.find(FIND_DROPPED_RESOURCES, {filter: {resourceType:RESOURCE_ENERGY}}).reduce(cat, sources);
-	sources = room.find(FIND_STRUCTURES, {filter:function(structure){return structure.structureType===STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY]}}).reduce(cat, sources);
-	
-	sources = _.sortBy(sources, function (source) {
-		var energy;
-		
-		if (source.store && source.store[RESOURCE_ENERGY]) {
-			energy = source.store[RESOURCE_ENERGY];
-		} else if (source.amount) {
-			energy = source.amount;
-		}
-		
-		return -energy;
-	});
-	
-	var target = sources.reduce(function (obj, source) {
-		if (obj) {
-			return obj;
-		}
-		
-		if (pos.findPath(source)) {
-			return source;
-		}
-	});
-	
-	
-	if (target) {
-		return target;
+	sources = room.find(FIND_STRUCTURES, {filter:s=> (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) && s.store[RESOURCE_ENERGY]}).reduce(cat, sources);
+
+	if (!sources.length) {
+		sources = room.find(FIND_SOURCES, {filter : s => s.energy}).reduce(cat, sources);
 	}
 	
-	if (!target) {
-		sources = room.find(FIND_SOURCES).reduce(cat, sources);
-		sources = room.find(FIND_DROPPED_RESOURCES, {filter: {resourceType:RESOURCE_ENERGY}}).reduce(cat, sources);
-		target = pos.findClosestByPath(sources);
-	}
-	
-	return target;
+	return pos.findClosestByRange(sources);
+
 };
 
 Spawn.prototype.makeBuilder = function (init) {
 	init = init || {};
-	var mem = init.mem || {};
+	var mem = {};
 	mem.pq = init.pq;
 	mem.run = 'gotoThen';
 	mem.state = FILLING;
@@ -75,8 +47,8 @@ Spawn.prototype.makeBuilder = function (init) {
 	mem.destination = destinationInfo;
 
 	var body = [MOVE, WORK, CARRY]; // bare minimum creep body definition
-	var extras = [];
-	var bonus = [];
+	var extras = [MOVE, WORK, CARRY];
+	var bonus = [MOVE, WORK, CARRY];
 	var extraBonus = [MOVE, WORK, MOVE, CARRY];
 	
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);

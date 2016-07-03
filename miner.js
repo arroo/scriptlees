@@ -16,7 +16,7 @@ var DROPPING = 2;
 
 Spawn.prototype.makeMiner = function (init) {
 	init = init || {};
-	var mem = init.mem || {};
+	var mem = {};
 	mem.flag = init.flag;
 	mem.run = 'gotoThen';
 	mem.state = MINING;
@@ -65,7 +65,7 @@ Spawn.prototype.makeMiner = function (init) {
 	var body = [MOVE, WORK, CARRY]; // bare minimum creep body definition
 	var extras = [WORK, WORK, WORK, WORK];
 	var bonus = [MOVE, MOVE, MOVE, MOVE];
-	var extraBonus = [TOUGH];
+	var extraBonus = [];
 	
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);
 };

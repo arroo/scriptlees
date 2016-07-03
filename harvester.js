@@ -24,7 +24,7 @@ var findNearestSource = function (pos) {
 
 Spawn.prototype.makeHarvester = function (init) {
 	init = init || {};
-	var mem = init.mem || {};
+	var mem = {};
 	mem.pq = init.pq;
 	mem.run = 'gotoThen';
 	mem.state = FILLING;

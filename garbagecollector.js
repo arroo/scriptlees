@@ -15,6 +15,12 @@ var gc = function () {
 			var mem = Memory.creeps[name];
 			console.log('clearing memory for defunct ' + mem.genesis + ' ' + name);
 
+			if (mem.signalledDemise) {
+				console.log(mem.genesis + ' ' + name + ' already signalled death, deleting memory');
+				delete Memory.creeps[name];
+				continue;
+			}
+			
 			if (mem.flags && mem.flags.role) {
 				try {
 					Game.flags[mem.flags.role].remove();

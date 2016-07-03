@@ -29,10 +29,37 @@ Creep.prototype.setAndRun = function (fn) {
 	this.setRun(fn).run();
 };
 
+Room.prototype.openSpotsClosest = function (obj) {
+	this.memory.spots2 = this.memory.spots2 || {};
+	var posString = obj.pos.x + ',' + obj.pos.y;
+	var range = 0;
+	while (!this.memory.spots2[posString]) {
+		
+		var pp = obj.pos;
+
+		var openSpots = this.lookAtArea(pp.y-range,pp.x-range,pp.y+range,pp.x+range, true)
+		.filter(function (areaObj) {
+			return areaObj.type=='terrain' && (areaObj.terrain=='plain' || areaObj.terrain=='swamp');
+		})
+		.map(function (areaInfo) {
+			return new RoomPosition(areaInfo.x, areaInfo.y, that.name)
+		});
+		
+		if (openSpots.length) {
+			this.memory.spots2[posString] = openSpots;
+		}
+		
+		range++;
+	}
+	
+	return this.memory.spots2[posString];
+};
+
 Room.prototype.openSpotsNear = function(obj) {
 	Memory.rooms[this.name].spots = Memory.rooms[this.name].spots || {};
 	var that = this;
-	if(!Memory.rooms[this.name].spots[obj.id]) {
+	var posString = obj.pos.x + ',' + obj.pos.y;
+	if(!Memory.rooms[this.name].spots[posString]) {
 		let pp = obj.pos;
 		
 		var openSpots = this.lookAtArea(pp.y-1,pp.x-1,pp.y+1,pp.x+1, true)
@@ -45,7 +72,7 @@ Room.prototype.openSpotsNear = function(obj) {
 		
 		Memory.rooms[this.name].spots[obj.id] = openSpots;
 	}
-	return Memory.rooms[this.name].spots[obj.id];
+	return Memory.rooms[this.name].spots[posString];
 };
 
 Room.prototype.init = function () {
@@ -120,7 +147,10 @@ Room.prototype.findIncentre = function (things) {
 
 };
 
-var parseRoomName = function (name) {
+Room.prototype.parseRoomName = function () {
+
+	var name = this.name;
+
 	var ret = {
 		ud: '',
 		lr: '',
@@ -160,8 +190,8 @@ Room.prototype.isAdjacentRoom = function (room) {
 		return false;
 	}
 
-	var myInfo = parseRoomName(this.name);
-	var testInfo = parseRoomName(room.name);
+	var myInfo = this.parseRoomName();
+	var testInfo = room.parseRoomName();
 
 	if (myInfo.ud !== testInfo.ud) {
 		testInfo.y = 0 - (testInfo.y + 1);

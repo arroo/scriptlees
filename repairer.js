@@ -33,7 +33,7 @@ var findNearestSource = function (pos) {
 
 Spawn.prototype.makeRepairer = function (init) {
 	init = init || {};
-	var mem = init.mem || {};
+	var mem = {};
 	mem.pq = init.pq;
 	mem.run = 'gotoThen';
 	mem.state = FILLING;

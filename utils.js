@@ -86,6 +86,13 @@ var coerceToPositions = function (things) {
 		}
 
 		if (pos) {
+
+			if (thing.id) {
+				pos.oid = thing.id;
+			} else if (thing.name) {
+				pos.oname = thing.name;
+			}
+
 			arr.push(pos);
 		}
 
@@ -161,33 +168,42 @@ var findMinSpanningTreeSingleRoom = function (positions) {
 		return arr;
 	}, []).sort((a, b) => a.weight - b.weight);
 
-	var nodesSeen = [posArray.pop()];
+	var nodesSeen = {};
+	nodesSeen[posArray[0]] = true;
+	var notInf = posArray.length+1;
 	var mst = {};
-	while (posArray.length) {
-		for (var i = 0; i < sortedWeightPairings.length; i++) {
-			var a = sortedWeightPairings[i].a;
-			var b = sortedWeightPairings[i].b;
-			var newNode;
-			if (nodesSeen.indexOf(a) > -1 && nodesSeen.indexOf(b) == -1) {
+	while (posArray.length !== Object.keys(nodesSeen).length && notInf--) {
+
+		for (let i = 0; i < sortedWeightPairings.length; i++) {
+			var a = Number(sortedWeightPairings[i].a);
+			var b = Number(sortedWeightPairings[i].b);
+			let newNode;
+			if (nodesSeen[a] && !nodesSeen[b]) {
+
 				newNode = b;
 			}
-			if (nodesSeen.indexOf(b) > -1 && nodesSeen.indexOf(a) == -1) {
+			if (nodesSeen[b] && !nodesSeen[a]) {
 				newNode = a;
 			}
 
+
 			if (newNode) {
+
 				mst[a] = mst[a] || {};
 				mst[a][b] = sortedWeightPairings[i].weight;
 				mst[b] = mst[b] || {};
 				mst[b][a] = sortedWeightPairings[i].weight;
 
-				// this only works if the whole graph is directed
-				nodesSeen.push(posArray.splice(newNode, 1));
+				// this only works if the whole graph is connected
+				nodesSeen[newNode] = true;
 				break;
+			} else {
+
 			}
 		}
 
 	}
+
 
 	return mst;
 };
@@ -200,18 +216,35 @@ var findMinSpanningTree = function (things) {
 		return obj;
 	}, {});
 
+	var adjacentRooms = [];
+
 	allPairs(Object.keys(roomPositions), function (a, b) {
 		if (Game.rooms[a].isAdjacentRoom(Game.rooms[b])) {
-			roomPositions[a].push(Game.rooms[b].getPositionAt(25,25));
+			roomPositions[a].push(Game.rooms[b].openSpotsClosest(Game.rooms[b].getPositionAt(25,25)));
+			adjacentRooms.push([a, b]);
 		}
 	});
 
+	// find mst for each room
 	var roomMSTs = 	Object.keys(roomPositions).reduce(function (mst, name) {
 		
 		mst[name] = findMinSpanningTreeSingleRoom(roomPositions[name]);
 
 		return mst;
 	}, {});
+
+	// combine adjacent rooms to get full map
+	adjacentRooms.forEach(function (a, b) {
+		var aLink = roomPositions[a].reduce(function (obj, pos) {
+			if (obj) {
+				return obj;
+			}
+
+			obj = 1;
+
+			return obj;
+		});
+	});
 
 	console.log(JSON.stringify(roomMSTs));
 
