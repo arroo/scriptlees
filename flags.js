@@ -13,6 +13,28 @@
 var combos = {};
 combos[RESOURCE_ENERGY] = [COLOR_GREEN, COLOR_YELLOW];
 
+combos[STRUCTURE_CONTAINER] = [COLOR_BROWN, COLOR_RED];
+combos[STRUCTURE_CONTROLLER] = [COLOR_BROWN, COLOR_WHITE];
+combos[STRUCTURE_EXTENSION] = [COLOR_BROWN, COLOR_CYAN];
+combos[STRUCTURE_EXTRACTOR] = [COLOR_BROWN, COLOR_PURPLE];
+combos[STRUCTURE_KEEPER_LAIR] = [COLOR_BROWN, COLOR_BLUE];
+combos[STRUCTURE_LAB] = [COLOR_BROWN, COLOR_GREEN];
+combos[STRUCTURE_LINK] = [COLOR_BROWN, COLOR_YELLOW];
+combos[STRUCTURE_NUKER] = [COLOR_BROWN, COLOR_ORANGE];
+combos[STRUCTURE_OBSERVER] = [COLOR_BROWN, COLOR_BROWN];
+combos[STRUCTURE_POWER_BANK] = [COLOR_BROWN, COLOR_GREY];
+
+combos[STRUCTURE_POWER_SPAWN] = [COLOR_ORANGE, COLOR_WHITE];
+combos[STRUCTURE_PORTAL] = [COLOR_ORANGE, COLOR_BLUE];
+combos[STRUCTURE_RAMPART] = [COLOR_ORANGE, COLOR_CYAN];
+combos[STRUCTURE_ROAD] = [COLOR_ORANGE, COLOR_RED];
+combos[STRUCTURE_SPAWN] = [COLOR_ORANGE, COLOR_GREEN];
+combos[STRUCTURE_STORAGE] = [COLOR_ORANGE, COLOR_BROWN];
+combos[STRUCTURE_TERMINAL] = [COLOR_ORANGE, COLOR_GREY];
+combos[STRUCTURE_TOWER] = [COLOR_ORANGE, COLOR_YELLOW];
+combos[STRUCTURE_WALL] = [COLOR_ORANGE, COLOR_ORANGE];
+
+
 // role flags
 combos['makeMelee'] = [COLOR_GREY, COLOR_RED];
 combos['makeRanged'] = [COLOR_GREY, COLOR_BLUE];
@@ -50,6 +72,22 @@ var makeSource = function (type, room, pos) {
 	
 	return room.createFlag(pos, undefined, combos[type][0], combos[type][1]);
 };
+
+Flag.prototype.isBuilding = function (structureType) {
+	var combo = combos[structureType];
+	if (!combo) {
+		return false;
+	}
+
+	return this.color === combo[0] && this.secondaryColor === combo[1];
+};
+
+Flag.prototype.isAnyBuilding = function () {
+
+	return (this.color === COLOR_BROWN || this.color === COLOR_ORANGE && this.secondaryColor !== COLOR_PURPLE);
+
+};
+
 RoomPosition.prototype.createComboFlag = function (name, combo) {
 	return this.createFlag(name, combo[0], combo[1]);
 };

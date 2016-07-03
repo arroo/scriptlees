@@ -20,6 +20,9 @@ var courier = require('courier');
 var repairer = require('repairer');
 var tower = require('tower');
 
+var utils = require('utils');
+var strerror = utils.strerror;
+
 module.exports.loop = function () {
 
 	// Cleanup dead objects
@@ -76,6 +79,26 @@ module.exports.loop = function () {
 		}
 		room.moveWarFlag();
 	});
+	
+	if (Memory.testMST) {
+		delete Memory.testMST;
+
+		let mstTestFlags = [
+			Game.flags.TESTA,
+			Game.flags.TESTB,
+			Game.flags.TESTC,
+			Game.flags.TESTD
+		];
+
+		console.log('attempting to find MST of positions:' + mstTestFlags.map(f => '[' + f.pos.x + ',' + f.pos.y + ']').join(','));
+		var testMST = {};
+		try {
+			testMST = utils.findMinSpanningTree(mstTestFlags);
+		} catch (error) {
+			console.log('testMST failed:', strerror(error));
+		}
+		console.log('got test mst:' + JSON.stringify(testMST));
+	}
 	
 	Object.keys(Game.rooms).forEach(function (name) {
 		Game.rooms[name].plan();
