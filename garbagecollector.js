@@ -49,9 +49,9 @@ var gc = function () {
 
 			var priority;
 			if (init.genesis === 'makeMiner') {
-				priority = 1;
+				priority = 0;
 			} else {
-				priority = 3;
+				priority = 0;
 			}
 			spawn.memory.pq = new PriorityQueue(spawn.memory.pq).queue(priority, init);
 			console.log('recycled ' + mem.genesis + ' ' + name + ' at ' + spawn.name);

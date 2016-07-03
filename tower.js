@@ -7,12 +7,12 @@ var needsRepair = function (thing) {
 	
 };
 
-var howDamaged = function (a, b) {
-	return (b.hits / b.hitsMax) - (a.hits / a.hitsMax);
+var howDamaged = function (a) {
+	return a.hits / a.hitsMax;
 };
 
-var howDead = function (a, b) {
-	return a.hits - b.hits;
+var howDead = function (a) {
+	return a.hits;
 };
 
 StructureTower.prototype.doAction = function (action, target, amount) {
@@ -23,32 +23,14 @@ StructureTower.prototype.doAction = function (action, target, amount) {
 	return false;
 };
 
-var notNearMeNeedsEnergy = function (creep) {
-	switch (creep.memory.genesis) {
-		case 'makeBuilder':
-		case 'makeRepairer':
-			break;
-		default:
-			return false;
-	}
-	if (creep.pos.isNearTo(this)) {
-		return false;
-	}
-	return creep.carry[RESOURCE_ENERGY] < creep.carryCapacity;
-};
-
-var howEmpty = function (a, b) {
-	return (b.carry[RESOURCE_ENERGY] / b.carryCapacity) - (a.carry[RESOURCE_ENERGY] / a.carryCapacity);
-};
-
 StructureTower.prototype.doAttacks = function () {
-	return this.doAction('attack', this.room.find(FIND_HOSTILE_CREEPS).sort(howDead)[0]) ||
-		this.doAction('attack', this.room.find(FIND_HOSTILE_STRUCTURES).sort(howDead)[0]);
+	return this.doAction('attack', _.min(this.room.find(FIND_HOSTILE_CREEPS), howDead)) ||
+		this.doAction('attack', _.min(this.room.find(FIND_HOSTILE_STRUCTURES), howDead));
 };
 
 StructureTower.prototype.doRepairs = function () {
-	return this.doAction('repair', this.room.find(FIND_MY_STRUCTURES, {filter: needsRepair}).sort(howDamaged).reverse()[0]) ||
-		this.doAction('repair', this.room.find(FIND_STRUCTURES, {filter: needsRepair}).sort(howDamaged).reverse()[0]);
+	return this.doAction('repair', _.min(this.room.find(FIND_MY_STRUCTURES, {filter: needsRepair}), howDamaged)) ||
+		this.doAction('repair', _.min(this.room.find(FIND_STRUCTURES, {filter: needsRepair}), howDamaged));
 };
 
 StructureTower.prototype.doHeals = function () {
@@ -56,17 +38,13 @@ StructureTower.prototype.doHeals = function () {
 };
 
 StructureTower.prototype.doTriage = function () {
-	return this.doAction('heal', this.room.warZone.pos.find(FIND_MY_CREEPS, {filter: needsRepair}).sort(howDamaged).reverse()[0]);
-};
-
-StructureTower.prototype.doXfers = function () {
-	return this.doAction('transferEnergy', this.room.find(FIND_MY_CREEPS, {filter: notNearMeNeedsEnergy.bind(this)}).sort(howEmpty).reverse()[0]);
+	return this.doAction('heal', _.min(this.room.warZone.pos.find(FIND_MY_CREEPS, {filter: needsRepair}), howDamaged));
 };
 
 StructureTower.prototype.run = function () {
 
 	try {
-		(this.room.memory.warZone && (this.doAttacks() || this.doTriage())) || this.doRepairs() || this.doHeals() || this.doXfers();
+		(this.room.memory.warZone && (this.doAttacks() || this.doTriage())) || this.doRepairs() || this.doHeals();
 
 	} catch (error) {
 		console.log('tower ' + this.id + ' run error:', error);

@@ -24,6 +24,8 @@ combos['makeCourier'] = [COLOR_GREY, COLOR_WHITE];
 combos['makeUpgrader'] = [COLOR_GREY, COLOR_PURPLE];
 combos['makeUnknown'] = [COLOR_GREY, COLOR_GREY];
 
+combos['warZone'] = [COLOR_RED, COLOR_YELLOW];
+
 var isSourceClosure = function (type) {
 	var closure = function (flag) {
 		return isSource(flag, type);

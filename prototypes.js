@@ -34,10 +34,6 @@ Room.prototype.openSpotsNear = function(obj) {
 	if(!Memory.rooms[this.name].spots[obj.id]) {
 		let pp = obj.pos;
 		let res = this.lookAtArea(pp.y-1,pp.x-1,pp.y+1,pp.x+1);
-		var t =  _(res)
-			.map(function(r) {return _.map(r);})
-			.flatten().flatten()
-			.filter(function(t) {return t.type=='terrain' && (t.terrain=='plain' || t.terrain=='swamp');});
 		
 		var openSpots = this.lookAtArea(pp.y-1,pp.x-1,pp.y+1,pp.x+1, true)
 		.filter(function (areaObj) {
@@ -124,9 +120,10 @@ Room.prototype.findIncentre = function (things) {
 
 };
 
-Room.prototype.findCentroid = function (things) {
+Room.prototype.coerceToPositions = function (things) {
 	var room = this;
-	var poses = things.reduce(function (arr, thing) {
+
+	return things.reduce(function (arr, thing) {
 
 		var pos;
 		// try to coerce thing to be a room position
@@ -134,8 +131,14 @@ Room.prototype.findCentroid = function (things) {
 			return arr;
 		} else if (thing instanceof RoomPosition) {
 			pos = thing;
-		} else if (typeof thing === 'object' && typeof thing.x === 'number' && typeof thing.y === 'number') {
-			pos = room.getPositionAt(thing.x, thing.y);
+		} else if (typeof thing === 'object') {
+			if (typeof thing.x === 'number' && typeof thing.y === 'number') {
+				pos = room.getPositionAt(thing.x, thing.y);
+			} else if (thing.pos instanceof RoomPosition) {
+				pos = thing.pos;
+			} else {
+
+			}
 		}
 
 		if (pos) {
@@ -143,8 +146,13 @@ Room.prototype.findCentroid = function (things) {
 		}
 
 		return arr;
-	}, [])
-	.filter(pos => p.roomName === this.name);
+	}, []);
+};
+
+Room.prototype.findCentroid = function (things) {
+	var room = this;
+	var poses = room.coerceToPositions(things)
+	.filter(pos => pos.roomName === room.name);
 
 	if (!poses.length) {
 		return;
@@ -157,7 +165,7 @@ Room.prototype.findCentroid = function (things) {
 	var avgX = Math.floor(maxX/poses.length);
 	var avgY = Math.floor(maxY/poses.length);
 
-	var centroid = this.getPositionAt(avgX, avgY);
+	var centroid = room.getPositionAt(avgX, avgY);
 
 	return centroid;
 };
