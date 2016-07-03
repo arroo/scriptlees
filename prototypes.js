@@ -9,6 +9,7 @@
 
 var flags = require('flags');
 var utils = require('utils');
+var coerceToPositions = utils.coerceToPositions;
 Source.prototype.mineralType = RESOURCE_ENERGY;
 
 Creep.prototype.run = function () {
@@ -33,7 +34,6 @@ Room.prototype.openSpotsNear = function(obj) {
 	var that = this;
 	if(!Memory.rooms[this.name].spots[obj.id]) {
 		let pp = obj.pos;
-		let res = this.lookAtArea(pp.y-1,pp.x-1,pp.y+1,pp.x+1);
 		
 		var openSpots = this.lookAtArea(pp.y-1,pp.x-1,pp.y+1,pp.x+1, true)
 		.filter(function (areaObj) {
@@ -120,39 +120,73 @@ Room.prototype.findIncentre = function (things) {
 
 };
 
-Room.prototype.coerceToPositions = function (things) {
-	var room = this;
+var parseRoomName = function (name) {
+	var ret = {
+		ud: '',
+		lr: '',
+		x:0,
+		y:0
+	};
 
-	return things.reduce(function (arr, thing) {
+	if (name.indexOf('N') > -1) {
+		ret.ud = 'N';
+	}
 
-		var pos;
-		// try to coerce thing to be a room position
-		if (typeof thing === 'undefined') {
-			return arr;
-		} else if (thing instanceof RoomPosition) {
-			pos = thing;
-		} else if (typeof thing === 'object') {
-			if (typeof thing.x === 'number' && typeof thing.y === 'number') {
-				pos = room.getPositionAt(thing.x, thing.y);
-			} else if (thing.pos instanceof RoomPosition) {
-				pos = thing.pos;
-			} else {
+	if (name.indexOf('S') > -1) {
+		ret.ud = 'S';
+	}
 
-			}
-		}
+	if (name.indexOf('E') > -1) {
+		ret.lr = 'E';
+	}
 
-		if (pos) {
-			arr.push(pos);
-		}
+	if (name.indexOf('W') > -1) {
+		ret.lr = 'W';
+	}
 
-		return arr;
-	}, []);
+	var pos = name.slice(1).split(ret.ud);
+	ret.x = pos[0];
+	ret.y = pos[1];
+
+	return ret;
+};
+
+Room.prototype.isAdjacentRoom = function (room) {
+	if (typeof room === 'string') {
+		room = Game.rooms[room];
+	}
+
+	if (!room) {
+		return false;
+	}
+
+	var myInfo = parseRoomName(this.name);
+	var testInfo = parseRoomName(room.name);
+
+	if (myInfo.ud !== testInfo.ud) {
+		testInfo.y = 0 - (testInfo.y + 1);
+	}
+	if (myInfo.lr !== testInfo.lr) {
+		testInfo.x = 0 - (testInfo.x + 1);
+	}
+
+	var dx = Math.abs(myInfo.x - testInfo.x);
+	var dy = Math.abs(myInfo.y - testInfo.y);
+
+	if (dx === 0) {
+		return dy === 1;
+	}
+
+	if (dy === 0) {
+		return dx === 1;
+	}
+
+	return false;
 };
 
 Room.prototype.findCentroid = function (things) {
 	var room = this;
-	var poses = room.coerceToPositions(things)
-	.filter(pos => pos.roomName === room.name);
+	var poses = coerceToPositions(things).filter(pos => pos.roomName === room.name);
 
 	if (!poses.length) {
 		return;

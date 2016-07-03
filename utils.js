@@ -65,7 +65,140 @@ var strerror = function (errno) {
 	}
 };
 
+var coerceToPositions = function (things) {
+
+	return things.reduce(function (arr, thing) {
+
+		var pos;
+		// try to coerce thing to be a room position
+		if (typeof thing === 'undefined') {
+			return arr;
+		} else if (thing instanceof RoomPosition) {
+			pos = thing;
+		} else if (typeof thing === 'object') {
+			if (typeof thing.x === 'number' && typeof thing.y === 'number' && typeof thing.roomName === 'string' && Game.rooms[thing.roomName]) {
+				pos = Game.rooms[thing.roomName].getPositionAt(thing.x, thing.y);
+			} else if (thing.pos instanceof RoomPosition) {
+				pos = thing.pos;
+			} else {
+
+			}
+		}
+
+		if (pos) {
+			arr.push(pos);
+		}
+
+		return arr;
+	}, []);
+};
+
+var allPairs = function (arr, fn) {
+	for (var i = 0; i < arr.length; i++) {
+		for (var j = 0; j < arr.length; j++) {
+			if (i !== j) {
+				fn(arr[i], arr[j]);
+			}
+		}
+	}
+};
+
+// this is the meat of finding minimum spanning trees
+var findMinSpanningTreeSingleRoom = function (positions) {
+
+	var seen;
+	var weights = {};
+	var posArray = positions.reduce((a, p) => {a.push(a.length); return a}, []);
+	allPairs(posArray, function (a, b) {
+		seen[a] = seen[a] || {};
+		seen[a][b] = false;
+
+		seen[b] = seen[b] || {};
+		seen[b][a] = false;
+
+		weights[a] = weights[a] || {};
+		weights[b] = weights[b] || {};
+	});
+
+	// get weights for each vertex
+	allPairs(posArray, function (a, b) {
+		if (seen[a][b] || seen[j][b]) {
+			return;
+		}
+
+		seen[a][b] = seen[b][a] = true;
+
+		var baseSpot = positions[a];
+		var testSpot = positions[b];
+
+		var path = baseSpot.findPathTo(testSpot, {ignoreCreeps : true, ignoreDestructibleStructures: true});
+		if (!path || !path.length) {
+			path = testSpot.findPathTo(baseSpot, {ignoreCreeps : true, ignoreDestructibleStructures: true});
+		}
+
+		if (!path || !path.length) {
+			return;
+		}
+
+		var weight = path.length;
+
+		weight[a][b] = weight[b][a] = weight;
+	});
+
+	// flatten pairings to weights
+	var sortedWeightPairings = Object.keys(weight).reduce(function (arr, a) {
+
+		arr = Object.keys(weights[a]).reduce(function (arr, b) {
+			var weightObj = {};
+			weightObj.a = a;
+			weightObj.b = b;
+			weightObj.weight = weights[a][b] || weights[b][a];
+
+			arr.push(weightObj);
+			return arr;
+		}, arr);
+
+		return arr;
+	}, []).sort((a, b) => a.weight - b.weight);
+
+	var mst = sortedWeightPairings.reduce(function (mst, weightObj) {
+		console.log(weightObj);
+
+		return mst;
+	}, {});
+
+	return mst;
+};
+
+var findMinSpanningTree = function (things) {
+	var objs = coerceToPositions(things);
+	var roomPositions = objs.reduce(function (obj, pos) {
+		obj[pos.roomName] = obj[pos.roomName] || [];
+		obj[pos.roomName].push(pos);
+		return obj;
+	}, {});
+
+	allPairs(Object.keys(roomPositions), function (a, b) {
+		if (Game.rooms[a].isAdjacentRoom(Game.rooms[b])) {
+			roomPositions[a].push(Game.rooms[b].getPositionAt(25,25));
+		}
+	});
+
+	var roomMSTs = 	Object.keys(roomPositions).reduce(function (mst, name) {
+		
+		mst[name] = findMinSpanningTreeSingleRoom(roomPositions[name]);
+
+		return mst;
+	}, {});
+
+	console.log(JSON.stringify(roomMSTs));
+
+	return roomMSTs;
+};
+
 module.exports = {
 	'strerror': strerror,
-	'cat': cat
+	'cat': cat,
+	'findMinSpanningTree': findMinSpanningTree,
+	'coerceToPositions': coerceToPositions
 };
