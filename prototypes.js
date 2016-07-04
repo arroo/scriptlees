@@ -71,7 +71,7 @@ Room.prototype.openSpotsNear = function(obj) {
 			return new RoomPosition(areaInfo.x, areaInfo.y, that.name)
 		});
 		
-		Memory.rooms[this.name].spots[obj.id] = openSpots;
+		Memory.rooms[this.name].spots[posString] = openSpots;
 	}
 	return Memory.rooms[this.name].spots[posString];
 };
