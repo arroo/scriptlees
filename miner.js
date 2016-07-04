@@ -95,7 +95,7 @@ Creep.prototype.runMiner = function() {
 		creep.room.createConstructionSite(creep.pos, STRUCTURE_CONTAINER);
 	}
 	// mine energy
-	if (_.sum(creep.carry) < creep.carryCapacity && creep.memory.state === MINING) {
+	if ((!creep.carryCapacity || _.sum(creep.carry) < creep.carryCapacity) && creep.memory.state === MINING) {
 		res = creep.harvest(source);
 		if (res !== OK) {
 			console.log('miner ' + creep.name + ' unable to mine:' + utils.strerror(res));

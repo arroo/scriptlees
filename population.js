@@ -9,7 +9,8 @@
 
 var flags = require('flags');
 var PriorityQueue = require('pqueue');
-
+var utils = require('utils');
+var strerror = utils.strerror;
 module.exports = {};
 Spawn.prototype.population = function() {
 //return;
@@ -33,10 +34,11 @@ Spawn.prototype.population = function() {
 				name = spawn[creepInfo.genesis](creepInfo.init);
 				success = _.isString(name);
 			} catch (error) {
-				console.log('error spawning ' + genesis + ':',error)
+				console.log('error spawning ' + creepInfo.genesis + ':',error)
 			}
 			
 			if (!success) {
+				console.log(spawn.name + ' cannot spawning ' + creepInfo.genesis + ' ' + strerror(name));
 				pq.queue(0, creepInfo);
 			} else {
 				console.log(spawn.name + ' spawning:' +creepInfo.genesis + ' ' + name);

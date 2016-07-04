@@ -41,14 +41,14 @@ var findNearestSource = function (pos) {
     });
     
     var target = sources.reduce(function (obj, source) {
-        if (obj) {
+        if (Object.keys(obj).length) {
             return obj;
         }
         
         if (pos.findPath(source)) {
             return source;
         }
-    });
+    }, {});
     
     return target;
 };

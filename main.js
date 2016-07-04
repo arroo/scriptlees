@@ -37,10 +37,14 @@ module.exports.loop = function () {
 		}
 		
 		creep.memory.lastPos = creep.pos;
-		try {
+		if (Memory.unsafe) {
 			creep.run();
-		} catch (error) {
-			console.log(creep.memory.genesis + ' ' + name + ' run error:', error);
+		} else {
+			try {
+				creep.run();
+			} catch (error) {
+				console.log(creep.memory.genesis + ' ' + name + ' run error:', error);
+			}
 		}
 	});
 

@@ -18,7 +18,7 @@ Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 	extras = extras || [];
 	bonus = bonus || [];
 	extraBonus = extraBonus || [];
-	
+	var extras;
 	var bodyCost = function (body) {
 		return body.reduce(function (total, part) {return total + BODYPART_COST[part]}, 0);
 	};
@@ -30,6 +30,7 @@ Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 	
 	// add as many parts as current energy stores will allow
 	while (bonus.length && bodyCost(body) < this.room.energyAvailable && body.length < MAX_CREEP_SIZE) {
+		var extras = true;
 		body.push(bonus.pop());
 	}
 	
@@ -37,11 +38,12 @@ Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 	var i = 0;
 	while (extraBonus.length && bodyCost(body) < this.room.energyAvailable && body.length < MAX_CREEP_SIZE) {
 		body.push(extraBonus[i]);
+		var extras = true;
 		i = (i + 1) % extraBonus.length;
 	}
 	
 	// make sure room can support this creep
-	if (bodyCost(body) > this.room.energyCapacityAvailable) {
+	if (bodyCost(body) > this.room.energyCapacityAvailable || extras && bodyCost(body) > this.room.energyAvailable) {
 		body.pop();
 	}
 	

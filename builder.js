@@ -31,11 +31,11 @@ Creep.prototype.startBuilder = function () {
 	var creep = this;
 	var resource = creep.memory.resource;
 	
-	var target = creep.findNearestSource(resource, creep.carryCapacity);
+	var target = creep.pos.findNearestSource(resource, creep.carryCapacity);
 
 	if (target) {
 		creep.memory.target = target.id;
-		creep.setGoing(target, 'fillBuilder', 'movingTargetBuilder');
+		creep.setGoing(target, 'fillBuilder', 1, 'movingTargetBuilder');
 	} else {
 		console.log(creep.memory.genesis + ' ' + creep.name + ' cannot find a ' + creep.memory.resource + ' source');
 	}

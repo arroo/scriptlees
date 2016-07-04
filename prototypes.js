@@ -140,7 +140,7 @@ Creep.prototype.gotoThen = function () {
 };
 
 Creep.prototype.setGoing = function(target, then, range, movingTarget) {
-
+	var creep = this;
 	var destinationInfo = {};
 	destinationInfo.target = target;
 	
@@ -149,7 +149,7 @@ Creep.prototype.setGoing = function(target, then, range, movingTarget) {
 	}
 	
 	destinationInfo.range = range;
-
+	destinationInfo.then = then;
 	creep.memory.destination = destinationInfo;
 	
 	this.setRun('gotoThen');
@@ -306,7 +306,7 @@ RoomPosition.prototype.findNearestStructureTypes = function (types, mineOnly) {
 		if (mineOnly) {
 			controllers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_CONTROLLER}});
 		} else {
-			controllers = room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_CONTROLLER});
+			controllers = room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_CONTROLLER}});
 		}
 
 		return pos.findClosrstByRange(controllers);
