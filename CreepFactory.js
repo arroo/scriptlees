@@ -25,13 +25,13 @@ Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 	
 	// add as many parts as room will allow
 	while (extras.length && bodyCost(body) < this.room.energyCapacityAvailable && body.length < MAX_CREEP_SIZE) {
-		body.push(extras.pop());
+		body.push(extras.shift());
 	}
 	
 	// add as many parts as current energy stores will allow
 	while (bonus.length && bodyCost(body) < this.room.energyAvailable && body.length < MAX_CREEP_SIZE) {
 		extras = true;
-		body.push(bonus.pop());
+		body.push(bonus.shift());
 	}
 	
 	// add bonus parts repeatedly as current energy stores will allow
