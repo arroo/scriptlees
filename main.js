@@ -31,6 +31,11 @@ module.exports.loop = function () {
 
 	Object.keys(Game.creeps).forEach(function (name) {
 		var creep = Game.creeps[name];
+		
+		if (creep.spawning || !creep.my) {
+			return;
+		}
+		
 		creep.memory.lastPos = creep.pos;
 		try {
 			creep.run();
@@ -39,7 +44,7 @@ module.exports.loop = function () {
 		}
 	});
 
-	
+	Memory.minionsToMake = Memory.minionsToMake || [];
 	Game.spawns.Spawn1.memory.pq = Memory.minionsToMake.reduce(function (pq, genesis) {
 		
 		var info = {};

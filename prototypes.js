@@ -9,6 +9,7 @@
 
 var flags = require('flags');
 var utils = require('utils');
+var cat = utils.cat;
 var coerceToPositions = utils.coerceToPositions;
 Source.prototype.mineralType = RESOURCE_ENERGY;
 
@@ -138,6 +139,23 @@ Creep.prototype.gotoThen = function () {
 	
 };
 
+Creep.prototype.setGoing = function(target, then, range, movingTarget) {
+
+	var destinationInfo = {};
+	destinationInfo.target = target;
+	
+	if (movingTarget) {
+		destinationInfo.movingTarget = movingTarget;
+	}
+	
+	destinationInfo.range = range;
+
+	creep.memory.destination = destinationInfo;
+	
+	this.setRun('gotoThen');
+	
+};
+
 Room.prototype.findCircumCentre = function (things) {
 
 
@@ -186,32 +204,115 @@ Room.prototype.isAdjacentRoom = function (room) {
 		room = Game.rooms[room];
 	}
 
-	if (!room) {
-		return false;
+	var exits = Game.map.describeExits(this.name);
+	var adjacent = Object.keys(exits).reduce((b, d) => b || exits[d] === room.name, false);
+
+	return adjacent;
+};
+
+// take a resource from anything else
+Creep.prototype.takeResource = function (target, resource, amount) {
+	if (typeof target === 'string') {
+		target = Game.getObjectById(target);
 	}
 
-	var myInfo = this.parseRoomName();
-	var testInfo = room.parseRoomName();
-
-	if (myInfo.ud !== testInfo.ud) {
-		testInfo.y = 0 - (testInfo.y + 1);
-	}
-	if (myInfo.lr !== testInfo.lr) {
-		testInfo.x = 0 - (testInfo.x + 1);
+	if (target instanceof Mineral ||
+		target instanceof Source) {
+			return this.harvest(target);
 	}
 
-	var dx = Math.abs(myInfo.x - testInfo.x);
-	var dy = Math.abs(myInfo.y - testInfo.y);
-
-	if (dx === 0) {
-		return dy === 1;
+	if (target instanceof Resource) {
+		return this.pickup(target);
 	}
 
-	if (dy === 0) {
-		return dx === 1;
+	if (target instanceof StructureContainer ||
+		target instanceof StructureTerminal ||
+		target instanceof StructureStorage ||
+		target instanceof StructureLab ||
+		target instanceof Creep) {
+			return target.transfer(this, resource, amount);
 	}
 
-	return false;
+	if (target instanceof StructurePowerSpawn ||
+		target instanceof StructureExtension ||
+		target instanceof StructureTower ||
+		target instanceof StructureSpawn ||
+		target instanceof StructureLink) {
+			return target.transferEnergy(this, amount);
+	}
+
+	return ERR_INVALID_TARGET;
+};
+
+RoomPosition.prototype.findNearestThing = function (findFunction) {
+
+	var roomsToSee = [this.roomName];
+	var roomsSeen = {};
+	var target;
+
+	while (!target && roomsToSee.length) {
+		var room = Game.rooms[roomsToSee.shift()];
+		roomsSeen[room] = true;
+
+		target = findFunction(room);
+
+		// prep next room;
+		var exits = Game.map.describeExits(room.name);
+		roomsToSee = Object.keys(exits).reduce(function (arr, name) {
+			if (Game.rooms[name] && !roomsSeen[name]) {
+				a.push(n);
+			}
+			return arr;
+		}, roomsToSee);
+	}
+
+	return target;
+};
+RoomPosition.prototype.findNearestSource = function (resource, min) {
+	var pos = this;
+	min = min || 0;
+	var nearestSource = pos.findNearestThing(function (room) {
+		var sources = [];
+
+		sources = room.find(FIND_DROPPED_RESOURCES, {filter: r => r.resourceType === resource && r.amount >= min}).reduce(cat, sources);
+		sources = room.find(FIND_STRUCTURES, {filter: s=> (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) && s.store[resource] && s.store[resource] >= min}).reduce(cat, sources);
+
+		if (!sources.length) {
+			if (resource === RESOURCE_ENERGY) {
+				sources = room.find(FIND_SOURCES, {filter: s => s.energy >= min}).reduce(cat, sources);
+			} else {
+				sources = room.find(FIND_MINERALS, { filter: s => s.mineralAmount && s.mineralType === resource && s.mineralAmount >= min}).reduce(cat, sources);
+			}
+		}
+
+
+		return pos.findClosestByRange(sources);
+	});
+	
+	return nearestSource;
+};
+
+RoomPosition.prototype.findNearestStructureTypes = function (types, mineOnly) {
+	
+	if (typeof types === 'string') {
+		var typeString = types;
+		types = {};
+		types[typeString] = true;
+	}
+	
+	var pos = this;
+	var nearestController = pos.findNearestThing(function (room) {
+		var controllers;
+		if (mineOnly) {
+			controllers = room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_CONTROLLER}});
+		} else {
+			controllers = room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_CONTROLLER});
+		}
+
+		return pos.findClosrstByRange(controllers);
+	});
+	
+	return nearestController;
 };
 
 Room.prototype.findCentroid = function (things) {

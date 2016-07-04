@@ -46,6 +46,8 @@ combos['makeCourier'] = [COLOR_GREY, COLOR_WHITE];
 combos['makeUpgrader'] = [COLOR_GREY, COLOR_PURPLE];
 combos['makeUnknown'] = [COLOR_GREY, COLOR_GREY];
 
+
+
 combos['warZone'] = [COLOR_RED, COLOR_YELLOW];
 
 var isSourceClosure = function (type) {
@@ -71,6 +73,13 @@ var makeSource = function (type, room, pos) {
 	}
 	
 	return room.createFlag(pos, undefined, combos[type][0], combos[type][1]);
+};
+
+RoomObject.prototype.makeCreepTargetFlag = function (genesis) {
+	var combo = combos[genesis] || combos['makeUnknown'];
+	
+	return this.room.createFlag(0, 0, undefined, COLOR_CYAN, combo[1]);
+	
 };
 
 Flag.prototype.isBuilding = function (structureType) {

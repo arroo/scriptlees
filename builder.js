@@ -2,49 +2,22 @@ require('CreepFactory');
 var PriorityQueue = require('pqueue');
 var utils = require('utils');
 var strerror = utils.strerror;
+var flags = require('flags');
+var cat = utils.cat;
 
 var BUILDING = 0;
 var UPGRADING = 1;
 var FILLING = 2;
 
-var cat = function (arr, el) {
-	arr.push(el);
-	return arr;
-};
-
-var findNearestSource = function (pos) {
-	var room = Game.rooms[pos.roomName];
-	var sources = [];
-	
-	sources = room.find(FIND_DROPPED_RESOURCES, {filter: {resourceType:RESOURCE_ENERGY}}).reduce(cat, sources);
-	sources = room.find(FIND_STRUCTURES, {filter:s=> (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) && s.store[RESOURCE_ENERGY]}).reduce(cat, sources);
-
-	if (!sources.length) {
-		sources = room.find(FIND_SOURCES, {filter : s => s.energy}).reduce(cat, sources);
-	}
-	
-	return pos.findClosestByRange(sources);
-
-};
 
 Spawn.prototype.makeBuilder = function (init) {
 	init = init || {};
 	var mem = {};
-	mem.pq = init.pq;
-	mem.run = 'gotoThen';
-	mem.state = FILLING;
+
+	mem.resource = init.resource || RESOURCE_ENERGY;
+	mem.run = 'startBuilder';
 	mem.genesis = 'makeBuilder';
 
-	var destinationInfo = {
-		'range': 1,
-		'then': 'fillBuilder'
-	};
-	
-	var target = findNearestSource(this.pos);
-	destinationInfo.target = target.pos;
-	destinationInfo.source = target.id;
-	
-	mem.destination = destinationInfo;
 
 	var body = [MOVE, WORK, CARRY]; // bare minimum creep body definition
 	var extras = [MOVE, WORK, CARRY];
@@ -54,82 +27,102 @@ Spawn.prototype.makeBuilder = function (init) {
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);
 };
 
+Creep.prototype.startBuilder = function () {
+	var creep = this;
+	var resource = creep.memory.resource;
+	
+	var target = creep.findNearestSource(resource, creep.carryCapacity);
+
+	if (target) {
+		creep.memory.target = target.id;
+		creep.setGoing(target, 'fillBuilder', 'movingTargetBuilder');
+	} else {
+		console.log(creep.memory.genesis + ' ' + creep.name + ' cannot find a ' + creep.memory.resource + ' source');
+	}
+
+	
+};
+
+RoomPosition.prototype.findNearestConstructionSite = function () {
+	var pos = this;
+	var nearestConstructionSite = pos.findNearestThing(function (room) {
+		var sites = room.find(FIND_MY_CONSTRUCTION_SITES);
+
+		return pos.findClosestByRange(sites);
+	});
+
+	return nearestConstructionSite;
+};
+
 Creep.prototype.movingTargetBuilder = function () {
 	var creep = this;
-	var target;
-	if (Game.constructionSites[creep.memory.site]) {
-		target = Game.getObjectById(creep.memory.site);
-	}
-	if (!target && Object.keys(Game.constructionSites).length) {
 
-		var pq = new PriorityQueue(creep.memory.pq);
-		while (!target) {
-			var prioritySite = pq.dequeue();
+	var mem = creep.memory;
+
+	var target = Game.getObjectById(mem.target);
+
+	// make sure it's still a valid target
+	if (target) {
+		if (target instanceof StructureController) {
+
+		} else if (target instanceof ConstructionSite) {
+
+		} else if (target instanceof StructureContainer || target instanceof StructureStorage) {
 			
-			if (!prioritySite) {
-				break;
-			}
-			target = Game.getObjectById(prioritySite);
+		} else if (target instanceof Resource) {
+		} else if (target instanceof Source) {
+
+		} else {
+			console.log(mem.genesis + ' ' + creep.name + ' is going to an unplanned target:' + target.id + ', ', JSON.stringify(target));
 		}
-		
-		if (!target) {
-			target = creep.pos.findClosestByRange(Object.keys(Game.constructionSites).map(function (id) {return Game.constructionSites[id]}));
-		}
-	} 
-	if (!target) {
-		//console.log('builder found moving target: controller')
-		creep.memory.destination.then = 'upgraderBuilder';
-		creep.memory.destination.range = 3;
-		target = creep.room.controller;
-	} else {
-		creep.memory.site = target.id;
-		creep.memory.destination.then = 'runBuilder';
-		creep.memory.destination.range = 3;
+		// target is gone from game, find a new one
 	}
-	
+
+	// target is gone/invalid, get a new one
+	if (!target) {
+
+		// check if nearest energy dump
+		if (creep.carry[mem.resource]) {
+			target = creep.pos.findNearestConstructionSite();
+			if (target) {
+				mem.destination.then = 'runBuilder';
+			} else {
+				target = creep.pos.findNearestStructureTypes(STRUCTURE_CONTROLLER, true);
+				mem.destination.then = 'upgraderBuilder';
+			}
+
+			mem.destination.range = 3;
+		} else {
+			target = creep.pos.findNearestSource(mem.resource, creep.carryCapacity - _.sum(creep.carry));
+			mem.destination.then = 'fillBuilder';
+			mem.destination.range = 1;
+		}
+	}
+
+	// if we still don't have a target, fuuuuck
+	if (!target) {
+		throw new Exception(mem.genesis + ' ' + creep.name + ' cannot find anywhere to go');
+	}
+
+	creep.memory.target = target.id;
+
 	return target.pos;
 };
 
 Creep.prototype.fillBuilder = function () {
 	var creep = this;
-	var source = Game.getObjectById(creep.memory.destination.source);
-	if (_.sum(creep.carry) >= creep.carryCapacity || !source) {
-		creep.say('full');
-		creep.memory.destination.movingTarget = 'movingTargetBuilder';
-		creep.memory.destination.range = 3;
-		creep.memory.destination.then = 'runBuilder';
+	var source = Game.getObjectById(creep.memory.target);
+	
+	// find a new one
+	if (!source || _.sum(creep.carry) >= creep.carryCapacity) {
+		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
 		return;
 	}
 	
-	var res;
-	switch (source.structureType) {
-		case STRUCTURE_CONTAINER:
-		case STRUCTURE_STORAGE:
-			res = source.transfer(creep, RESOURCE_ENERGY);
-			break;
-		default:
-			break;
-	}
-	if (typeof res === 'undefined') {
-		if (source.resourceType===RESOURCE_ENERGY) {
-			res = creep.pickup(source);
-		} else if (source.energy) {
-			res = creep.harvest(source);
-		} else {
-		}
-	}
+	var res = creep.takeResource(source, creep.memory.resource);
 	if (res === ERR_NOT_ENOUGH_ENERGY) {
-		creep.say('empty');
-		delete creep.memory.destination.movingTarget;
-		source = findNearestSource(creep.pos);
-		if (!source) {
-			return;
-		}
-		creep.memory.destination.target = source.pos;
-		creep.memory.destination.source = source.id;
-		creep.memory.destination.then ='fillBuilder';
-		creep.memory.destination.range = 1;
+		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
 	} else if (res !== OK) {
 		console.log('error filling builder ' + creep.name + ':' + strerror(res));
@@ -138,44 +131,36 @@ Creep.prototype.fillBuilder = function () {
 
 Creep.prototype.upgraderBuilder = function () {
 	var creep = this;
-	if (_.sum(creep.carry) <= 0) {
-		creep.say('empty');
-		delete creep.memory.destination.movingTarget;
-		var source = findNearestSource(creep.pos);
-		if (!source) {
-			return;
-		}
-		creep.memory.destination.target = source.pos;
-		creep.memory.destination.source = source.id;
-		creep.memory.destination.then ='fillBuilder';
-		creep.memory.destination.range = 1;
+	var controller = Game.getObjectById(creep.memory.target);
+
+	// find a new one
+	var totalCarry = _.sum(creep.carry);
+	if (!controller || totalCarry <= 0) {
+		creep.memory.range = totalCarry ? 3 : 1;
+		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
 		return;
 	}
-	
-	var controller = creep.room.controller;
-	
+
 	var res = creep.upgradeController(controller);
-	if (res !== OK) {
-		console.log('builder ' + creep.name + ' unable to upgrade room ' + creep.room.name + ':' + strerror(res));
-		delete creep.memory.destination.movingTarget;
-		creep.memory.destination.then = 'fillBuilder';
+	if (res === ERR_NOT_ENOUGH_ENERGY) {
+		creep.memory.range = 1;
+		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
+	} else if (res !== OK) {
+		console.log('error builder upgrading controller ' + creep.name + ':' + strerror(res));
 	}
 };
 
 Creep.prototype.runBuilder = function () {
 	var creep = this;
 	var res;
-	var site = Game.getObjectById(creep.memory.site);
+	var site = Game.getObjectById(creep.memory.target);
 
-	if (_.sum(creep.carry) <= 0 || !site) {
-		delete creep.memory.destination.movingTarget;
-		var source = findNearestSource(creep.pos);
-		creep.memory.destination.target = source.pos;
-		creep.memory.destination.source = source.id;
-		creep.memory.destination.then = 'fillBuilder';
-		creep.memory.destination.range = 1;
+	var totalCarry = _.sum(creep.carry);
+	if (totalCarry <= 0 || !site) {
+		creep.memory.range = totalCarry ? 3 : 1;
+		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
 		return;
 	}
@@ -183,11 +168,8 @@ Creep.prototype.runBuilder = function () {
 	res = creep.build(site);
 	if (res !== OK) {
 		console.log('builder ' + creep.name + 'cannot build site:' + site.id + ':' +strerror(res));
-	} else {
-		creep.memory.pq = new PriorityQueue(creep.memory.pq).queue(0, site.id);
 	}
-	
-	
+
 };
 
 module.exports = {};

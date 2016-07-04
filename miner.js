@@ -54,7 +54,7 @@ Spawn.prototype.makeMiner = function (init) {
 	
 	// hack because it's not working for some reason
 	if (init.flag === 'Flag2') {
-		adjacent = this.room.getPositionAt(38,17);
+		adjacent = this.room.getPositionAt(17,40);
 	}
 	
 	console.log('makeMiner: found closest spot to flag:', JSON.stringify(adjacent));

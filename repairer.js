@@ -70,7 +70,7 @@ Creep.prototype.movingTargetRepairer = function () {
 
 	if (!target) {
 		target = _.sortBy(creep.room.find(FIND_STRUCTURES, {filter:function (structure) {
-			return structure.hits < structure.hitsMax && structure.structureType !== STRUCTURE_WALL;
+			return structure.hits < structure.hitsMax;
 		}}).reduce(cat, []), [function (structure) {
 			switch (structure.structureType) {
 				case STRUCTURE_ROAD:
