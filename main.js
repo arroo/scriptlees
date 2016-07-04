@@ -25,6 +25,7 @@ var strerror = utils.strerror;
 
 module.exports.loop = function () {
 
+	return;
 	// Cleanup dead objects
 	gc();
 	Memory.constructionSites = Game.constructionSites;
