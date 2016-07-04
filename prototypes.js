@@ -309,7 +309,7 @@ RoomPosition.prototype.findNearestStructureTypes = function (types, mineOnly) {
 			controllers = room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_CONTROLLER}});
 		}
 
-		return pos.findClosrstByRange(controllers);
+		return pos.findClosestByRange(controllers);
 	});
 	
 	return nearestController;
