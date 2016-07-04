@@ -13,8 +13,8 @@ var PriorityQueue = require('pqueue');
 if (!Memory.init) {
 	
 	var initialCreeps = [
-		{'priority':4,'item':{'genesis':'makeMiner', 'init':{'flag':'Flag1'}}},
-		{'priority':2,'item':{'genesis':'makeMiner', 'init':{'flag':'Flag2'}}},
+		//{'priority':4,'item':{'genesis':'makeMiner', 'init':{'flag':'Flag1'}}},
+		//{'priority':2,'item':{'genesis':'makeMiner', 'init':{'flag':'Flag2'}}},
 		//{'priority':1,'item':{'genesis':'makeMiner', 'init':{'flag':'Flag3'}}},
 		//{'priority':1,'item':{'genesis':'makeMiner', 'init':{'flag':'Flag4'}}},
 		{'priority':1,'item':{'genesis':'makeHarvester', 'init':{}}},
@@ -23,9 +23,9 @@ if (!Memory.init) {
 		{'priority':3,'item':{'genesis':'makeBuilder', 'init':{}}},
 		{'priority':1,'item':{'genesis':'makeHarvester', 'init':{}}},
 		{'priority':3,'item':{'genesis':'makeBuilder', 'init':{}}},
-		{'priority':5,'item':{'genesis':'makeRepairer', 'init':{}}},
-		{'priority':5,'item':{'genesis':'makeRepairer', 'init':{}}},
-		{'priority':5,'item':{'genesis':'makeRepairer', 'init':{}}}
+		//{'priority':5,'item':{'genesis':'makeRepairer', 'init':{}}},
+		//{'priority':5,'item':{'genesis':'makeRepairer', 'init':{}}},
+		//{'priority':5,'item':{'genesis':'makeRepairer', 'init':{}}}
 	];
 	// Set the initialization flag
 	Memory.init = true;
