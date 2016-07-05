@@ -71,7 +71,7 @@ StructureTower.prototype.doTriage = function () {
 StructureTower.prototype.run = function () {
 
 	try {
-		if (this.energyAvailable >= TOWER_ENERGY_COST) {
+		if (this.energy >= TOWER_ENERGY_COST) {
 			(this.room.memory.warZone && (this.doAttacks() || this.doTriage())) || this.doRepairs() || this.doHeals();
 		}
 

@@ -201,6 +201,8 @@ Creep.prototype.gotoThen = function () {
 		creep.log('congested');
 		var congestedCreeps =  creep.pos.findCrowdedCreeps();
 		var trafficCentre = creep.room.findCentroid(congestedCreeps);
+		// cache solutions for later during this tick
+		Memory.congestionSites = congestedCreeps.reduce((o, c) => {o[c.pos.getPosString()] = trafficCentre; return o}, Memory.congestionSites);
 		var avoidDirection = creep.pos.getDirectionTo(trafficCentre);
 		if (avoidDirection) {
 
@@ -249,17 +251,23 @@ Creep.prototype.gotoThen = function () {
 
 };
 
+RoomPosition.prototype.getPosString = function () {
+	return this.x + ',' + this.y + ',' + this.roomName;
+};
+
 RoomPosition.prototype.findCrowdedCreeps = function () {
 
-	var getPosString = function (pos) {
-		return pos.x + ',' + pos.y + ',' + pos.roomName;
-	};
+	var posString = this.getPosString();
+	var cachedCongestion = Memory.congestionSites[posString];
+	if (cachedCongestion) {
+		return [new RoomPosition(cachedCongestion.x, cachedCongestion.y, cachedCongestion.roomName)];
+	}
 
 	var roomName = this.roomName;
 	var room = Game.rooms[roomName];
 	var positionsToSearch = [this];
 	var positionsSearched = {};
-	positionsSearched[getPosString(this)] = true;
+	positionsSearched[posString] = true;
 	var creepsFound = [];
 
 	for (var pos = positionsToSearch.pop(); pos; pos = positionsToSearch.pop()) {
@@ -289,7 +297,7 @@ RoomPosition.prototype.findCrowdedCreeps = function () {
 		positionsToSearch = surroundingPositions.reduce(function (arr, posArr) {
 			var pos = room.getPositionAt(posArr[0], posArr[1]);
 
-			if (pos && !positionsSearched[getPosString(pos)]) {
+			if (pos && !positionsSearched[pos.getPosString()]) {
 				arr.push(pos);
 			}
 

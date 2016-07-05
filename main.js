@@ -30,6 +30,7 @@ module.exports.loop = function () {
 	console.log('-------------------  tick  -------------------');
 	// Cleanup dead objects
 	gc();
+	Memory.congestionSites = {};
 	Memory.constructionSites = Game.constructionSites;
 
 	Object.keys(Game.creeps).forEach(function (name) {

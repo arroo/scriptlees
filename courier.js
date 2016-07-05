@@ -8,7 +8,7 @@
  */
 
 require('CreepFactory');
-var PriorityQueue = require('pqueue');
+//var PriorityQueue = require('pqueue');
 var utils = require('utils');
 var strerror = utils.strerror;
 
@@ -56,21 +56,30 @@ var findNearestSource = function (pos) {
 Spawn.prototype.makeCourier = function (init) {
     init = init || {};
     var mem = {};
-    mem.pq = init.pq;
-    mem.run = 'gotoThen';
-    mem.state = FILLING;
-    mem.genesis = 'makeCourier';
 
-    var destinationInfo = {
-        'range': 1,
-        'then': 'fillCourier'
-    };
-    
-    var target = findNearestSource(this.pos);
-    destinationInfo.target = target.pos;
-    destinationInfo.source = target.id;
-    
-    mem.destination = destinationInfo;
+	if (init.flags) {
+		mem.flags = init.flags;
+		mem.run = 'startCourier';
+		mem.genesis = 'makeCourier';
+		mem.resource = init.resource || RESOURCE_ENERGY;
+
+	} else {
+		mem.run = 'gotoThen';
+		mem.state = FILLING;
+		mem.genesis = 'makeCourier';
+
+		var destinationInfo = {
+			'range': 1,
+			'then': 'fillCourier'
+		};
+
+		var target = findNearestSource(this.pos);
+		destinationInfo.target = target.pos;
+		destinationInfo.source = target.id;
+
+		mem.destination = destinationInfo;
+
+	}
 
     var body = [MOVE, CARRY]; // bare minimum creep body definition
     var extras = [MOVE, CARRY, MOVE, CARRY];
@@ -80,8 +89,18 @@ Spawn.prototype.makeCourier = function (init) {
     return this.CreepFactory(body, mem, extras, bonus, extraBonus);
 };
 
-Creep.prototype.movingTargetCourier2 = function () {
-    
+Creep.prototype.startCourier = function () {
+    var creep = this;
+	var mem = creep.memory;
+	var target;
+	var flags = mem.flags.map(n => Game.flags[n]);
+	if (flags.length !== 2) {
+		target = creep.pos.findNearestSource(mem.resource);
+	}
+
+	if (target) {
+		creep.memory.target = target.name || target.id;
+	}
 };
 
 Creep.prototype.movingTargetCourier = function () {
