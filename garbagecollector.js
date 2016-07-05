@@ -75,11 +75,11 @@ var gc = function () {
 	});
 
 	// Cleanup dead flags
-	Object.keys(Memory.flags).forEach(function (name) {
+	/*Object.keys(Memory.flags).forEach(function (name) {
 		if (!Game.flags[name]) {
 			delete Memory.flags[name];
 		}
-	});
+	});*/
 };
 
 module.exports = gc;
