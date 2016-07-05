@@ -388,7 +388,7 @@ Creep.prototype.signalRespawn = function (init, spawn) {
 	
 };
 
-RoomPosition.protoype.findNearestFriendlySpawn = function () {
+RoomPosition.prototype.findNearestFriendlySpawn = function () {
 	var pos = this;
 
 	var nearestFriendlySpawn = pos.findNearestThing(function (room) {
