@@ -83,6 +83,7 @@ Creep.prototype.startMiner = function () {};
 Creep.prototype.runMiner = function() {
 	var creep = this;
 	var res;
+	var mem = creep.memory;
 	// Walk to predefined energy source
 	var flag = Game.flags[creep.memory.flag];
 	var source = Game.getObjectById(flag.room.memory.sourceFlags[flag.name].source);
