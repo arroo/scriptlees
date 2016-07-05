@@ -49,10 +49,9 @@ RoomPosition.prototype.findNearestDamagedStructure = function () {
 	var pos = this;
 
 	var damagedStructureTests = [
-		s => s.my && s.structureType !== STRUCTURE_RAMPART,
-		s => s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_ROAD && s.structureType !== STRUCTURE_RAMPART,
+		s => s.my,
+		s => s.structureType !== STRUCTURE_WALL && s.structureType !== STRUCTURE_ROAD,
 		s => s.structureType === STRUCTURE_ROAD,
-		s => s.structureType === STRUCTURE_RAMPART,
 		s => s.structureType === STRUCTURE_WALL
 	];
 

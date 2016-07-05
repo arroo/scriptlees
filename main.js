@@ -123,5 +123,5 @@ module.exports.loop = function () {
 	var cpuLimitReserve = Game.cpu.tickLimit || 1;
 	var cpuLimitNormal = Game.cpu.limit || 1;
 	var cpuPercents = '[' + ((cpuUsed / cpuLimitNormal) * 100).toFixed(2) + '%(N), ' + ((cpuUsed / cpuLimitReserve) * 100).toFixed(2) + '%(R)]';
-	console.log('tock: cpu used:' + cpuUsed.toFixed(2) + ' cpu limit(N):' + cpuLimitNormal + ' cpu limit(R)' + cpuLimitReserve + ' percent:' + cpuPercents + ' bucket:' + bucket);
+	console.log('tock: cpu used:' + cpuUsed.toFixed(2) + ' cpu limit(N):' + cpuLimitNormal + ' cpu limit(R):' + cpuLimitReserve + ' percent:' + cpuPercents + ' bucket:' + bucket);
 };
