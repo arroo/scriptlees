@@ -31,8 +31,13 @@ module.exports.loop = function () {
 	if (Memory.wantTower) {
 
 		try {
-			if (Game.rooms.E7N33.getPositionAt(31, 32).createConstructionSite(STRUCTURE_TOWER) === OK) {
+			if (Game.rooms.E7N33.getPositionAt(29, 24).createConstructionSite(STRUCTURE_TOWER) === OK) {
 				Memory.wantTower = false;
+				Game.rooms.E7N33.getPositionAt(26, 31).createConstructionSite(STRUCTURE_EXTENSION);
+				Game.rooms.E7N33.getPositionAt(25, 31).createConstructionSite(STRUCTURE_EXTENSION);
+				Game.rooms.E7N33.getPositionAt(25, 32).createConstructionSite(STRUCTURE_EXTENSION);
+				Game.rooms.E7N33.getPositionAt(25, 33).createConstructionSite(STRUCTURE_EXTENSION);
+				Game.rooms.E7N33.getPositionAt(26, 33).createConstructionSite(STRUCTURE_EXTENSION);
 			}
 		} catch (error) {
 			Game.notify('unable to build tower:' + error);

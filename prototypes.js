@@ -147,7 +147,7 @@ Creep.prototype.gotoThen = function () {
 	}
 
 	var avoidCreeps = true;
-	var pathReuse = 25;
+	var pathReuse = 50;
 
 	var target;
 	if (creep.memory.stalled >= STALL_LIMIT) {

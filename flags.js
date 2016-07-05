@@ -118,7 +118,7 @@ Room.prototype.moveWarFlag = function () {
 	var warZone = room.getPositionAt(room.memory.warZone.x, room.memory.warZone.y);
 
 	if (!flag) {
-		room.memory.warFlag = warZone.createComboFlag('INTRUDERS', combos['warZone']);
+		room.memory.warFlag = warZone.createComboFlag(room.name +'_INTRUDERS', combos['warZone']);
 		return;
 	}
 
