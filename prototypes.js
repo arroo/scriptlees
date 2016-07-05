@@ -83,6 +83,11 @@ Room.prototype.init = function () {
 		return;
 	}
 	
+	if (!room.controller) {
+		room.memory.init = true;
+		return;
+	}
+	
 	// place a flag next to all sources
 	room.memory.sourceFlags = room.memory.sourceFlags || room.find(FIND_SOURCES).reduce(function (obj, source) {
 		

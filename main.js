@@ -70,7 +70,7 @@ module.exports.loop = function () {
 		Game.spawns.Spawn1.memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
 			return pq.queue(creepInfo);
 		}, new PriorityQueue(Game.spawns.Spawn1.memory.pq));
-		delete Memory.makeTempMinions;
+		Memory.makeTempMinions = false;
 	}
 	// process all structures that have something to do
 	Object.keys(Game.structures).forEach(id => Game.structures[id].run && Game.structures[id].run());

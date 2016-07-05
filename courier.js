@@ -45,7 +45,7 @@ var findNearestSource = function (pos) {
             return obj;
         }
         
-        if (pos.findPath(source)) {
+        if (pos.findPathTo(source)) {
             return source;
         }
     }, {});

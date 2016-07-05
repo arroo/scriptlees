@@ -28,6 +28,19 @@ Spawn.prototype.population = function() {
 		//    console.log(JSON.stringify(creepInfo))
 			var genesis = spawn[creepInfo.genesis];
 			var name;
+			if (creepInfo.genesis === 'makeHarvester' || creepInfo.genesis === 'makeCourier') {
+				var anyMiners = Game.rooms[spawn.room.name].find(FIND_MY_CREEPS, {
+					filter: function (creep) {
+						return creep.memory.genesis === 'makeMiner'
+					}
+				}).length;
+
+				if (anyMiners) {
+					creepInfo.init.genesis = creepInfo.genesis = 'makeCourier';
+				} else {
+					creepInfo.init.genesis = creepInfo.genesis = 'makeHarvester';
+				}
+			}
 			
 			var success = false;
 			try {

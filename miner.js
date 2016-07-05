@@ -32,24 +32,29 @@ Spawn.prototype.makeMiner = function (init) {
 	var flag = Game.flags[init.flag];
 	console.log('makeMiner:finding location of flag:' + init.flag);
 	var spots = this.room.openSpotsNear(flag);//flag.room.memory.sourceFlags[init.flag].adjacent;
-	
+
 	var adjacent = spots.reduce(function (pos, spot) {
 		if (Object.keys(pos).length) {
 			return pos;
 		}
-		
-		var isContainer = function (obj) {
-			return obj.structureType && obj.structureType === STRUCTURE_CONTAINER;
+
+		var isContainer = function (dobj) {
+			return dobj && dobj.structureType && dobj.structureType === STRUCTURE_CONTAINER;
 		};
-		
-		if (spot.lookFor(LOOK_STRUCTURES).filter(isContainer)) {
+
+		console.log('dsd:' + JSON.stringify(spot));
+		var pos2 = new RoomPosition(spot.x, spot.y, spot.roomName);
+
+		if (pos2.lookFor(LOOK_STRUCTURES).filter(isContainer).length) {
 			return spot;
 		}
-		
-		if (spot.lookFor(LOOK_CONSTRUCTION_SITES).filter(isContainer)) {
+
+		if (pos2.lookFor(LOOK_CONSTRUCTION_SITES).filter(isContainer).length) {
 			return spot;
 		}
-		
+
+		return pos;
+
 	}, {});
 	if (!Object.keys(adjacent).length) {
 		adjacent = this.pos.findClosestByRange(spots);
