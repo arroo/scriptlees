@@ -122,5 +122,5 @@ module.exports.loop = function () {
 	var cpuUsed = Game.cpu.getUsed();
 	var cpuLimit = Game.cpu.tickLimit || 1;
 	var cpuPercent = ((cpuUsed / cpuLimit) * 100).toFixed(2) + '%';
-	console.log('tock: cpu used:' + cpuUsed + ' cpu limit:' + cpuLimit + ' percent:' + cpuPercent);
+	console.log('tock: cpu used:' + cpuUsed.toFixed(2) + ' cpu limit:' + cpuLimit + ' percent:' + cpuPercent + ' bucket:' + bucket);
 };
