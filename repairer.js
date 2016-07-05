@@ -12,7 +12,7 @@ var PriorityQueue = require('pqueue');
 var utils = require('utils');
 var strerror = utils.strerror;
 
-var BUILDING = 0;
+var REPAIRING = 0;
 var UPGRADING = 1;
 var FILLING = 2;
 
@@ -34,21 +34,8 @@ var findNearestSource = function (pos) {
 Spawn.prototype.makeRepairer = function (init) {
 	init = init || {};
 	var mem = {};
-	mem.pq = init.pq;
-	mem.run = 'gotoThen';
-	mem.state = FILLING;
+	mem.run = 'startRepairer';
 	mem.genesis = 'makeRepairer';
-
-	var destinationInfo = {
-		'range': 1,
-		'then': 'fillRepairer'
-	};
-	
-	var target = findNearestSource(this.pos);
-	destinationInfo.target = target.pos;
-	destinationInfo.source = target.id;
-	
-	mem.destination = destinationInfo;
 
 	var body = [MOVE, WORK, CARRY]; // bare minimum creep body definition
 	var extras = [];
@@ -58,43 +45,113 @@ Spawn.prototype.makeRepairer = function (init) {
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);
 };
 
-Creep.prototype.movingTargetRepairer2 = function () {
-	
+Creep.prototype.startRepairer = function () {
+	var creep = this;
+
+	var target = creep.pos.findNearestSource(RESOURCE_ENERGY, creep.carryCapacity);
+
+	if (target) {
+		creep.memory.state = FILLING;
+		creep.memory.target = target.id;
+		creep.setGoing(target, 'fillRepairer', 1, 'movingTargetRepairer');
+	} else {
+		console.log(creep.memory.genesis + ' ' + creep.name + ' cannot find a ' + RESOURCE_ENERGY + ' source');
+	}
+};
+RoomPosition.prototype.findNearestDamagedStructure = function () {
+	var pos = this;
+
+	var damagedStructureTests = [
+		s => s.my,
+		s => s.structureType !== STRUCTURE_WALL,
+		s => s.structureType === STRUCTURE_WALL
+
+	];
+
+	var nearestDamagedStructure = pos.findNearestThing(function (room) {
+
+		var damagedStructures = room.find(FIND_STRUCTURES, {filter : s => s.hits < s.hitsMax});
+
+		var target = damagedStructureTests.reduce(function (target, filter) {
+			if (target) {
+				return target;
+			}
+
+			var damagedStructureTypes = damagedStructures.filter(filter);
+			if (damagedStructureTypes.length) {
+				return pos.findClosestByRange(samagedStructureTypes);
+			}
+		});
+		
+		return target;
+	});
+
+	return nearestDamagedStructure;
 };
 
 Creep.prototype.movingTargetRepairer = function () {
 	var creep = this;
-	var target = _.sortBy(creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
-		return structure.hits < structure.hitsMax;
-	}}).reduce(cat, []), function (structure) {return structure.hitsMax / structure.hits})[0];
 
+	var mem = creep.memory;
+
+	var target = Game.getObjectById(mem.target);
+
+	// make sure it's still a valid target
+	if (target) {
+		var neededResource = creep.carryCapacity - _.sum(creep.carry);
+		var predicate = s => true;
+		if (mem.state === REPAIRING && (target instanceof Structure || target.hits < target.hitsMax )) {
+			predicate = s => s === creep.carryCapacity;
+
+		} else if (target instanceof StructureContainer || target instanceof StructureStorage) {
+			predicate = s => s > target.store[RESOURCE_ENERGY];
+
+		} else if (target instanceof Resource) {
+			predicate = s => s > target.amount;
+
+		} else if (target instanceof Source) {
+			predicate = s => s > target.energy;
+
+		} else {
+			console.log(mem.genesis + ' ' + creep.name + ' is going to an unplanned target:' + target.id + ', ', JSON.stringify(target));
+		}
+
+		if (predicate(neededResource)) {
+			target = undefined;
+		}
+	}
+
+	// target is gone/invalid, get a new one
 	if (!target) {
-		target = _.sortBy(creep.room.find(FIND_STRUCTURES, {filter:function (structure) {
-			return structure.hits < structure.hitsMax;
-		}}).reduce(cat, []), [function (structure) {
-			switch (structure.structureType) {
-				case STRUCTURE_ROAD:
-				case STRUCTURE_CONTAINER:
-					return 0;
-				case STRUCTURE_WALL:
-					return 2;
-				default:
-					return 1;
+
+		// check if nearest energy dump
+		if (creep.carry[mem.resource]) {
+			target = creep.pos.findNearestDamagedStructure();
+			if (target) {
+				creep.memory.state = REPAIRING;
+				mem.destination.then = 'runRepairer';
+			} else {
+				creep.memory.state = UPGRADING;
+				target = creep.pos.findNearestStructureTypes(STRUCTURE_CONTROLLER, true);
+				mem.destination.then = 'upgraderRepairer';
 			}
-		},function (structure) {return structure.hitsMax / structure.hits}])[0];
+
+			mem.destination.range = 3;
+		} else {
+			creep.memory.state = FILLING;
+			target = creep.pos.findNearestSource(mem.resource, creep.carryCapacity - _.sum(creep.carry));
+			mem.destination.then = 'fillRepairer';
+			mem.destination.range = 1;
+		}
 	}
 
+	// if we still don't have a target, fuuuuck
 	if (!target) {
-		//console.log('builder found moving target: controller')
-		creep.memory.destination.then = 'waitRepairer';
-		creep.memory.destination.range = 1;
-		target = creep.room.find(FIND_MY_STRUCTURES, {filter:{structureType:STRUCTURE_SPAWN}})[0];
-	} else {
-		creep.memory.site = target.id;
-		creep.memory.destination.then = 'runRepairer';
-		creep.memory.destination.range = 3;
+		throw '' + mem.genesis + ' ' + creep.name + ' cannot find anywhere to go';
 	}
-	
+
+	creep.memory.target = target.id;
+
 	return target.pos;
 };
 
@@ -120,101 +177,67 @@ Creep.prototype.waitRepairer = function () {
 	}
 };
 
-Creep.prototype.fillRepairer = function () {
+Creep.prototype.fillBuilder = function () {
 	var creep = this;
-	var source = Game.getObjectById(creep.memory.destination.source);
-	if (_.sum(creep.carry) >= creep.carryCapacity || !source) {
-		creep.say('full');
-		creep.memory.destination.movingTarget = 'movingTargetRepairer';
-		creep.memory.destination.then = 'runRepairer';
+	var source = Game.getObjectById(creep.memory.target);
+
+	// find a new one
+	if (!source || _.sum(creep.carry) >= creep.carryCapacity) {
+		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
 		return;
 	}
-	
-	
-	var res;
-	switch (source.structureType) {
-		case STRUCTURE_CONTAINER:
-		case STRUCTURE_STORAGE:
-			res = source.transfer(creep, RESOURCE_ENERGY);
-			break;
-		default:
-			break;
-	}
-	if (typeof res === 'undefined') {
-		if (source.resourceType===RESOURCE_ENERGY) {
-			res = creep.pickup(source);
-		} else if (source.energy) {
-			res = creep.harvest(source);
-		} else {
-		}
-	}
-	if (res !== OK) {
-		console.log('error filling repairer ' + creep.name + ':' + strerror(res));
+
+	var res = creep.takeResource(source, creep.memory.resource);
+	if (res === ERR_NOT_ENOUGH_ENERGY) {
+		delete creep.memory.target;
+		creep.setAndRun('gotoThen');
+	} else if (res !== OK) {
+		console.log('error filling builder ' + creep.name + ':' + strerror(res));
 	}
 };
 
 Creep.prototype.upgraderRepairer = function () {
 	var creep = this;
-	if (_.sum(creep.carry) <= 0) {
-		creep.say('empty');
-		delete creep.memory.destination.movingTarget;
-		var source = findNearestSource(creep.pos);
-		creep.memory.destination.target = source.pos;
-		creep.memory.destination.source = source.id;
-		creep.memory.destination.then ='fillRepairer';
-		creep.memory.destination.range = 1;
+	var controller = Game.getObjectById(creep.memory.target);
+
+	// find a new one
+	var totalCarry = _.sum(creep.carry);
+	if (!controller || totalCarry <= 0) {
+		creep.memory.range = totalCarry ? 3 : 1;
+		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
 		return;
 	}
-	
-	var controller = creep.room.controller;
-	
+
 	var res = creep.upgradeController(controller);
-	if (res !== OK) {
-		console.log('harvester ' + creep.name + ' unable to upgrade room ' + creep.room.name + ':' + strerror(res));
-		delete creep.memory.destination.movingTarget;
-		creep.memory.destination.then = 'fillRepairer';
+	if (res === ERR_NOT_ENOUGH_ENERGY) {
+		creep.memory.range = 1;
+		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
+	} else if (res !== OK) {
+		console.log('error repairer upgrading controller ' + creep.name + ':' + strerror(res));
 	}
 };
 
 Creep.prototype.runRepairer = function () {
 	var creep = this;
 	var res;
-	var site = Game.getObjectById(creep.memory.site);
+	var site = Game.getObjectById(creep.memory.target);
 
-	if (_.sum(creep.carry) <= 0) {
-		delete creep.memory.destination.movingTarget;
-		var source = findNearestSource(creep.pos);
-		if (!source) {
-			return;
-		}
-		creep.memory.destination.target = source.pos;
-		creep.memory.destination.source = source.id;
-		creep.memory.destination.then = 'fillRepairer';
-		creep.memory.destination.range = 1;
-		creep.setAndRun('gotoThen');
-		return;
-	}
-
-
-
-	if (!site || site.hits >= site.hitsMax) {
-		creep.memory.destination.movingTarget = 'movingTargetRepairer';
-		creep.memory.destination.then = 'runRepairer';
+	var totalCarry = _.sum(creep.carry);
+	if (totalCarry <= 0 || !site || site.hits >= site.hitsMax) {
+		creep.memory.range = totalCarry ? 3 : 1;
+		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
 		return;
 	}
 
 	res = creep.repair(site);
 	if (res !== OK) {
-		console.log('repairer ' + creep.name + 'cannot transfer to site:' + site.id + ':' +strerror(res));
-	} else {
-		creep.memory.pq = new PriorityQueue(creep.memory.pq).queue(0, site.id);
+		console.log('repairer ' + creep.name + 'cannot repair site:' + site.id + ':' + strerror(res));
 	}
-	
-	
+
 };
 
 module.exports = {};

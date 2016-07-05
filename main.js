@@ -26,6 +26,9 @@ var strerror = utils.strerror;
 module.exports.loop = function () {
 
 	//return;
+	
+	console.log('tick');
+	
 	// Cleanup dead objects
 	gc();
 	Memory.constructionSites = Game.constructionSites;
@@ -113,4 +116,5 @@ module.exports.loop = function () {
 	Object.keys(Game.rooms).forEach(function (name) {
 		Game.rooms[name].plan();
 	});
+	console.log('tock');
 };

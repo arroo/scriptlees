@@ -39,8 +39,6 @@ Creep.prototype.startBuilder = function () {
 	} else {
 		console.log(creep.memory.genesis + ' ' + creep.name + ' cannot find a ' + creep.memory.resource + ' source');
 	}
-
-	
 };
 
 RoomPosition.prototype.findNearestConstructionSite = function () {
@@ -63,19 +61,27 @@ Creep.prototype.movingTargetBuilder = function () {
 
 	// make sure it's still a valid target
 	if (target) {
-		if (target instanceof StructureController) {
-
-		} else if (target instanceof ConstructionSite) {
-
-		} else if (target instanceof StructureContainer || target instanceof StructureStorage) {
+		var neededResource = creep.carryCapacity - _.sum(creep.carry);
+		var predicate = s => true;
+		if (target instanceof StructureController || target instanceof ConstructionSite) {
+			predicate = s => s === creep.carryCapacity;
 			
+		} else if (target instanceof StructureContainer || target instanceof StructureStorage) {
+			predicate = s => s > target.store[RESOURCE_ENERGY];
+
 		} else if (target instanceof Resource) {
+			predicate = s => s > target.amount;
+			
 		} else if (target instanceof Source) {
+			predicate = s => s > target.energy;
 
 		} else {
 			console.log(mem.genesis + ' ' + creep.name + ' is going to an unplanned target:' + target.id + ', ', JSON.stringify(target));
 		}
-		// target is gone from game, find a new one
+		
+		if (predicate(neededResource)) {
+			target = undefined;
+		}
 	}
 
 	// target is gone/invalid, get a new one
@@ -101,7 +107,7 @@ Creep.prototype.movingTargetBuilder = function () {
 
 	// if we still don't have a target, fuuuuck
 	if (!target) {
-		throw new Exception(mem.genesis + ' ' + creep.name + ' cannot find anywhere to go');
+		throw '' + mem.genesis + ' ' + creep.name + ' cannot find anywhere to go';
 	}
 
 	creep.memory.target = target.id;
