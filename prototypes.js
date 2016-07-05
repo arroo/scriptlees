@@ -138,22 +138,32 @@ Creep.prototype.gotoThen2 = function () {
 
 	if (creep.pos.x === creep.memory.lastPos.x &&
 		creep.pos.y === creep.memory.lastPos.y &&
-		creep.pos.roomName === creep.memory.lastPos.roomName &&
-		!creep.memory.tired) {
+		creep.pos.roomName === creep.memory.lastPos.roomName) {
+		if (!creep.memory.tired) {
 			creep.memory.stalled++;
+		}
+	} else {
+		creep.memory.stalled = 0;
 	}
 
+	var avoidCreeps = true;
 
 	var target;
 	if (creep.memory.stalled >= STALL_LIMIT) {
 		var congestedCreeps =  creep.pos.findCrowdedCreeps();
 		var trafficCentre = creep.room.findCentroid(congestedCreeps);
 		var avoidDirection = creep.pos.getDirectionTo(trafficCentre);
-		var goodDirection = directionOpposites[avoidDirection];
-		creep.memory.tired = creep.move(goodDirection) === ERR_TIRED;
-		return;
+		if (avoidDirection) {
+			var goodDirection = directionOpposites[avoidDirection];
+			creep.memory.tired = creep.move(goodDirection) === ERR_TIRED;
+			return;
+		}
 
-	}else if (destinationInfo.movingTarget) {
+		avoidCreeps = false;
+
+	}
+
+	if (destinationInfo.movingTarget) {
 		target = creep[destinationInfo.movingTarget]();
 	} else {
 		var targetInfo = destinationInfo.target;
@@ -171,7 +181,7 @@ Creep.prototype.gotoThen2 = function () {
 		return;
 	}
 
-	creep.memory.tired = creep.moveTo(target, {'reusePath':25}) === ERR_TIRED;
+	creep.memory.tired = creep.moveTo(target, {'reusePath':25, 'avoidCreeps': avoidCreeps}) === ERR_TIRED;
 
 };
 
