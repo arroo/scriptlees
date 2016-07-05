@@ -28,7 +28,17 @@ module.exports.loop = function () {
 	//return;
 	
 	console.log('-------------------  tick  -------------------');
-	
+	if (Memory.wantTower) {
+
+		try {
+			if (Game.rooms.E7N33.getPositionAt(31, 32).createConstructionSite(STRUCTURE_TOWER) === OK) {
+				Memory.wantTower = false;
+			}
+		} catch (error) {
+			Game.notify('unable to build tower:' + error);
+			Memory.wantTower = false;
+		}
+	}
 	// Cleanup dead objects
 	gc();
 	Memory.constructionSites = Game.constructionSites;
