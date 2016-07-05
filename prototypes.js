@@ -27,6 +27,16 @@ directionOpposites[BOTTOM] = [TOP, TOP_LEFT, TOP_RIGHT, LEFT, RIGHT, BOTTOM_LEFT
 directionOpposites[BOTTOM_LEFT] = [TOP_RIGHT, TOP, RIGHT, TOP_LEFT, BOTTOM_RIGHT, LEFT, BOTTOM];
 directionOpposites[LEFT] = [RIGHT, TOP_RIGHT, BOTTOM_RIGHT, TOP, BOTTOM, TOP_LEFT, BOTTOM_LEFT];
 
+var directionStrings = {};
+directionStrings[TOP] = 'TOP';
+directionStrings[BOTTOM] = 'BOTTOM';
+directionStrings[LEFT] = 'LEFT';
+directionStrings[RIGHT] = 'RIGHT';
+directionStrings[TOP_LEFT] = 'TOP_LEFT';
+directionStrings[TOP_RIGHT] = 'TOP_RIGHT';
+directionStrings[BOTTOM_LEFT] = 'BOTTOM_LEFT';
+directionStrings[BOTTOM_RIGHT] = 'BOTTOM_RIGHT';
+
 Creep.prototype.run = function () {
 	try{this.moveRoleFlag();}catch(e) {
 		console.log(this.memory.genesis +' ' + this.name+ ' unable to move flag:', e);
@@ -129,8 +139,7 @@ Room.prototype.init = function () {
 RoomPosition.prototype.isWalkable = function () {
 	OBSTACLE_OBJECT_TYPES_OBJ = OBSTACLE_OBJECT_TYPES_OBJ || OBSTACLE_OBJECT_TYPES.reduce((o, t) => {o[t] = true; return o;}, {});
 
-	var notWalkable = this.look().some(o => OBSTACLE_OBJECT_TYPES_OBJ[o.type] || o.type === LOOK_TERRAIN && OBSTACLE_OBJECT_TYPES_OBJ[o.terrain]);
-
+	var notWalkable = hereStuff.some(o => o.type === LOOK_STRUCTURES && OBSTACLE_OBJECT_TYPES_OBJ[o.structure] || o.type === LOOK_TERRAIN && OBSTACLE_OBJECT_TYPES_OBJ[o.terrain]);
 	return !notWalkable;
 };
 
