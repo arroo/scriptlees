@@ -139,7 +139,7 @@ Room.prototype.init = function () {
 RoomPosition.prototype.isWalkable = function () {
 	OBSTACLE_OBJECT_TYPES_OBJ = OBSTACLE_OBJECT_TYPES_OBJ || OBSTACLE_OBJECT_TYPES.reduce((o, t) => {o[t] = true; return o;}, {});
 
-	var notWalkable = hereStuff.some(o => o.type === LOOK_STRUCTURES && OBSTACLE_OBJECT_TYPES_OBJ[o.structure] || o.type === LOOK_TERRAIN && OBSTACLE_OBJECT_TYPES_OBJ[o.terrain]);
+	var notWalkable = this.look().some(o => o.type === LOOK_STRUCTURES && OBSTACLE_OBJECT_TYPES_OBJ[o.structure] || o.type === LOOK_TERRAIN && OBSTACLE_OBJECT_TYPES_OBJ[o.terrain]);
 	return !notWalkable;
 };
 
