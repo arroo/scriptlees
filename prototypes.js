@@ -140,7 +140,7 @@ Creep.prototype.gotoThen2 = function () {
 		return;
 	}
 
-	creep.moveTo(target);
+	creep.moveTo(target, {});
 
 };
 

@@ -117,5 +117,10 @@ module.exports.loop = function () {
 	Object.keys(Game.rooms).forEach(function (name) {
 		Game.rooms[name].plan();
 	});
-	console.log('tock');
+
+	var bucket = Game.cpu.bucket;
+	var cpuUsed = Game.cpu.getUsed();
+	var cpuLimit = Game.cpu.tickLimit || 1;
+	var cpuPercent = ((cpuUsed / cpuLimit) * 100).toFixed(2) + '%';
+	console.log('tock: cpu used:' + cpuUsed + ' cpu limit:' + cpuLimit + ' percent:' + cpuPercent);
 };
