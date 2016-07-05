@@ -14,6 +14,18 @@ var cat = utils.cat;
 var coerceToPositions = utils.coerceToPositions;
 Source.prototype.mineralType = RESOURCE_ENERGY;
 
+var STALL_LIMIT = 5;
+
+var directionOpposites = {};
+directionOpposites[TOP_LEFT] = BOTTOM_RIGHT;
+directionOpposites[TOP] = BOTTOM;
+directionOpposites[TOP_RIGHT] = BOTTOM_LEFT;
+directionOpposites[RIGHT] = LEFT;
+directionOpposites[BOTTOM_RIGHT] = TOP_LEFT;
+directionOpposites[BOTTOM] = TOP;
+directionOpposites[BOTTOM_LEFT] = TOP_RIGHT;
+directionOpposites[LEFT] = RIGHT;
+
 Creep.prototype.run = function () {
 	try{this.moveRoleFlag();}catch(e) {
 		console.log(this.memory.genesis +' ' + this.name+ ' unable to move flag:', e);
@@ -122,8 +134,26 @@ Creep.prototype.gotoThen2 = function () {
 		return;
 	}
 
+	creep.memory.stalled = creep.memory.stalled || 0;
+
+	if (creep.pos.x === creep.memory.lastPos.x &&
+		creep.pos.y === creep.memory.lastPos.y &&
+		creep.pos.roomName === creep.memory.lastPos.roomName &&
+		!creep.memory.tired) {
+			creep.memory.stalled++;
+	}
+
+
 	var target;
-	if (destinationInfo.movingTarget) {
+	if (creep.memory.stalled >= STALL_LIMIT) {
+		var congestedCreeps =  creep.pos.findCrowdedCreeps();
+		var trafficCentre = creep.room.findCentroid(congestedCreeps);
+		var avoidDirection = creep.pos.getDirectionTo(trafficCentre);
+		var goodDirection = directionOpposites[avoidDirection];
+		creep.memory.tired = creep.move(goodDirection) === ERR_TIRED;
+		return;
+
+	}else if (destinationInfo.movingTarget) {
 		target = creep[destinationInfo.movingTarget]();
 	} else {
 		var targetInfo = destinationInfo.target;
@@ -136,12 +166,75 @@ Creep.prototype.gotoThen2 = function () {
 
 	var range = destinationInfo.range;
 	if (creep.pos.inRangeTo(target, range)) {
+		creep.memory.stalled = 0;
 		creep.setAndRun(creep.memory.destination.then);
 		return;
 	}
 
-	creep.moveTo(target, {});
+	creep.memory.tired = creep.moveTo(target, {'reusePath':25}) === ERR_TIRED;
 
+};
+
+RoomPosition.prototype.findCrowdedCreeps = function () {
+
+	var getPosString = function (pos) {
+		return pos.x + ',' + pos.y + ',' + pos.roomName;
+	};
+
+	var roomName = this.roomName;
+	var room = Game.rooms[roomName];
+	var positionsToSearch = [this];
+	var positionsSearched = {};
+	positionsSearched[getPosString(this)] = true;
+	var creepsFound = [];
+
+	for (var pos = positionsToSearch.pop(); pos; pos = positionsToSearch.pop()) {
+
+		var creeps = pos.lookFor(LOOK_CREEPS);
+
+		if (!creeps.length) {
+			continue;
+		}
+
+		creepsFound = creeps.reduce(cat, creepsFound);
+
+		var x = pos.x;
+		var y = pos.y;
+
+		var surroundingPositions = [
+			[x-1, y-1],
+			[x-1, y],
+			[x-1, y+1],
+			[x, y-1],
+			[x, y+1],
+			[x+1, y-1],
+			[x+1, y],
+			[x+1, y+1],
+		];
+
+		positionsToSearch = surroundingPositions.reduce(function (arr, posArr) {
+			var pos = room.getPositionAt(posArr[0], posArr[1]);
+
+			if (pos && !positionsSearched[getPositionString(pos)]) {
+				arr.push(pos);
+			}
+
+			return arr;
+
+		}, positionsToSearch);
+
+		positionsSearched = surroundingPositions.reduce(function (obj, posArr) {
+			var pos = room.getPositionAt(posArr[0], posArr[1]);
+
+			if (pos) {
+				obj[getPosString(pos)] = true;
+			}
+
+			return obj;
+		}, positionsSearched);
+	}
+
+	return creepsFound;
 };
 
 Creep.prototype.gotoThen = function () {
