@@ -355,7 +355,8 @@ RoomPosition.prototype.findNearestStructureTypes = function (types, mineOnly) {
 Creep.prototype.log = function () {
 	var creepClass = this.memory.genesis || 'unknown role';
 	var name = this.name;
-	console.log(creepClass + ' ' + name + ': ', arguments);
+	[].unshift.call(arguments, creepClass + ' ' + name + ': ');
+	console.log.apply(console, arguments);
 };
 
 Creep.prototype.signalRespawn = function (init, spawn) {
