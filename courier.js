@@ -88,17 +88,54 @@ Creep.prototype.movingTargetCourier = function () {
     var creep = this;
     var target;
     var sinks = [];
-    sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
-        switch (structure.structureType) {
-            case STRUCTURE_EXTENSION:
-            case STRUCTURE_SPAWN:
-            case STRUCTURE_TOWER:
-                break;
-            default:
-                return false;
-        }
-        return structure.energy < structure.energyCapacity;
-    }}).reduce(cat, sinks);
+
+	if (creep.room.warZone) {
+		sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
+			switch (structure.structureType) {
+				case STRUCTURE_TOWER:
+					break;
+				default:
+					return false;
+			}
+			return structure.energy < structure.energyCapacity;
+		}}).reduce(cat, sinks);
+
+		if (!sinks.length) {
+			sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
+				switch (structure.structureType) {
+					case STRUCTURE_EXTENSION:
+					case STRUCTURE_SPAWN:
+						break;
+					default:
+						return false;
+				}
+				return structure.energy < structure.energyCapacity;
+			}}).reduce(cat, sinks);
+		}
+	} else {
+		sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
+			switch (structure.structureType) {
+				case STRUCTURE_EXTENSION:
+				case STRUCTURE_SPAWN:
+					break;
+				default:
+					return false;
+			}
+			return structure.energy < structure.energyCapacity;
+		}}).reduce(cat, sinks);
+
+		if (!sinks.length) {
+			sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
+				switch (structure.structureType) {
+					case STRUCTURE_TOWER:
+						break;
+					default:
+						return false;
+				}
+				return structure.energy < structure.energyCapacity;
+			}}).reduce(cat, sinks);
+		}
+	}
     
     target = creep.pos.findClosestByPath(sinks);
 

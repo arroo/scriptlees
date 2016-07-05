@@ -14,17 +14,18 @@ var cat = utils.cat;
 var coerceToPositions = utils.coerceToPositions;
 Source.prototype.mineralType = RESOURCE_ENERGY;
 
+var OBSTACLE_OBJECT_TYPES_OBJ;
 var STALL_LIMIT = 5;
 
 var directionOpposites = {};
-directionOpposites[TOP_LEFT] = BOTTOM_RIGHT;
-directionOpposites[TOP] = BOTTOM;
-directionOpposites[TOP_RIGHT] = BOTTOM_LEFT;
-directionOpposites[RIGHT] = LEFT;
-directionOpposites[BOTTOM_RIGHT] = TOP_LEFT;
-directionOpposites[BOTTOM] = TOP;
-directionOpposites[BOTTOM_LEFT] = TOP_RIGHT;
-directionOpposites[LEFT] = RIGHT;
+directionOpposites[TOP_LEFT] = [BOTTOM_RIGHT, BOTTOM, RIGHT];
+directionOpposites[TOP] = [BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT];
+directionOpposites[TOP_RIGHT] = [BOTTOM_LEFT, LEFT, BOTTOM];
+directionOpposites[RIGHT] = [LEFT, TOP_LEFT, BOTTOM_LEFT];
+directionOpposites[BOTTOM_RIGHT] = [TOP_LEFT, TOP, LEFT];
+directionOpposites[BOTTOM] = [TOP, TOP_LEFT, TOP_RIGHT];
+directionOpposites[BOTTOM_LEFT] = [TOP_RIGHT, TOP, RIGHT];
+directionOpposites[LEFT] = [RIGHT, TOP_RIGHT, BOTTOM_RIGHT];
 
 Creep.prototype.run = function () {
 	try{this.moveRoleFlag();}catch(e) {
@@ -125,6 +126,43 @@ Room.prototype.init = function () {
 	room.memory.init = true;
 };
 
+RoomPosition.prototype.isWalkable = function () {
+	OBSTACLE_OBJECT_TYPES_OBJ = OBSTACLE_OBJECT_TYPES_OBJ || OBSTACLE_OBJECT_TYPES.reduce((o, t) => {o[t] = true; return o;}, {});
+
+	var notWalkable = this.look().some(o => OBSTACLE_OBJECT_TYPES_OBJ[o.type] || o.type === LOOK_TERRAIN && OBSTACLE_OBJECT_TYPES_OBJ[o.terrain]);
+
+	return !notWalkable;
+};
+
+RoomPosition.prototype.inDirection = function (direction) {
+	var x = this.x;
+	var y = this.y;
+
+	// move in x coords
+	if (direction === TOP_LEFT || direction === LEFT || direction === BOTTOM_LEFT) {
+		x--;
+
+	} else if (direction === TOP_RIGHT || direction === RIGHT || direction === BOTTOM_RIGHT) {
+		x++;
+	}
+
+	// move in y coords
+	if (direction === TOP_LEFT || direction === TOP || direction === TOP_RIGHT) {
+		y--;
+
+	} else if (direction === BOTTOM_LEFT || direction === BOTTOM || direction === BOTTOM_RIGHT) {
+		y++;
+	}
+
+	var pos;
+	// make sure direction is actually different
+	if (x !== this.x || y !== this.y) {
+		pos = this.room.getPositionAt(x, y);
+	}
+
+	return pos;
+};
+
 Creep.prototype.gotoThen = function () {
 	var creep = this;
 	var destinationInfo = creep.memory.destination;
@@ -156,8 +194,23 @@ Creep.prototype.gotoThen = function () {
 		var trafficCentre = creep.room.findCentroid(congestedCreeps);
 		var avoidDirection = creep.pos.getDirectionTo(trafficCentre);
 		if (avoidDirection) {
-			var goodDirection = directionOpposites[avoidDirection];
-			creep.memory.tired = creep.move(goodDirection) === ERR_TIRED;
+
+			var goodDirection;
+			var goodDirections = directionOpposites[avoidDirection].slice();
+
+			while (!goodDirection && goodDirections.length) {
+				var testDirection = goodDirections.shift();
+				var directionSpot = creep.pos.inDirection(testDirection);
+
+				if (directionSpot && directionSpot.isWalkable()) {
+					goodDirection = testDirection;
+				}
+			}
+
+			if (goodDirection) {
+				creep.memory.tired = creep.move(goodDirection) === ERR_TIRED;
+			}
+
 			return;
 		}
 
@@ -247,38 +300,6 @@ RoomPosition.prototype.findCrowdedCreeps = function () {
 	}
 
 	return creepsFound;
-};
-
-Creep.prototype.gotoThen2 = function () {
-	var creep = this;
-	var destinationInfo = creep.memory.destination;
-	if (!destinationInfo) {
-		console.log(creep.name + ' unknown destination:' + JSON.stringify(creep.memory));
-		creep.suicide();
-		return;
-	}
-	
-	var target;
-	if (destinationInfo.movingTarget) {
-		target = creep[destinationInfo.movingTarget]();
-	} else {
-		var targetInfo = destinationInfo.target;
-		target = new RoomPosition(targetInfo.x, targetInfo.y, targetInfo.roomName);
-	}
-	
-	if (!target) {
-		return;
-	}
-	
-	var range = destinationInfo.range;
-	if (creep.pos.inRangeTo(target, range)) {
-		creep.setAndRun(creep.memory.destination.then);
-		return;
-	}
-	
-	creep.moveTo(target);
-	
-	
 };
 
 Creep.prototype.setGoing = function(target, then, range, movingTarget) {

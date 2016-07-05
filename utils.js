@@ -214,20 +214,22 @@ var findMinSpanningTreeSingleRoom = function (objs) {
 
 var findMinSpanningTree = function (things) {
 	var objs = coerceToPositions(things);
-	var roomPositions = objs.reduce(function (obj, pos) {
-		if (pos) {
-			obj[pos.roomName] = obj[pos.roomName] || [];
-			obj[pos.roomName].push(pos);
+	var roomPositions = objs.reduce(function (roomPos, obj) {
+		if (obj) {
+			roomPos[obj.pos.roomName] = roomPos[obj.pos.roomName] || [];
+			roomPos[obj.pos.roomName].push(obj);
 		}
 
-		return obj;
+		return roomPos;
 	}, {});
 
 	var adjacentRooms = [];
 
 	allPairs(Object.keys(roomPositions), function (a, b) {
 		if (Game.rooms[a].isAdjacentRoom(Game.rooms[b])) {
-			roomPositions[a].push(Game.rooms[b].openSpotsClosest(Game.rooms[b].getPositionAt(25,25)));
+			let dummyObj = {};
+			dummyObj.pos = Game.rooms[b].openSpotsClosest(Game.rooms[b].getPositionAt(25,25));
+			roomPositions[a].push(dummyObj);
 			adjacentRooms.push([a, b]);
 		}
 	});
@@ -250,7 +252,7 @@ var findMinSpanningTree = function (things) {
 			obj = 1;
 
 			return obj;
-		});
+		}, undefined);
 	});
 
 	console.log(JSON.stringify(roomMSTs));
