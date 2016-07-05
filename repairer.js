@@ -8,18 +8,17 @@
  */
 
 require('CreepFactory');
-var PriorityQueue = require('pqueue');
+//var PriorityQueue = require('pqueue');
 var utils = require('utils');
 var strerror = utils.strerror;
+//var cat = utils.cat;
 
 var REPAIRING = 0;
 var UPGRADING = 1;
 var FILLING = 2;
 
-var cat = utils.cat;
-
 Spawn.prototype.makeRepairer = function (init) {
-	init = init || {};
+	//init = init || {};
 	var mem = {};
 	mem.run = 'startRepairer';
 	mem.genesis = 'makeRepairer';
@@ -68,7 +67,7 @@ RoomPosition.prototype.findNearestDamagedStructure = function () {
 			if (damagedStructureTypes.length) {
 				return pos.findClosestByRange(damagedStructureTypes);
 			}
-		});
+		}, undefined);
 		
 		return target;
 	}, undefined);
@@ -115,24 +114,22 @@ Creep.prototype.movingTargetRepairer = function () {
 		if (creep.carry[mem.resource]) {
 			target = creep.pos.findNearestDamagedStructure();
 			if (target) {
-				creep.log('starting repairing:' + target.id);
 				creep.memory.state = REPAIRING;
 				mem.destination.then = 'runRepairer';
 			} else {
-				creep.log('starting upgrading');
 				creep.memory.state = UPGRADING;
 				target = creep.pos.findNearestStructureTypes(STRUCTURE_CONTROLLER, true);
 				mem.destination.then = 'upgraderRepairer';
 			}
 
 			mem.destination.range = 3;
+
 		} else {
-			creep.memory.state = FILLING;
 			target = creep.pos.findNearestSource(mem.resource, creep.carryCapacity - _.sum(creep.carry));
-			mem.destination.then = 'fillRepairer';
-			mem.destination.range = 1;
 			if (target) {
-				creep.log('starting filling at ' + target.id);
+				creep.memory.state = FILLING;
+				mem.destination.then = 'fillRepairer';
+				mem.destination.range = 1;
 			}
 		}
 	}
@@ -145,28 +142,6 @@ Creep.prototype.movingTargetRepairer = function () {
 	creep.memory.target = target.id;
 
 	return target.pos;
-};
-
-Creep.prototype.waitRepairer = function () {
-	var creep = this;
-	
-	var target = _.sortBy(creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
-		return structure.hits < structure.hitsMax;
-	}}).reduce(cat, []), function (structure) {return structure.hitsMax / structure.hits})[0];
-	if (!target) {
-		target = _.sortBy(creep.room.find(FIND_STRUCTURES, {filter:function (structure) {
-			return structure.hits < structure.hitsMax;
-		}}).reduce(cat, []), function (structure) {return structure.hitsMax / structure.hits})[0];
-	}
-	if (target) {
-		creep.memory.site = target.id;
-		creep.memory.destination.then = 'runRepairer';
-		creep.memory.destination.range = 3;
-		creep.setRun('gotoThen');
-		
-	} else {
-		creep.say('all fixed');
-	}
 };
 
 Creep.prototype.fillRepairer = function () {

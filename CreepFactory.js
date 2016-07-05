@@ -7,43 +7,40 @@
  * mod.thing == 'a thing'; // true
  */
 
-var cat = function (arr, el) {
-	arr.push(el);
+var roomEnergyCreepMax = 0.50;
 
-	return arr;
-};
 
 Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 	
 	extras = extras || [];
 	bonus = bonus || [];
 	extraBonus = extraBonus || [];
-	var extras = false;
+	var hasExtras = false;
 	var bodyCost = function (body) {
 		return body.reduce(function (total, part) {return total + BODYPART_COST[part]}, 0);
 	};
 	
 	// add as many parts as room will allow
-	while (extras.length && bodyCost(body) < this.room.energyCapacityAvailable && body.length < MAX_CREEP_SIZE) {
+	while (extras.length && bodyCost(body) < this.room.energyCapacityAvailable && body.length < MAX_CREEP_SIZE && bodyCost(body) < this.room.energyCapacityAvailable * roomEnergyCreepMax) {
 		body.push(extras.shift());
 	}
 	
 	// add as many parts as current energy stores will allow
-	while (bonus.length && bodyCost(body) < this.room.energyAvailable && body.length < MAX_CREEP_SIZE) {
-		extras = true;
+	while (bonus.length && bodyCost(body) < this.room.energyAvailable && body.length < MAX_CREEP_SIZE && bodyCost(body) < this.room.energyCapacityAvailable * roomEnergyCreepMax) {
+		hasExtras = true;
 		body.push(bonus.shift());
 	}
 	
 	// add bonus parts repeatedly as current energy stores will allow
 	var i = 0;
-	while (extraBonus.length && bodyCost(body) < this.room.energyAvailable && body.length < MAX_CREEP_SIZE) {
+	while (extraBonus.length && bodyCost(body) < this.room.energyAvailable && body.length < MAX_CREEP_SIZE && bodyCost(body) < this.room.energyCapacityAvailable * roomEnergyCreepMax) {
 		body.push(extraBonus[i]);
-		extras = true;
+		hasExtras = true;
 		i = (i + 1) % extraBonus.length;
 	}
 	
 	// make sure room can support this creep
-	if (bodyCost(body) > this.room.energyCapacityAvailable || (extras && bodyCost(body) > this.room.energyAvailable)) {
+	if (bodyCost(body) > this.room.energyCapacityAvailable || (hasExtras && bodyCost(body) > this.room.energyAvailable)) {
 		body.pop();
 	}
 	
