@@ -112,6 +112,37 @@ Room.prototype.init = function () {
 	room.memory.init = true;
 };
 
+Creep.prototype.gotoThen2 = function () {
+	var creep = this;
+	var destinationInfo = creep.memory.destination;
+	if (!destinationInfo) {
+		console.log(creep.name + ' unknown destination:' + JSON.stringify(creep.memory));
+		creep.suicide();
+		return;
+	}
+
+	var target;
+	if (destinationInfo.movingTarget) {
+		target = creep[destinationInfo.movingTarget]();
+	} else {
+		var targetInfo = destinationInfo.target;
+		target = new RoomPosition(targetInfo.x, targetInfo.y, targetInfo.roomName);
+	}
+
+	if (!target) {
+		return;
+	}
+
+	var range = destinationInfo.range;
+	if (creep.pos.inRangeTo(target, range)) {
+		creep.setAndRun(creep.memory.destination.then);
+		return;
+	}
+
+	creep.moveTo(target);
+
+};
+
 Creep.prototype.gotoThen = function () {
 	var creep = this;
 	var destinationInfo = creep.memory.destination;
@@ -318,6 +349,12 @@ RoomPosition.prototype.findNearestStructureTypes = function (types, mineOnly) {
 	});
 	
 	return nearestController;
+};
+
+Creep.prototype.log = function () {
+	var creepClass = this.memory.genesis || 'unknown role';
+	var name = this.name;
+	console.log(creepClass + ' ' + name + ': ', arguments);
 };
 
 Room.prototype.findCentroid = function (things) {

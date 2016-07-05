@@ -59,7 +59,6 @@ RoomPosition.prototype.findNearestDamagedStructure = function () {
 	var nearestDamagedStructure = pos.findNearestThing(function (room) {
 
 		var damagedStructures = room.find(FIND_STRUCTURES, {filter : s => s.hits < s.hitsMax});
-
 		var target = damagedStructureTests.reduce(function (target, filter) {
 			if (target) {
 				return target;
@@ -116,9 +115,11 @@ Creep.prototype.movingTargetRepairer = function () {
 		if (creep.carry[mem.resource]) {
 			target = creep.pos.findNearestDamagedStructure();
 			if (target) {
+				creep.log('starting repairing:' + target.id);
 				creep.memory.state = REPAIRING;
 				mem.destination.then = 'runRepairer';
 			} else {
+				creep.log('starting upgrading');
 				creep.memory.state = UPGRADING;
 				target = creep.pos.findNearestStructureTypes(STRUCTURE_CONTROLLER, true);
 				mem.destination.then = 'upgraderRepairer';
@@ -130,6 +131,9 @@ Creep.prototype.movingTargetRepairer = function () {
 			target = creep.pos.findNearestSource(mem.resource, creep.carryCapacity - _.sum(creep.carry));
 			mem.destination.then = 'fillRepairer';
 			mem.destination.range = 1;
+			if (target) {
+				creep.log('starting filling at ' + target.id);
+			}
 		}
 	}
 
