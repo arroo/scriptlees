@@ -67,12 +67,12 @@ RoomPosition.prototype.findNearestDamagedStructure = function () {
 
 			var damagedStructureTypes = damagedStructures.filter(filter);
 			if (damagedStructureTypes.length) {
-				return pos.findClosestByRange(samagedStructureTypes);
+				return pos.findClosestByRange(damagedStructureTypes);
 			}
 		});
 		
 		return target;
-	});
+	}, undefined);
 
 	return nearestDamagedStructure;
 };
@@ -165,7 +165,7 @@ Creep.prototype.waitRepairer = function () {
 	}
 };
 
-Creep.prototype.fillBuilder = function () {
+Creep.prototype.fillRepairer = function () {
 	var creep = this;
 	var source = Game.getObjectById(creep.memory.target);
 
@@ -181,7 +181,7 @@ Creep.prototype.fillBuilder = function () {
 		delete creep.memory.target;
 		creep.setAndRun('gotoThen');
 	} else if (res !== OK) {
-		console.log('error filling builder ' + creep.name + ':' + strerror(res));
+		console.log('error filling repairer ' + creep.name + ':' + strerror(res));
 	}
 };
 

@@ -27,7 +27,7 @@ module.exports.loop = function () {
 
 	//return;
 	
-	console.log('tick');
+	console.log('-------------------  tick  -------------------');
 	
 	// Cleanup dead objects
 	gc();
