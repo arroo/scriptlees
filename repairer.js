@@ -92,10 +92,9 @@ Creep.prototype.movingTargetRepairer = function () {
 	var target = Game.getObjectById(mem.target);
 	
 	this.basicCreepRespawn({});
-
+	var neededResource = creep.carryCapacity - _.sum(creep.carry);
 	// make sure it's still a valid target
 	if (target) {
-		var neededResource = creep.carryCapacity - _.sum(creep.carry);
 		var predicate = s => true;
 		if (mem.state === REPAIRING && (target instanceof Structure || target.hits < target.hitsMax )) {
 			predicate = s => s === creep.carryCapacity;
@@ -136,7 +135,10 @@ Creep.prototype.movingTargetRepairer = function () {
 			mem.destination.range = 3;
 
 		} else {
-			target = creep.pos.findNearestSource(mem.resource, creep.carryCapacity - _.sum(creep.carry));
+			target = creep.pos.findNearestSource(mem.resource, neededResource);
+			if (!target) {
+				target = creep.pos.findNearestSource(mem.resource);
+			}
 			if (target) {
 				creep.memory.state = FILLING;
 				mem.destination.then = 'fillRepairer';

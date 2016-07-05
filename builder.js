@@ -58,10 +58,10 @@ Creep.prototype.movingTargetBuilder = function () {
 	var mem = creep.memory;
 
 	var target = Game.getObjectById(mem.target);
-
+	var neededResource = creep.carryCapacity - _.sum(creep.carry);
 	// make sure it's still a valid target
 	if (target) {
-		var neededResource = creep.carryCapacity - _.sum(creep.carry);
+		
 		var predicate = s => true;
 		if (target instanceof StructureController || target instanceof ConstructionSite) {
 			predicate = s => s === creep.carryCapacity;
@@ -99,7 +99,10 @@ Creep.prototype.movingTargetBuilder = function () {
 
 			mem.destination.range = 3;
 		} else {
-			target = creep.pos.findNearestSource(mem.resource, creep.carryCapacity - _.sum(creep.carry));
+			target = creep.pos.findNearestSource(mem.resource, neededResource);
+			if (!target) {
+				target = creep.pos.findNearestSource(mem.resource);
+			}
 			mem.destination.then = 'fillBuilder';
 			mem.destination.range = 1;
 		}
