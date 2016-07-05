@@ -114,7 +114,7 @@ Creep.prototype.runMiner = function() {
 		var rangeToSpawn = creep.pos.getRangeTo(spawn);
 		var estimatedTickCost = creep.body.length * CREEP_SPAWN_TIME;
 		var ticksToReplace = rangeToSpawn + estimatedTickCost;
-		if (ticksToReplace > creep.ticksToLive && !mem.signalledDemise) {
+		if (creep.ticksToLive <= ticksToReplace && !mem.signalledDemise) {
 			var init = {};
 			init.flag = mem.flag;
 			creep.log('signalling respawn to spawn ' + spawn.name);

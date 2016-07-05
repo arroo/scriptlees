@@ -11,6 +11,7 @@ var PriorityQueue = require('pqueue');
 var gc = function () {
 // Cleanup dead creeps
 
+	Memory.creeps = Memory.creeps || {};
 	Object.keys(Memory.creeps).forEach(function (name) {
 		if (!Game.creeps[name]) {
 			var mem = Memory.creeps[name];
@@ -68,18 +69,40 @@ var gc = function () {
 	});
 
 	// Cleanup dead spawns
+	Memory.spawns = Memory.spawns || {};
+	var workersToSpawn = new PriorityQueue();
 	Object.keys(Memory.spawns).forEach(function (name) {
 		if (!Game.spawns[name]) {
+			
+			if (Memory.spawns[name]) {
+				var spawnPQ = new PriorityQueue(Memory.spawns[name]);
+				for (let creepInfo = spawnPQ.dequeue(); creepInfo; creepInfo = spawnPQ.dequeue()) {
+					workersToSpawn.queue(0, creepInfo);
+				}
+			}
+			
 			delete Memory.spawns[name];
 		}
 	});
 
+	// add all workers to be made at different spawns randomly (for now)
+	var spawns = Object.keys(Game.spawns).map(n => Game.spawns[n]);
+	var i = 0;
+	if (spawns.length) {
+		for (var recycleCreepInfo = workersToSpawn.dequeue(); recycleCreepInfo; recycleCreepInfo = workersToSpawn.dequeue()) {
+			var spawn = spawns[i];
+			spawn.memory.pq = new PriorityQueue(spawn.memory.pq).queue(0, recycleCreepInfo);
+			i = (i + 1) % spawns.length;
+		}
+	}
+	
 	// Cleanup dead flags
-	/*Object.keys(Memory.flags).forEach(function (name) {
+	Memory.flags = Memory.flags || {};
+	Object.keys(Memory.flags).forEach(function (name) {
 		if (!Game.flags[name]) {
 			delete Memory.flags[name];
 		}
-	});*/
+	});
 };
 
 module.exports = gc;

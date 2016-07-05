@@ -54,7 +54,7 @@ RoomPosition.prototype.findNearestConstructionSite = function () {
 
 Creep.prototype.movingTargetBuilder = function () {
 	var creep = this;
-
+	this.basicCreepRespawn({});
 	var mem = creep.memory;
 
 	var target = Game.getObjectById(mem.target);
@@ -118,7 +118,7 @@ Creep.prototype.movingTargetBuilder = function () {
 Creep.prototype.fillBuilder = function () {
 	var creep = this;
 	var source = Game.getObjectById(creep.memory.target);
-	
+	this.basicCreepRespawn({});
 	// find a new one
 	if (!source || _.sum(creep.carry) >= creep.carryCapacity) {
 		delete creep.memory.target;
@@ -138,7 +138,7 @@ Creep.prototype.fillBuilder = function () {
 Creep.prototype.upgraderBuilder = function () {
 	var creep = this;
 	var controller = Game.getObjectById(creep.memory.target);
-
+	this.basicCreepRespawn({});
 	// find a new one
 	var totalCarry = _.sum(creep.carry);
 	if (!controller || totalCarry <= 0) {
@@ -162,7 +162,7 @@ Creep.prototype.runBuilder = function () {
 	var creep = this;
 	var res;
 	var site = Game.getObjectById(creep.memory.target);
-
+	this.basicCreepRespawn({});
 	var totalCarry = _.sum(creep.carry);
 	if (totalCarry <= 0 || !site) {
 		creep.memory.range = totalCarry ? 3 : 1;

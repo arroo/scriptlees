@@ -373,7 +373,7 @@ Creep.prototype.signalRespawn = function (init, spawn) {
 		spawn = Game.getObjectById(spawn);
 	}
 	
-	if (!(spawn instanceof StructureSpawn)) {
+	if (!(spawn && spawn instanceof StructureSpawn)) {
 		spawn = pos.findNearestFriendlySpawn();
 	}
 	
@@ -421,6 +421,17 @@ Room.prototype.findCentroid = function (things) {
 	var centroid = room.getPositionAt(avgX, avgY);
 
 	return centroid;
+};
+
+Creep.prototype.basicCreepRespawn = function (init) {
+	var creep = this;
+	//var rangeToSpawn = creep.pos.getRangeTo(spawn);
+	var estimatedTickCost = creep.body.length * CREEP_SPAWN_TIME;
+	var ticksToReplace = /*rangeToSpawn +*/ 25 + estimatedTickCost;
+	if (ticksToReplace > creep.ticksToLive && !creep.memory.signalledDemise) {
+		creep.log('signalling respawn to spawn ' + 'random spawn');
+		creep.signalRespawn(init);
+	}
 };
 
 module.exports = {};
