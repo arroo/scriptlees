@@ -30,7 +30,7 @@ Spawn.prototype.makeMiner = function (init) {
 	//console.log('flag name: ' + init.flag)
 	//console.log(JSON.stringify(Game.flags[init.flag]))
 	var flag = Game.flags[init.flag];
-	console.log('makeMiner:finding location of flag:' + init.flag);
+	//console.log('makeMiner:finding location of flag:' + init.flag);
 	var spots = this.room.openSpotsNear(flag);//flag.room.memory.sourceFlags[init.flag].adjacent;
 
 	var adjacent = spots.reduce(function (pos, spot) {
@@ -42,7 +42,7 @@ Spawn.prototype.makeMiner = function (init) {
 			return dobj && dobj.structureType && dobj.structureType === STRUCTURE_CONTAINER;
 		};
 
-		console.log('dsd:' + JSON.stringify(spot));
+		//console.log('dsd:' + JSON.stringify(spot));
 		var pos2 = new RoomPosition(spot.x, spot.y, spot.roomName);
 
 		if (pos2.lookFor(LOOK_STRUCTURES).filter(isContainer).length) {
@@ -65,7 +65,7 @@ Spawn.prototype.makeMiner = function (init) {
 		//adjacent = this.room.getPositionAt(17,40);
 	}
 	
-	console.log('makeMiner: found closest spot to flag:', JSON.stringify(adjacent));
+	//console.log('makeMiner: found closest spot to flag:', JSON.stringify(adjacent));
 	destinationInfo.target = adjacent;
 	mem.destination = destinationInfo;
 	

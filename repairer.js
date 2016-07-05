@@ -36,6 +36,7 @@ Spawn.prototype.makeRepairer = function (init) {
 	var mem = {};
 	mem.run = 'startRepairer';
 	mem.genesis = 'makeRepairer';
+	mem.resource = RESOURCE_ENERGY;
 
 	var body = [MOVE, WORK, CARRY]; // bare minimum creep body definition
 	var extras = [];
