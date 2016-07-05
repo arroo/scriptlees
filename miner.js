@@ -78,6 +78,8 @@ Spawn.prototype.makeMiner = function (init) {
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);
 };
 
+Creep.prototype.startMiner = function () {};
+
 Creep.prototype.runMiner = function() {
 	var creep = this;
 	var res;
@@ -97,7 +99,28 @@ Creep.prototype.runMiner = function() {
 //            return;
 //        }
 //    }
-	
+
+	var spawn;
+	if (!creep.memory.spawn || !Game.getObjectById(creep.memory.spawn)) {
+		spawn = creep.pos.findNearestFriendlySpawn();
+		if (spawn) {
+			creep.memory.spawn = spawn.id;
+		}
+	}
+
+	spawn = Game.getObjectById(creep.memory.spawn);
+	if (spawn) {
+		var rangeToSpawn = creep.pos.getRangeTo(spawn);
+		var estimatedTickCost = creep.body.length * CREEP_SPAWN_TIME;
+		var ticksToReplace = rangeToSpawn + estimatedTickCost;
+		if (ticksToReplace <= creep.ticksToLive && !mem.signalledDemise) {
+			var init = {};
+			init.flag = mem.flag;
+			creep.log('signalling respawn to spawn ' + spawn.name);
+			creep.signalRespawn(init, spawn);
+		}
+	}
+
 	// put down a construction site if needed
 	if (!creep.pos.lookFor(LOOK_STRUCTURES).filter(function (structure) {return structure.structureType===STRUCTURE_CONTAINER}).length) {
 		creep.room.createConstructionSite(creep.pos, STRUCTURE_CONTAINER);

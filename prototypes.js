@@ -7,6 +7,7 @@
  * mod.thing == 'a thing'; // true
  */
 
+var PriorityQueue = require('pqueue');
 var flags = require('flags');
 var utils = require('utils');
 var cat = utils.cat;
@@ -355,6 +356,50 @@ Creep.prototype.log = function () {
 	var creepClass = this.memory.genesis || 'unknown role';
 	var name = this.name;
 	console.log(creepClass + ' ' + name + ': ', arguments);
+};
+
+Creep.prototype.signalRespawn = function (init, spawn) {
+	var creep = this;
+	
+	var mem = creep.memory;
+	var pos = creep.pos;
+
+	var creepInit = {};
+	creepInit.init = init;
+	creepInit.genesis = mem.genesis;
+
+	if (typeof spawn === 'string') {
+		spawn = Game.getObjectById(spawn);
+	}
+	
+	if (!(spawn instanceof StructureSpawn)) {
+		spawn = pos.findNearestFriendlySpawn();
+	}
+	
+	if (!spawn) {
+		return;
+	}
+
+	// don't set the highest priority for some reason?
+	var priority = 0;
+	spawn.memory.pq = new PriorityQueue(spawn.memory.pq).queue(priority, creepInit);
+
+	creep.memory.signalledDemise = true;
+	
+};
+
+RoomPosition.protoype.findNearestFriendlySpawn = function () {
+	var pos = this;
+
+	var nearestFriendlySpawn = pos.findNearestThing(function (room) {
+		var friendlySpawns = room.find(FIND_MY_SPAWNS);
+
+		if (friendlySpawns) {
+			return pos.findClosestByRange(friendlySpawns);
+		}
+	});
+
+	return nearestFriendlySpawn;
 };
 
 Room.prototype.findCentroid = function (things) {

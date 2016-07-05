@@ -10,23 +10,24 @@ var PriorityQueue = require('pqueue');
 
 var gc = function () {
 // Cleanup dead creeps
-	for (var name in Memory.creeps) {
+
+	Object.keys(Memory.creeps).forEach(function (name) {
 		if (!Game.creeps[name]) {
 			var mem = Memory.creeps[name];
 			console.log('clearing memory for defunct ' + mem.genesis + ' ' + name);
 
-			if (mem.signalledDemise) {
-				console.log(mem.genesis + ' ' + name + ' already signalled death, deleting memory');
-				delete Memory.creeps[name];
-				continue;
-			}
-			
 			if (mem.flags && mem.flags.role) {
 				try {
 					Game.flags[mem.flags.role].remove();
 				} catch (e) {
 					console.log('unable to remove ' + name + '\'s flag:', e)
 				}
+			}
+
+			if (mem.signalledDemise) {
+				console.log(mem.genesis + ' ' + name + ' already signalled death, deleting memory');
+				delete Memory.creeps[name];
+				return;
 			}
 
 			var pos = mem.lastPos;
@@ -64,15 +65,21 @@ var gc = function () {
 
 			delete Memory.creeps[name];
 		}
-	}
+	});
 
-// Cleanup dead spawns
-	for (var name in Memory.spawns) {
+	// Cleanup dead spawns
+	Object.keys(Memory.spawns).forEach(function (name) {
 		if (!Game.spawns[name]) {
 			delete Memory.spawns[name];
 		}
-	}
+	});
 
+	// Cleanup dead flags
+	Object.keys(Memory.flags).forEach(function (name) {
+		if (!Game.flags[name]) {
+			delete Memory.flags[name];
+		}
+	});
 };
 
 module.exports = gc;
