@@ -67,8 +67,9 @@ module.exports.loop = function () {
 	if (Memory.makeTempMinions) {
 	
 		var tempCreeps = [
-			{'priority':4,'item':{'genesis':'makeBuilder', 'init':{}}},
-			{'priority':4,'item':{'genesis':'makeBuilder', 'init':{}}}
+			{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}},
+			{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}},
+			{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}}
 		];
 		Game.spawns.Spawn1.memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
 			return pq.queue(creepInfo);

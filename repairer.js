@@ -16,20 +16,7 @@ var REPAIRING = 0;
 var UPGRADING = 1;
 var FILLING = 2;
 
-var cat = function (arr, el) {
-	arr.push(el);
-	return arr;
-};
-
-var findNearestSource = function (pos) {
-	var room = Game.rooms[pos.roomName];
-	var sources = [];
-	sources = room.find(FIND_SOURCES).reduce(cat, sources);
-	sources = room.find(FIND_DROPPED_RESOURCES).reduce(cat, sources);
-	sources = room.find(FIND_STRUCTURES, {filter:function(structure){return structure.structureType===STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY]}}).reduce(cat, sources);
-	
-	return pos.findClosestByPath(sources);
-};
+var cat = utils.cat;
 
 Spawn.prototype.makeRepairer = function (init) {
 	init = init || {};
