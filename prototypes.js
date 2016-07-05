@@ -18,14 +18,14 @@ var OBSTACLE_OBJECT_TYPES_OBJ;
 var STALL_LIMIT = 5;
 
 var directionOpposites = {};
-directionOpposites[TOP_LEFT] = [BOTTOM_RIGHT, BOTTOM, RIGHT];
-directionOpposites[TOP] = [BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT];
-directionOpposites[TOP_RIGHT] = [BOTTOM_LEFT, LEFT, BOTTOM];
-directionOpposites[RIGHT] = [LEFT, TOP_LEFT, BOTTOM_LEFT];
-directionOpposites[BOTTOM_RIGHT] = [TOP_LEFT, TOP, LEFT];
-directionOpposites[BOTTOM] = [TOP, TOP_LEFT, TOP_RIGHT];
-directionOpposites[BOTTOM_LEFT] = [TOP_RIGHT, TOP, RIGHT];
-directionOpposites[LEFT] = [RIGHT, TOP_RIGHT, BOTTOM_RIGHT];
+directionOpposites[TOP_LEFT] = [BOTTOM_RIGHT, BOTTOM, RIGHT, BOTTOM_LEFT, TOP_RIGHT, LEFT, TOP];
+directionOpposites[TOP] = [BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT];
+directionOpposites[TOP_RIGHT] = [BOTTOM_LEFT, LEFT, BOTTOM, TOP_LEFT, BOTTOM_RIGHT, TOP, RIGHT];
+directionOpposites[RIGHT] = [LEFT, TOP_LEFT, BOTTOM_LEFT, TOP, BOTTOM, TOP_RIGHT, BOTTOM_RIGHT];
+directionOpposites[BOTTOM_RIGHT] = [TOP_LEFT, TOP, LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM, RIGHT];
+directionOpposites[BOTTOM] = [TOP, TOP_LEFT, TOP_RIGHT, LEFT, RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT];
+directionOpposites[BOTTOM_LEFT] = [TOP_RIGHT, TOP, RIGHT, TOP_LEFT, BOTTOM_RIGHT, LEFT, BOTTOM];
+directionOpposites[LEFT] = [RIGHT, TOP_RIGHT, BOTTOM_RIGHT, TOP, BOTTOM, TOP_LEFT, BOTTOM_LEFT];
 
 Creep.prototype.run = function () {
 	try{this.moveRoleFlag();}catch(e) {
@@ -157,7 +157,7 @@ RoomPosition.prototype.inDirection = function (direction) {
 	var pos;
 	// make sure direction is actually different
 	if (x !== this.x || y !== this.y) {
-		pos = this.room.getPositionAt(x, y);
+		pos = Game.rooms[this.roomName].getPositionAt(x, y);
 	}
 
 	return pos;
