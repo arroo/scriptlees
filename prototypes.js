@@ -510,7 +510,7 @@ RoomPosition.prototype.findNearestFriendlySpawn = function () {
 
 Room.prototype.findCentroid = function (things) {
 	var room = this;
-	var poses = coerceToPositions(things).filter(pos => pos.roomName === room.name);
+	var poses = coerceToPositions(things).map(o => o.pos).filter(pos => pos.roomName === room.name);
 
 	if (!poses.length) {
 		return;

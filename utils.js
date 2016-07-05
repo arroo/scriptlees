@@ -65,7 +65,7 @@ var strerror = function (errno) {
 	}
 };
 
-var coerceToPositions = function (things) {
+var coerceToPositions = function (things, keepEmpties) {
 
 	return things.reduce(function (arr, thing) {
 
@@ -74,12 +74,14 @@ var coerceToPositions = function (things) {
 		if (typeof thing === 'undefined') {
 			return arr;
 		} else if (thing instanceof RoomPosition) {
+			thing.pos = thing;
 			pos = thing;
 		} else if (typeof thing === 'object') {
 			if (typeof thing.x === 'number' && typeof thing.y === 'number' && typeof thing.roomName === 'string' && Game.rooms[thing.roomName]) {
-				pos = Game.rooms[thing.roomName].getPositionAt(thing.x, thing.y);
+				thing.pos = Game.rooms[thing.roomName].getPositionAt(thing.x, thing.y);
+				pos = thing;
 			} else if (thing.pos instanceof RoomPosition) {
-				pos = thing.pos;
+				pos = thing;
 			} else {
 
 			}
@@ -94,6 +96,8 @@ var coerceToPositions = function (things) {
 			}
 
 			arr.push(pos);
+		} else if (keepEmpties) {
+			arr.push(undefined);
 		}
 
 		return arr;
@@ -111,11 +115,11 @@ var allPairs = function (arr, fn) {
 };
 
 // this is the meat of finding minimum spanning trees
-var findMinSpanningTreeSingleRoom = function (positions) {
+var findMinSpanningTreeSingleRoom = function (objs) {
 
 	var seen = {};
 	var weights = {};
-	var posArray = positions.reduce((a, p) => {a.push(a.length); return a}, []);
+	var posArray = objs.reduce((a, p) => {a.push(a.length); return a}, []);
 	allPairs(posArray, function (a, b) {
 		seen[a] = seen[a] || {};
 		seen[a][b] = false;
@@ -135,8 +139,8 @@ var findMinSpanningTreeSingleRoom = function (positions) {
 
 		seen[a][b] = seen[b][a] = true;
 
-		var baseSpot = positions[a];
-		var testSpot = positions[b];
+		var baseSpot = objs[a].pos;
+		var testSpot = objs[b].pos;
 
 		var path = baseSpot.findPathTo(testSpot, {ignoreCreeps : true, ignoreDestructibleStructures: true});
 		if (!path || !path.length) {
@@ -211,8 +215,11 @@ var findMinSpanningTreeSingleRoom = function (positions) {
 var findMinSpanningTree = function (things) {
 	var objs = coerceToPositions(things);
 	var roomPositions = objs.reduce(function (obj, pos) {
-		obj[pos.roomName] = obj[pos.roomName] || [];
-		obj[pos.roomName].push(pos);
+		if (pos) {
+			obj[pos.roomName] = obj[pos.roomName] || [];
+			obj[pos.roomName].push(pos);
+		}
+
 		return obj;
 	}, {});
 
