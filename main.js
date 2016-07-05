@@ -120,7 +120,8 @@ module.exports.loop = function () {
 
 	var bucket = Game.cpu.bucket;
 	var cpuUsed = Game.cpu.getUsed();
-	var cpuLimit = Game.cpu.tickLimit || 1;
-	var cpuPercent = ((cpuUsed / cpuLimit) * 100).toFixed(2) + '%';
-	console.log('tock: cpu used:' + cpuUsed.toFixed(2) + ' cpu limit:' + cpuLimit + ' percent:' + cpuPercent + ' bucket:' + bucket);
+	var cpuLimitReserve = Game.cpu.tickLimit || 1;
+	var cpuLimitNormal = Game.cpu.limit || 1;
+	var cpuPercents = '(' + ((cpuUsed / cpuLimitNormal) * 100).toFixed(2) + '%, ' + ((cpuUsed / cpuLimitReserve) * 100).toFixed(2) + '%)';
+	console.log('tock: cpu used:' + cpuUsed.toFixed(2) + ' cpu limit:' + cpuLimit + ' percent:' + cpuPercents + ' bucket:' + bucket);
 };
