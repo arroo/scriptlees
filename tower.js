@@ -1,4 +1,6 @@
 
+var BATTLE_RESERVE_PERCENT = 0.75;
+
 var needsRepair = function (thing) {
 	if (thing.hits && thing.hitsMax) {
 		return thing.hits < thing.hitsMax;
@@ -23,21 +25,22 @@ StructureTower.prototype.doAction = function (action, target, amount) {
 	return false;
 };
 
-StructureTower.prototype.doAttacks = function () {
+StructureTower.prototype.doAttacksAndTriage = function () {
 
-	var target = _.min(this.room.find(FIND_HOSTILE_CREEPS), howDead);
-	if (target === Infinity) {
-		target = undefined;
-	}
+	var targetHostile = _.min(this.room.find(FIND_HOSTILE_CREEPS), howDead);
+	var targetFriendly = _.min(this.room.find(FIND_MY_CREEPS, {filter: needsRepair}), howDamaged);
 
-	if (!target) {
-		target = _.min(this.room.find(FIND_HOSTILE_STRUCTURES), howDead);
+	if (targetHostile === Infinity && targetFriendly === Infinity) {
+		
+	} else if (targetHostile === Infinity) {
+		return this.doAction('heal', targetFriendly);
+	} else if (targetFriendly === Infinity) {
+		return this.doAction('attack', targetHostile);
+	} else if (targetFriendly.hits < targetHostile.hits) {
+		return this.doAction('heal', targetFriendly);
+	} else {
+		return this.doAction('attack', targetHostile);
 	}
-	if (target === Infinity) {
-		target = undefined;
-	}
-
-	return this.doAction('attack', target);
 };
 
 StructureTower.prototype.doRepairs = function () {
@@ -60,19 +63,11 @@ StructureTower.prototype.doHeals = function () {
 	return this.doAction('heal', this.pos.findClosestByRange(FIND_MY_CREEPS, {filter: needsRepair}));
 };
 
-StructureTower.prototype.doTriage = function () {
-	var target = _.min(this.room.warZone.pos.find(FIND_MY_CREEPS, {filter: needsRepair}), howDamaged);
-	if (target === Infinity) {
-		target = undefined;
-	}
-	return this.doAction('heal', target);
-};
-
 StructureTower.prototype.run = function () {
 
 	try {
-		if (this.energy >= TOWER_ENERGY_COST) {
-			(this.room.memory.warZone && (this.doAttacks() || this.doTriage())) || this.doRepairs() || this.doHeals();
+		if (this.room.memory.warZone || this.energy / this.energyCapacity >= BATTLE_RESERVE_PERCENT) {
+			(this.room.memory.warZone && (this.doAttacksAndTriage())) || this.doRepairs() || this.doHeals();
 		}
 
 	} catch (error) {

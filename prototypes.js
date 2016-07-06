@@ -309,7 +309,7 @@ RoomPosition.prototype.findCrowdedCreeps = function () {
 			var pos = room.getPositionAt(posArr[0], posArr[1]);
 
 			if (pos) {
-				obj[getPosString(pos)] = true;
+				obj[pos.getPosString()] = true;
 			}
 
 			return obj;

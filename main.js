@@ -33,6 +33,40 @@ module.exports.loop = function () {
 	Memory.congestionSites = {};
 	Memory.constructionSites = Game.constructionSites;
 
+	if (Memory.wantStorage) {
+		try {
+			if (Game.rooms.E7N33.getPositionAt(32, 30).createConstructionSite(STRUCTURE_STORAGE) === OK) {
+				Memory.wantStorage = false;
+				delete Memory.wantStorage;
+
+				var extensionPlaces = [
+					[40, 31],
+					[40, 32],
+					[41, 32],
+					[41, 31],
+					[42, 32],
+					[37, 35],
+					[36, 35],
+					[37, 34],
+					[36, 34],
+					[35, 34]
+				];
+				extensionPlaces.forEach(function (coords) {
+					var x = coords[0];
+					var y = coords[1];
+
+					Game.rooms.E7N33.getPositionAt(x, y).createConstructionSite(STRUCTURE_EXTENSION);
+				});
+
+			}
+		} catch (error) {
+			Memory.wantStorage = false;
+			delete Memory.wantStorage;
+
+			Game.notify('exception while making storage:' + error);
+		}
+	}
+
 	Object.keys(Game.creeps).forEach(function (name) {
 		var creep = Game.creeps[name];
 		

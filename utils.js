@@ -115,10 +115,10 @@ var allPairs = function (arr, fn) {
 };
 
 // this is the meat of finding minimum spanning trees
-var findMinSpanningTreeSingleRoom = function (objs) {
+var findMinSpanningTreeSingleRoom = function (objs, weights) {
 
 	var seen = {};
-	var weights = {};
+	weights = weights || {};
 	var posArray = objs.reduce((a, p) => {a.push(a.length); return a}, []);
 	allPairs(posArray, function (a, b) {
 		seen[a] = seen[a] || {};
@@ -138,6 +138,11 @@ var findMinSpanningTreeSingleRoom = function (objs) {
 		}
 
 		seen[a][b] = seen[b][a] = true;
+		var knownWeight = weights[a][b] ||weights[b][a];
+		if (knownWeight) {
+			weights[a][b] = weights[b][a] = knownWeight;
+			return;
+		}
 
 		var baseSpot = objs[a].pos;
 		var testSpot = objs[b].pos;
@@ -212,7 +217,7 @@ var findMinSpanningTreeSingleRoom = function (objs) {
 	return mst;
 };
 
-var findMinSpanningTree = function (things) {
+var findMinSpanningTree = function (things, weights) {
 	var objs = coerceToPositions(things);
 	var roomPositions = objs.reduce(function (roomPos, obj) {
 		if (obj) {
@@ -237,19 +242,25 @@ var findMinSpanningTree = function (things) {
 	// find mst for each room
 	var roomMSTs = 	Object.keys(roomPositions).reduce(function (mst, name) {
 		
-		mst[name] = findMinSpanningTreeSingleRoom(roomPositions[name]);
+		mst[name] = findMinSpanningTreeSingleRoom(roomPositions[name], weights[name]);
 
 		return mst;
 	}, {});
 
 	// combine adjacent rooms to get full map
-	adjacentRooms.forEach(function (a, b) {
+	adjacentRooms.forEach(function (pair) {
+
+		var pairedObjs = pair.reduce(function (arr, roomName) {
+
+			
+		}, []);
+
 		var aLink = roomPositions[a].reduce(function (obj, pos) {
 			if (obj) {
 				return obj;
 			}
 
-			obj = 1;
+
 
 			return obj;
 		}, undefined);

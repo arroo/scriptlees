@@ -57,7 +57,7 @@ Spawn.prototype.makeCourier = function (init) {
     init = init || {};
     var mem = {};
 
-	if (init.flags) {
+	if (init.flags && 0) {
 		mem.flags = init.flags;
 		mem.run = 'startCourier';
 		mem.genesis = 'makeCourier';
