@@ -444,15 +444,16 @@ RoomPosition.prototype.findNearestThing = function (findFunction) {
 
 	while (!target && roomsToSee.length) {
 		var room = Game.rooms[roomsToSee.shift()];
-		roomsSeen[room] = true;
+		roomsSeen[room.name] = true;
 
 		target = findFunction(room);
 
 		// prep next room;
 		var exits = Game.map.describeExits(room.name);
-		roomsToSee = Object.keys(exits).reduce(function (arr, name) {
+		roomsToSee = Object.keys(exits).reduce(function (arr, direction) {
+			var name = exits[direction];
 			if (Game.rooms[name] && !roomsSeen[name]) {
-				a.push(n);
+				arr.push(name);
 			}
 			return arr;
 		}, roomsToSee);
