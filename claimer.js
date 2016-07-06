@@ -75,7 +75,7 @@ Creep.prototype.movingTargetClaimer = function () {
 	target.pos = new RoomPosition(mem.target.x, mem.target.y, mem.target.roomName);
 	if (creep.room.name === mem.room) {
 		// switch to walking to controller
-		target = room.controller;
+		target = creep.room.controller;
 	}
 
 	if (!target) {

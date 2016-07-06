@@ -67,7 +67,7 @@ Room.prototype.openSpotsClosest = function (obj) {
 			return areaObj.type=='terrain' && (areaObj.terrain=='plain' || areaObj.terrain=='swamp');
 		})
 		.map(function (areaInfo) {
-			return new RoomPosition(areaInfo.x, areaInfo.y, that.name)
+			return new RoomPosition(areaInfo.x, areaInfo.y, obj.name)
 		});
 		
 		if (openSpots.length) {
@@ -92,7 +92,7 @@ Room.prototype.openSpotsNear = function(obj) {
 			return areaObj.type=='terrain' && (areaObj.terrain=='plain' || areaObj.terrain=='swamp');
 		})
 		.map(function (areaInfo) {
-			return new RoomPosition(areaInfo.x, areaInfo.y, that.name)
+			return new RoomPosition(areaInfo.x, areaInfo.y, obj.name)
 		});
 		
 		Memory.rooms[this.name].spots[posString] = openSpots;
