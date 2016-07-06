@@ -132,7 +132,19 @@ Room.prototype.init = function () {
 		
 		return obj;
 	}, {});
-	
+
+	var nearestSpawn = room.getPositionAt(25,25).findNearestFriendlySpawn();
+	if (nearestSpawn) {
+		nearestSpawn.memory.pq = Object.keys(room.memory.sourceFlags).reduce(function (pq, flagName) {
+			var creepInfo = {};
+			creepInfo.genesis = 'makeMiner';
+			creepInfo.init = {};
+			creepInfo.init.flag = flagName;
+			
+			return pq.queue(5, creepInfo);	
+		}, new PriorityQueue(nearestSpawn.memory.pq));
+	}
+
 	room.memory.init = true;
 };
 

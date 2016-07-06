@@ -19,6 +19,7 @@ var miner = require('miner');
 var courier = require('courier');
 var repairer = require('repairer');
 var tower = require('tower');
+var claimer = require('claimer');
 
 var utils = require('utils');
 var strerror = utils.strerror;
@@ -59,6 +60,13 @@ module.exports.loop = function () {
 
 					Game.rooms.E7N33.getPositionAt(x, y).createConstructionSite(STRUCTURE_EXTENSION);
 				});
+
+				var reservers = [
+					{'priority':4,'item':{'genesis':'makeClaimer', 'init':{'room':'E6N33', 'task':1}}}
+				];
+				Game.spawns.Spawn1.memory.pq = reservers.reduce(function (pq, creepInfo) {
+					return pq.queue(creepInfo);
+				}, new PriorityQueue(Game.spawns.Spawn1.memory.pq));
 
 			}
 		} catch (error) {
