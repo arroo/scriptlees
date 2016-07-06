@@ -44,6 +44,7 @@ combos['makeRepairer'] = [COLOR_GREY, COLOR_CYAN];
 combos['makeMiner'] = [COLOR_GREY, COLOR_YELLOW];
 combos['makeCourier'] = [COLOR_GREY, COLOR_WHITE];
 combos['makeUpgrader'] = [COLOR_GREY, COLOR_PURPLE];
+combos['makeClaimer'] = [COLOR_GREY, COLOR_ORANGE];
 combos['makeUnknown'] = [COLOR_GREY, COLOR_GREY];
 
 

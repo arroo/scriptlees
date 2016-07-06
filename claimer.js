@@ -52,6 +52,7 @@ Creep.prototype.startClaimer = function () {
 	}
 
 	if (target) {
+		creep.memory.target = target;
 		creep.setGoing(target, thenFunction, 1, 'movingTargetClaimer');
 	} else {
 		creep.log('cannot get a position in target room ' + creep.memory.room);
