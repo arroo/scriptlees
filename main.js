@@ -29,7 +29,9 @@ module.exports.loop = function () {
 	
 	console.log('-------------------  tick  -------------------');
 	// Cleanup dead objects
-	gc();
+	if (Game.time % 10 === 0) {
+		gc();
+	}
 	Memory.congestionSites = {};
 	Memory.constructionSites = Game.constructionSites;
 
@@ -152,7 +154,7 @@ module.exports.loop = function () {
 	Object.keys(Game.rooms).forEach(function (name) {
 		Game.rooms[name].plan();
 	});
-
+	Memory.congestionSites = {};
 	var bucket = Game.cpu.bucket;
 	var cpuUsed = Game.cpu.getUsed();
 	var cpuLimitReserve = Game.cpu.tickLimit || 1;

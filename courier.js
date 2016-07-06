@@ -294,7 +294,7 @@ Creep.prototype.runCourier = function () {
     var site = Game.getObjectById(creep.memory.site);
 
 	var totalCarrying = _.sum(creep.carry);
-    if (totalCarrying <= 0 || (!site || site.energy >= site.energyCapacity) && totalCarrying < 0.5 * creep.carryCapacity) {
+    if (totalCarrying <= 0 || (!site || site.energy >= site.energyCapacity) && totalCarrying < 50) {
         delete creep.memory.destination.movingTarget;
         var source = findNearestSource(creep.pos);
         if (!source) {
