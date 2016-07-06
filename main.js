@@ -61,13 +61,6 @@ module.exports.loop = function () {
 					Game.rooms.E7N33.getPositionAt(x, y).createConstructionSite(STRUCTURE_EXTENSION);
 				});
 
-				var reservers = [
-					{'priority':4,'item':{'genesis':'makeClaimer', 'init':{'room':'E6N33', 'task':1}}}
-				];
-				Game.spawns.Spawn1.memory.pq = reservers.reduce(function (pq, creepInfo) {
-					return pq.queue(creepInfo);
-				}, new PriorityQueue(Game.spawns.Spawn1.memory.pq));
-
 			}
 		} catch (error) {
 			Memory.wantStorage = false;
@@ -112,9 +105,9 @@ module.exports.loop = function () {
 	if (Memory.makeTempMinions) {
 	
 		var tempCreeps = [
-			{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}},
-			{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}},
-			{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}}
+			//{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}},
+			//{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}},
+			//{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}}
 		];
 		Game.spawns.Spawn1.memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
 			return pq.queue(creepInfo);
