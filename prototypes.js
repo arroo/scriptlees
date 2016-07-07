@@ -651,14 +651,16 @@ Room.prototype.find2 = (function (mem) {
 	var find = Room.prototype.find;
 	var closure = function (type, obj) {
 
-		mem[type] = mem[type] || find.call(this, type);
+		var tick = Game.time;
+		mem[tick] = mem[tick] || {};
+		mem[tick][type] = mem[tick][type] || find.call(this, type);
 
 		var result;
 		if (typeof obj === 'object' && obj.filter) {
-			result = _.filter(mem[type], obj.filter);
+			result = _.filter(mem[tick][type], obj.filter);
 
 		} else {
-			result = _.clone(mem[type]);
+			result = _.clone(mem[tick][type]);
 		}
 
 		return result;
