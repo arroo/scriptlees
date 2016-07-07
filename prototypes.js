@@ -483,8 +483,12 @@ RoomPosition.prototype.findNearestThing = function (findFunction) {
 
 	while (!target && roomsToSee.length) {
 		var posInfo = roomsToSee.shift();
-		var room = Game.rooms[posInfo[0] || Object.keys(Game.rooms)[0]];
+		var room = Game.rooms[posInfo[0]];
+		if (!room) {
+			room = Game.rooms[Object.keys(Game.rooms)[0]];
+		}
 		var pos = posInfo[1];
+		pos.roomName = room.name;
 		roomsSeen[room.name] = true;
 
 		target = findFunction.call(pos, room);
@@ -630,6 +634,17 @@ Creep.prototype.basicCreepRespawn = function (init) {
 		creep.log('signalling respawn to spawn ' + 'random spawn');
 		creep.signalRespawn(init);
 	}
+};
+
+Room.prototype.oldFind = Room.prototype.find;
+
+Room.prototype.find2 = function (type, obj) {
+	var name = this.name;
+
+	Memory.finds[name] = Memory.finds[name] || {};
+	Memory.finds[name][type] || this.oldFind(type);
+
+	return _.filter(Memory.finds[name][type], obj.filter);
 };
 
 module.exports = {};

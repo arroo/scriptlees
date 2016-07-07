@@ -35,6 +35,7 @@ module.exports.loop = function () {
 	}
 	Memory.congestionSites = {};
 	Memory.constructionSites = Game.constructionSites;
+	Memory.finds = {};
 
 	if (Memory.wantStorage) {
 		try {
