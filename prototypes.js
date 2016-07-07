@@ -647,22 +647,21 @@ Creep.prototype.basicCreepRespawn = function (init) {
 	}
 };
 
-Room.prototype.oldFind = Room.prototype.find;
-
 Room.prototype.find2 = (function (mem) {
-
+	var find = Room.prototype.find;
 	var closure = function (type, obj) {
-		obj = obj || {};
 
-		if (!mem[type]) {
-			mem[type] = this.oldFind(type);
+		mem[type] = mem[type] || find.call(this, type);
+
+		var result;
+		if (typeof obj === 'object' && obj.filter) {
+			result = _.filter(mem[type], obj.filter);
+
+		} else }
+			result = _.clone(mem[type]);
 		}
 
-		if (obj.filter) {
-			return _.filter(mem[type], obj.filter);
-		}
-
-		return _.clone(mem[type]);
+		return result;
 	};
 	return closure;
 })({});
