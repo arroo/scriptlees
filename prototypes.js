@@ -438,22 +438,64 @@ Creep.prototype.takeResource = function (target, resource, amount) {
 
 RoomPosition.prototype.findNearestThing = function (findFunction) {
 
-	var roomsToSee = [this.roomName];
+	var getEntrancePosition = function (direction, name) {
+		direction = directionOpposites[direction][0];
+		var x;
+		// get x coord for new room
+		switch(direction) {
+			case TOP_RIGHT:
+			case BOTTOM_RIGHT:
+			case RIGHT:
+				x = 49;
+				break;
+			case TOP_LEFT:
+			case BOTTOM_LEFT:
+			case LEFT:
+				x = 1;
+				break;
+			default:
+				x = 25;
+		}
+
+		var y;
+		// get y coord for new room
+		switch(direction) {
+			case BOTTOM_LEFT:
+			case BOTTOM_RIGHT:
+			case BOTTOM:
+				y = 49;
+				break;
+			case TOP_LEFT:
+			case TOP_RIGHT:
+			case TOP:
+				y = 1;
+				break;
+			default:
+				y = 25;
+		}
+		
+		return new RoomPosition(x, y, name);
+	};
+
+	var roomsToSee = [[this.roomName, this]];
 	var roomsSeen = {};
 	var target;
 
 	while (!target && roomsToSee.length) {
-		var room = Game.rooms[roomsToSee.shift()];
+		var posInfo = Game.rooms[roomsToSee.shift()];
+		var room = posInfo[0];
+		var pos = posInfo[1];
 		roomsSeen[room.name] = true;
 
-		target = findFunction(room);
+		target = findFunction.call(pos, room);
 
 		// prep next room;
 		var exits = Game.map.describeExits(room.name);
 		roomsToSee = Object.keys(exits).reduce(function (arr, direction) {
 			var name = exits[direction];
 			if (Game.rooms[name] && !roomsSeen[name]) {
-				arr.push(name);
+
+				arr.push(name, getEntrancePosition(direction, name));
 			}
 			return arr;
 		}, roomsToSee);
@@ -479,7 +521,7 @@ RoomPosition.prototype.findNearestSource = function (resource, min) {
 		}
 
 
-		return pos.findClosestByRange(sources);
+		return this.findClosestByRange(sources);
 	});
 	
 	return nearestSource;
@@ -502,7 +544,7 @@ RoomPosition.prototype.findNearestStructureTypes = function (types, mineOnly) {
 			controllers = room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_CONTROLLER}});
 		}
 
-		return pos.findClosestByRange(controllers);
+		return this.findClosestByRange(controllers);
 	});
 	
 	return nearestController;
@@ -552,7 +594,7 @@ RoomPosition.prototype.findNearestFriendlySpawn = function () {
 		var friendlySpawns = room.find(FIND_MY_SPAWNS);
 
 		if (friendlySpawns) {
-			return new RoomPosition(25, 25, room.name).findClosestByRange(friendlySpawns);
+			return this.findClosestByRange(friendlySpawns);
 		}
 	});
 

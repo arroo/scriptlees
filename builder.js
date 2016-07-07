@@ -46,7 +46,7 @@ RoomPosition.prototype.findNearestConstructionSite = function () {
 	var nearestConstructionSite = pos.findNearestThing(function (room) {
 		var sites = room.find(FIND_MY_CONSTRUCTION_SITES);
 
-		return pos.findClosestByRange(sites);
+		return this.findClosestByRange(sites);
 	});
 
 	return nearestConstructionSite;

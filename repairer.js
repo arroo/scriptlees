@@ -71,7 +71,7 @@ RoomPosition.prototype.findNearestDamagedStructure = function () {
 				var mostDamagedStructure = _.min(damagedStructureTypes, s => s.hits/s.hitsMax);
 				
 				if (mostDamagedStructure === Infinity) {
-					return pos.findClosestByRange(damagedStructureTypes);
+					return this.findClosestByRange(damagedStructureTypes);
 				}
 				
 				return mostDamagedStructure;
