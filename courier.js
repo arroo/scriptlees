@@ -121,28 +121,22 @@ Creep.prototype.movingTargetCourier = function () {
 
 		if (!sinks.length) {
 			sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
-				switch (structure.structureType) {
-					case STRUCTURE_EXTENSION:
-					case STRUCTURE_SPAWN:
-					case STRUCTURE_STORAGE:
-						break;
-					default:
-						return false;
+				if (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN) {
+					return structure.energy < structure.energyCapacity;
 				}
-				return structure.energy < structure.energyCapacity;
+				if (structure.structureType === STRUCTURE_STORAGE) {
+					return _.sum(structure.store) < structure.storeCapacity;
+				}
 			}}).reduce(cat, sinks);
 		}
 	} else {
 		sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
-			switch (structure.structureType) {
-				case STRUCTURE_EXTENSION:
-				case STRUCTURE_SPAWN:
-				case STRUCTURE_STORAGE:
-					break;
-				default:
-					return false;
+			if (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN) {
+				return structure.energy < structure.energyCapacity;
 			}
-			return structure.energy < structure.energyCapacity;
+			if (structure.structureType === STRUCTURE_STORAGE) {
+				return _.sum(structure.store) < structure.storeCapacity;
+			}
 		}}).reduce(cat, sinks);
 
 		if (!sinks.length) {

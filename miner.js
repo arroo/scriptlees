@@ -70,7 +70,7 @@ Spawn.prototype.makeMiner = function (init) {
 	mem.destination = destinationInfo;
 	
 
-	var body = [MOVE, WORK, CARRY]; // bare minimum creep body definition
+	var body = [MOVE, WORK]; // bare minimum creep body definition
 	var extras = [WORK, WORK, WORK, WORK];
 	var bonus = [MOVE, MOVE, MOVE, MOVE];
 	var extraBonus = [];
