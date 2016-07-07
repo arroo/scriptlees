@@ -496,7 +496,10 @@ RoomPosition.prototype.findNearestThing = function (findFunction) {
 		var posInfo = roomsToSee.shift();
 		var room = Game.rooms[posInfo[0]];
 		if (!room) {
-			room = Game.rooms[Object.keys(Game.rooms)[0]];
+			if(typeof (room = _.find(Object.keys(Game.rooms), n => !roomsSeen[n])) === 'undefined') {
+				continue;
+			}
+			room = Game.rooms[room]
 		}
 		var pos = posInfo[1];
 		pos.roomName = room.name;
