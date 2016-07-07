@@ -657,7 +657,7 @@ Room.prototype.find2 = (function (mem) {
 		if (typeof obj === 'object' && obj.filter) {
 			result = _.filter(mem[type], obj.filter);
 
-		} else }
+		} else {
 			result = _.clone(mem[type]);
 		}
 
