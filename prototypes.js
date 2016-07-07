@@ -247,7 +247,7 @@ Creep.prototype.gotoThen = function () {
 		var targetInfo = destinationInfo.target;
 		target = new RoomPosition(targetInfo.x, targetInfo.y, targetInfo.roomName);
 	} else if (creep.memory.genesis === 'makeCourier') {
-		creep.memory.destination.movingTarget ='movingTargetCarrier';
+		creep.memory.destination.movingTarget ='movingTargetCourier';
 	}
 
 	if (!target) {
