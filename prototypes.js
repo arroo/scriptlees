@@ -255,7 +255,7 @@ Creep.prototype.gotoThen = function () {
 	}
 
 	var range = destinationInfo.range;
-	if (creep.pos.inRangeTo(target, range)) {
+	if (creep.pos.inRangeTo(target, range) && creep.pos.x !== 0 && creep.pos.y !== 0  && creep.pos.x !== 49 && creep.pos.y !== 49) {
 		creep.memory.stalled = 0;
 		creep.setAndRun(creep.memory.destination.then);
 		return;
