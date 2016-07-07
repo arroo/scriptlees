@@ -124,6 +124,7 @@ Creep.prototype.movingTargetCourier = function () {
 				switch (structure.structureType) {
 					case STRUCTURE_EXTENSION:
 					case STRUCTURE_SPAWN:
+					case STRUCTURE_STORAGE:
 						break;
 					default:
 						return false;
@@ -136,6 +137,7 @@ Creep.prototype.movingTargetCourier = function () {
 			switch (structure.structureType) {
 				case STRUCTURE_EXTENSION:
 				case STRUCTURE_SPAWN:
+				case STRUCTURE_STORAGE:
 					break;
 				default:
 					return false;
@@ -247,12 +249,12 @@ Creep.prototype.fillCourier = function () {
     }
     if (res === ERR_NOT_ENOUGH_ENERGY) {
         creep.say('empty');
-        delete creep.memory.destination.movingTarget;
         source = findNearestSource(creep.pos);
         if (!source) {
             return;
         }
-        creep.memory.destination.target = source.pos;
+	    delete creep.memory.destination.movingTarget;
+	    creep.memory.destination.target = source.pos;
         creep.memory.destination.source = source.id;
         creep.memory.destination.then ='fillCourier';
         creep.memory.destination.range = 1;
@@ -266,12 +268,12 @@ Creep.prototype.upgradeCourier = function () {
     var creep = this;
     if (_.sum(creep.carry) <= 0) {
         creep.say('empty');
-        delete creep.memory.destination.movingTarget;
         var source = findNearestSource(creep.pos);
         if (!source) {
             return;
         }
-        creep.memory.destination.target = source.pos;
+	    delete creep.memory.destination.movingTarget;
+	    creep.memory.destination.target = source.pos;
         creep.memory.destination.source = source.id;
         creep.memory.destination.then ='fillCourier';
         creep.memory.destination.range = 1;
@@ -295,12 +297,12 @@ Creep.prototype.runCourier = function () {
 
 	var totalCarrying = _.sum(creep.carry);
     if (totalCarrying <= 0 || (!site || site.energy >= site.energyCapacity) && totalCarrying < 50) {
-        delete creep.memory.destination.movingTarget;
         var source = findNearestSource(creep.pos);
         if (!source) {
             return;
         }
-        creep.memory.destination.target = source.pos;
+	    delete creep.memory.destination.movingTarget;
+	    creep.memory.destination.target = source.pos;
         creep.memory.destination.source = source.id;
         creep.memory.destination.then = 'fillCourier';
         creep.memory.destination.range = 1;

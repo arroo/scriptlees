@@ -243,9 +243,11 @@ Creep.prototype.gotoThen = function () {
 
 	if (destinationInfo.movingTarget) {
 		target = creep[destinationInfo.movingTarget]();
-	} else {
+	} else if (destinationInfo.target) {
 		var targetInfo = destinationInfo.target;
 		target = new RoomPosition(targetInfo.x, targetInfo.y, targetInfo.roomName);
+	} else if (creep.memory.genesis === 'makeCourier') {
+		creep.memory.destination.movingTarget ='movingTargetCarrier';
 	}
 
 	if (!target) {
@@ -391,12 +393,21 @@ Room.prototype.parseRoomName = function () {
 	return ret;
 };
 
+var cachedDescribeExits = function (name) {
+
+	Memory.rooms = Memory.rooms || {};
+	Memory.rooms[name] = Memory.rooms[name] || {};
+	Memory.rooms[name].exits = Memory.rooms[name].exits || Game.map.describeExits(name);
+
+	return Memory.rooms[name].exits;
+};
+
 Room.prototype.isAdjacentRoom = function (room) {
 	if (typeof room === 'string') {
 		room = Game.rooms[room];
 	}
 
-	var exits = Game.map.describeExits(this.name);
+	var exits = cachedDescribeExits(this.name);
 	var adjacent = Object.keys(exits).reduce((b, d) => b || exits[d] === room.name, false);
 
 	return adjacent;
@@ -494,7 +505,7 @@ RoomPosition.prototype.findNearestThing = function (findFunction) {
 		target = findFunction.call(pos, room);
 
 		// prep next room;
-		var exits = Game.map.describeExits(room.name);
+		var exits = cachedDescribeExits(room.name);
 		roomsToSee = Object.keys(exits).reduce(function (arr, direction) {
 			var name = exits[direction];
 			if (Game.rooms[name] && !roomsSeen[name]) {
@@ -507,7 +518,7 @@ RoomPosition.prototype.findNearestThing = function (findFunction) {
 
 	return target;
 };
-RoomPosition.prototype.findNearestSource = function (resource, min) {
+RoomPosition.prototype.findNearestSource = function (resource, min, ignoreSources) {
 	var pos = this;
 	min = min || 0;
 	var nearestSource = pos.findNearestThing(function (room) {
@@ -516,7 +527,7 @@ RoomPosition.prototype.findNearestSource = function (resource, min) {
 		sources = room.find(FIND_DROPPED_RESOURCES, {filter: r => r.resourceType === resource && r.amount >= min}).reduce(cat, sources);
 		sources = room.find(FIND_STRUCTURES, {filter: s=> (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) && s.store[resource] && s.store[resource] >= min}).reduce(cat, sources);
 
-		if (!sources.length) {
+		if (!sources.length && !ignoreSources) {
 			if (resource === RESOURCE_ENERGY) {
 				sources = room.find(FIND_SOURCES, {filter: s => s.energy >= min}).reduce(cat, sources);
 			} else {
@@ -638,13 +649,92 @@ Creep.prototype.basicCreepRespawn = function (init) {
 
 Room.prototype.oldFind = Room.prototype.find;
 
-Room.prototype.find2 = function (type, obj) {
-	var name = this.name;
+Room.prototype.find2 = (function (mem) {
 
-	Memory.finds[name] = Memory.finds[name] || {};
-	Memory.finds[name][type] || this.oldFind(type);
+	var closure = function (type, obj) {
+		obj = obj || {};
 
-	return _.filter(Memory.finds[name][type], obj.filter);
-};
+		if (!mem[type]) {
+			mem[type] = this.oldFind(type);
+		}
 
+		if (obj.filter) {
+			return _.filter(mem[type], obj.filter);
+		}
+
+		return _.clone(mem[type]);
+	};
+	return closure;
+})({});
+/*
+
+ original Room.prototype.find()
+var t = function (type, opts) {
+	var result = [];
+	opts = opts || {};
+	if (register.findCache[type] && register.findCache[type][this.name]) {
+		result = register.findCache[type][this.name];
+	} else {
+		switch (type) {
+			case C.FIND_EXIT:
+				register.findCache[type] = register.findCache[type] || {};
+				register.findCache[type][this.name] = this.find(C.FIND_EXIT_TOP, opts).concat(this.find(C.FIND_EXIT_BOTTOM, opts)).concat(this.find(C.FIND_EXIT_RIGHT, opts)).concat(this.find(C.FIND_EXIT_LEFT, opts));
+				return _.clone(register.findCache[type][this.name]);
+			case C.FIND_EXIT_TOP:
+			case C.FIND_EXIT_RIGHT:
+			case C.FIND_EXIT_BOTTOM:
+			case C.FIND_EXIT_LEFT:
+
+				register.findCache[type] = register.findCache[type] || {};
+
+				var exits = [];
+				for (var i = 0; i < 50; i++) {
+					var x = 0,
+						y = 0;
+					if (type == C.FIND_EXIT_LEFT || type == C.FIND_EXIT_RIGHT) {
+						y = i;
+					} else {
+						x = i;
+					}
+					if (type == C.FIND_EXIT_RIGHT) {
+						x = 49;
+					}
+					if (type == C.FIND_EXIT_BOTTOM) {
+						y = 49;
+					}
+					exits.push(!(runtimeData.staticTerrainData[this.name][y * 50 + x] & C.TERRAIN_MASK_WALL));
+				}
+				result = _.reduce(exits, (accum, i, key) => {
+					if (i) {
+						if (type == C.FIND_EXIT_TOP) {
+							accum.push(this.getPositionAt(key, 0));
+						}
+						if (type == C.FIND_EXIT_BOTTOM) {
+							accum.push(this.getPositionAt(key, 49));
+						}
+						if (type == C.FIND_EXIT_LEFT) {
+							accum.push(this.getPositionAt(0, key));
+						}
+						if (type == C.FIND_EXIT_RIGHT) {
+							accum.push(this.getPositionAt(49, key));
+						}
+					}
+					return accum;
+				}, []);
+
+				register.findCache[type][this.name] = result;
+
+				break;
+		}
+	}
+
+	if (opts.filter) {
+		result = _.filter(result, opts.filter);
+	} else {
+		result = _.clone(result);
+	}
+
+	return result;
+}
+*/
 module.exports = {};

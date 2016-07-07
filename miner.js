@@ -57,7 +57,7 @@ Spawn.prototype.makeMiner = function (init) {
 
 	}, {});
 	if (!Object.keys(adjacent).length) {
-		adjacent = new RoomPosition(25, 25, spots[0].roomName).findClosestByRange(spots);
+		adjacent = this.pos.findClosestByRange(spots);
 	}
 	
 	// hack because it's not working for some reason
@@ -112,6 +112,7 @@ Creep.prototype.runMiner = function() {
 	spawn = Game.getObjectById(creep.memory.spawn);
 	if (spawn) {
 		var rangeToSpawn = creep.pos.getRangeTo(spawn);
+		if (rangeToSpawn === Infinity) rangeToSpawn = 100;
 		var estimatedTickCost = creep.body.length * CREEP_SPAWN_TIME;
 		var ticksToReplace = rangeToSpawn + estimatedTickCost;
 		if (creep.ticksToLive <= ticksToReplace && !mem.signalledDemise) {
