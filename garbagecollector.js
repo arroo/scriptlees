@@ -50,9 +50,7 @@ var gc = function () {
 					init.genesis = 'makeMiner';
 				}
 			}
-			var spawn = pos.findClosestByRange(Object.keys(Game.spawns).map(function (name) {
-				return Game.spawns[name]
-			}));
+			var spawn = pos.findNearestFriendlySpawn();
 
 
 			var priority;

@@ -31,7 +31,7 @@ Spawn.prototype.makeMiner = function (init) {
 	//console.log(JSON.stringify(Game.flags[init.flag]))
 	var flag = Game.flags[init.flag];
 	//console.log('makeMiner:finding location of flag:' + init.flag);
-	var spots = this.room.openSpotsNear(flag);//flag.room.memory.sourceFlags[init.flag].adjacent;
+	var spots = flag.room.openSpotsNear(flag);//flag.room.memory.sourceFlags[init.flag].adjacent;
 
 	var adjacent = spots.reduce(function (pos, spot) {
 		if (Object.keys(pos).length) {
@@ -57,7 +57,7 @@ Spawn.prototype.makeMiner = function (init) {
 
 	}, {});
 	if (!Object.keys(adjacent).length) {
-		adjacent = this.pos.findClosestByRange(spots);
+		adjacent = new RoomPosition(25, 25, spots[0].roomName).findClosestByRange(spots);
 	}
 	
 	// hack because it's not working for some reason

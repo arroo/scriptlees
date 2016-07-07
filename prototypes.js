@@ -552,7 +552,7 @@ RoomPosition.prototype.findNearestFriendlySpawn = function () {
 		var friendlySpawns = room.find(FIND_MY_SPAWNS);
 
 		if (friendlySpawns) {
-			return pos.findClosestByRange(friendlySpawns);
+			return new RoomPosition(25, 25, room.name).findClosestByRange(friendlySpawns);
 		}
 	});
 
