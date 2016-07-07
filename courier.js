@@ -124,6 +124,10 @@ Creep.prototype.movingTargetCourier = function () {
 				if (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN) {
 					return structure.energy < structure.energyCapacity;
 				}
+			}}).reduce(cat, sinks);
+		}
+		if (!sinks.length) {
+			sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
 				if (structure.structureType === STRUCTURE_STORAGE) {
 					return _.sum(structure.store) < structure.storeCapacity;
 				}
@@ -133,9 +137,6 @@ Creep.prototype.movingTargetCourier = function () {
 		sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
 			if (structure.structureType === STRUCTURE_EXTENSION || structure.structureType === STRUCTURE_SPAWN) {
 				return structure.energy < structure.energyCapacity;
-			}
-			if (structure.structureType === STRUCTURE_STORAGE) {
-				return _.sum(structure.store) < structure.storeCapacity;
 			}
 		}}).reduce(cat, sinks);
 
@@ -148,6 +149,13 @@ Creep.prototype.movingTargetCourier = function () {
 						return false;
 				}
 				return structure.energy < structure.energyCapacity;
+			}}).reduce(cat, sinks);
+		}
+		if (!sinks.length) {
+			sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
+				if (structure.structureType === STRUCTURE_STORAGE) {
+					return _.sum(structure.store) < structure.storeCapacity;
+				}
 			}}).reduce(cat, sinks);
 		}
 	}
