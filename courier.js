@@ -57,8 +57,8 @@ Spawn.prototype.makeCourier = function (init) {
     init = init || {};
     var mem = {};
 
-	if (init.flags && 0) {
-		mem.flags = init.flags;
+	if (init.endpointFlags) {
+		mem.endpointFlags = init.endpointFlags;
 		mem.run = 'startCourier';
 		mem.genesis = 'makeCourier';
 		mem.resource = init.resource || RESOURCE_ENERGY;
@@ -93,15 +93,50 @@ Creep.prototype.startCourier = function () {
     var creep = this;
 	var mem = creep.memory;
 	var target;
-	var flags = mem.flags.map(n => Game.flags[n]);
-	if (flags.length !== 2) {
-		target = creep.pos.findNearestSource(mem.resource);
+	var flags = mem.endpointFlags.map(n => Game.flags[n]);
+	if (flags.length) {
+		target = creep.pos.findNearestThing(function (room) {
+			return this.findClosestByRange(flags);
+		});
+	} else {
+		target = {};
+		target.pos = new RoomPosition(25, 25, Memory.flags[mem.endpointFlags[0]].room);
 	}
 
 	if (target) {
-		creep.memory.target = target.name || target.id;
+		creep.memory.targetFlag = target.name;
+		creep.memory.target = target.pos;
+		creep.setGoing(target, 'evaluateEndpoints', 1, 'movingTarget2Courier');
+	} else {
+
 	}
 };
+Creep.prototype.movingTarget2Courier = function () {
+	var creep = this;
+	var target = creep.memory.target;
+	var flag = Game.flags[creep.memory.targetFlag];
+
+	// make sure that existing site is there
+	if (!flag) {
+		return new RoomPosition(25, 25, Memory.flags[creep.memory.targetFlag].room).pos;
+	}
+
+	var resource = flag.getSource();
+	var structureType = flag.getBuilding();
+	var id = flag.memory.targetId;
+
+	// make sure that existing setup is consistent
+	if (id && !Game.getObjectById(id)) {}
+
+	// check if
+	if (structureType) {
+		var e;
+	}
+
+	return target.pos;
+};
+
+Creep.prototype.evaluateEndpoints = function () {};
 
 Creep.prototype.movingTargetCourier = function () {
     var creep = this;
@@ -213,7 +248,7 @@ Creep.prototype.waitCourier = function () {
         creep.memory.site = target.id;
         creep.memory.destination.then = 'runCourier';
         creep.memory.destination.range = 1;
-        creep.setAndRun('gotoThen');
+        creep.setRun('gotoThen');
         
     } else {
         creep.say('all full');
@@ -227,7 +262,7 @@ Creep.prototype.fillCourier = function () {
         creep.say('full');
         creep.memory.destination.movingTarget = 'movingTargetCourier';
         creep.memory.destination.then = 'runCourier';
-        creep.setAndRun('gotoThen');
+        creep.setRun('gotoThen');
         return;
     }
     
@@ -260,7 +295,7 @@ Creep.prototype.fillCourier = function () {
         creep.memory.destination.source = source.id;
         creep.memory.destination.then ='fillCourier';
         creep.memory.destination.range = 1;
-        creep.setAndRun('gotoThen');
+        creep.setRun('gotoThen');
     } else if (res !== OK) {
         console.log('error filling courier ' + creep.name + ':' + strerror(res));
     }
@@ -279,7 +314,7 @@ Creep.prototype.upgradeCourier = function () {
         creep.memory.destination.source = source.id;
         creep.memory.destination.then ='fillCourier';
         creep.memory.destination.range = 1;
-        creep.setAndRun('gotoThen');
+        creep.setRun('gotoThen');
         return;
     }
     
@@ -288,7 +323,7 @@ Creep.prototype.upgradeCourier = function () {
         console.log('harvester ' + creep.name + ' unable to upgrade room ' + creep.room.name + ':' + strerror(res));
         delete creep.memory.destination.movingTarget;
         creep.memory.destination.then = 'fillCourier';
-        creep.setAndRun('gotoThen');
+        creep.setRun('gotoThen');
     }
 };
 
@@ -308,14 +343,14 @@ Creep.prototype.runCourier = function () {
         creep.memory.destination.source = source.id;
         creep.memory.destination.then = 'fillCourier';
         creep.memory.destination.range = 1;
-        creep.setAndRun('gotoThen');
+        creep.setRun('gotoThen');
         return;
     }
 
 	if (!site || site.energy >= site.energyCapacity) {
 		creep.memory.destination.movingTarget = 'movingTargetCourier';
 		creep.memory.destination.then = 'runCourier';
-		creep.setAndRun('gotoThen');
+		creep.setRun('gotoThen');
 		return;
 	}
 

@@ -275,5 +275,6 @@ module.exports = {
 	'strerror': strerror,
 	'cat': cat,
 	'findMinSpanningTree': findMinSpanningTree,
-	'coerceToPositions': coerceToPositions
+	'coerceToPositions': coerceToPositions,
+	'allPairs': allPairs
 };

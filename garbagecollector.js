@@ -98,8 +98,12 @@ var gc = function () {
 	Memory.flags = Memory.flags || {};
 	Object.keys(Memory.flags).forEach(function (name) {
 		if (!Game.flags[name]) {
-			delete Memory.flags[name];
+			//delete Memory.flags[name];
 		}
+	});
+	Object.keys(Game.flags).forEach(function (name) {
+		Memory.flags[name] = Memory.flags[name] || {};
+		Memory.flags[name].room = Game.flags[name].pos.roomName;
 	});
 };
 

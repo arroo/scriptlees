@@ -6,12 +6,23 @@
  * var mod = require('flags');
  * mod.thing == 'a thing'; // true
  */
- 
- 
 
+var delimiter = '_';
+
+var utils = require('utils');
+var allPairs = utils.allPairs;
 //var utils = require('utils');
 var combos = {};
 combos[RESOURCE_ENERGY] = [COLOR_GREEN, COLOR_YELLOW];
+combos[RESOURCE_POWER] = [COLOR_GREEN, COLOR_RED];
+combos[RESOURCE_HYDROGEN] = [COLOR_GREEN, COLOR_CYAN];
+combos[RESOURCE_OXYGEN] = [COLOR_GREEN, COLOR_BLUE];
+combos[RESOURCE_UTRIUM] = [COLOR_GREEN, COLOR_WHITE];
+combos[RESOURCE_LEMERGIUM] = [COLOR_GREEN, COLOR_GREY];
+combos[RESOURCE_KEANIUM] = [COLOR_GREEN, COLOR_PURPLE];
+combos[RESOURCE_ZYNTHIUM] = [COLOR_GREEN, COLOR_BROWN];
+combos[RESOURCE_GHODIUM] = [COLOR_GREEN, COLOR_ORANGE];
+combos[RESOURCE_CATALYST] = [COLOR_GREEN, COLOR_GREEN];
 
 combos[STRUCTURE_CONTAINER] = [COLOR_BROWN, COLOR_RED];
 combos[STRUCTURE_CONTROLLER] = [COLOR_BROWN, COLOR_WHITE];
@@ -51,6 +62,9 @@ combos['makeUnknown'] = [COLOR_GREY, COLOR_GREY];
 
 combos['warZone'] = [COLOR_RED, COLOR_YELLOW];
 
+//set up backwards lookup
+var backwards = Object.keys(combos).reduce((o, n) => {o[combos[n].join(delimiter)] = n; return o}, {});
+
 var isSourceClosure = function (type) {
 	var closure = function (flag) {
 		return isSource(flag, type);
@@ -81,6 +95,20 @@ RoomObject.prototype.makeCreepTargetFlag = function (genesis) {
 	
 	return this.room.createFlag(0, 0, undefined, COLOR_CYAN, combo[1]);
 	
+};
+
+Flag.prototype.getBuilding = function () {
+	var structure = backwards[this.color + delimiter + this.secondaryColor];
+	if (structure && CONTROLLER_STRUCTURES[structure]) {
+		return structure;
+	}
+};
+
+Flag.prototype.getSource = function () {
+	var resource = backwards[this.color + delimiter + this.secondaryColor];
+	if (resource && RESOURCES_ALL.indexOf(resource)) {
+		return resource;
+	}
 };
 
 Flag.prototype.isBuilding = function (structureType) {
