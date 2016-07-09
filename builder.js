@@ -125,14 +125,14 @@ Creep.prototype.fillBuilder = function () {
 	// find a new one
 	if (!source || _.sum(creep.carry) >= creep.carryCapacity) {
 		delete creep.memory.target;
-		creep.setAndRun('gotoThen');
+		creep.setRun('gotoThen');
 		return;
 	}
 	
 	var res = creep.takeResource(source, creep.memory.resource);
 	if (res === ERR_NOT_ENOUGH_ENERGY) {
 		delete creep.memory.target;
-		creep.setAndRun('gotoThen');
+		creep.setRun('gotoThen');
 	} else if (res !== OK) {
 		console.log('error filling builder ' + creep.name + ':' + strerror(res));
 	}
@@ -147,7 +147,7 @@ Creep.prototype.upgraderBuilder = function () {
 	if (!controller || totalCarry <= 0) {
 		creep.memory.range = totalCarry ? 3 : 1;
 		delete creep.memory.target;
-		creep.setAndRun('gotoThen');
+		creep.setRun('gotoThen');
 		return;
 	}
 
@@ -155,7 +155,7 @@ Creep.prototype.upgraderBuilder = function () {
 	if (res === ERR_NOT_ENOUGH_ENERGY) {
 		creep.memory.range = 1;
 		delete creep.memory.target;
-		creep.setAndRun('gotoThen');
+		creep.setRun('gotoThen');
 	} else if (res !== OK) {
 		console.log('error builder upgrading controller ' + creep.name + ':' + strerror(res));
 	}
@@ -170,7 +170,7 @@ Creep.prototype.runBuilder = function () {
 	if (totalCarry <= 0 || !site) {
 		creep.memory.range = totalCarry ? 3 : 1;
 		delete creep.memory.target;
-		creep.setAndRun('gotoThen');
+		creep.setRun('gotoThen');
 		return;
 	}
 

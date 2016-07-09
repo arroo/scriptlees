@@ -2,219 +2,148 @@ require('CreepFactory');
 var PriorityQueue = require('pqueue');
 var utils = require('utils');
 var strerror = utils.strerror;
+var flags = require('flags');
+var cat = utils.cat;
 
 var BUILDING = 0;
 var UPGRADING = 1;
 var FILLING = 2;
 
-var cat = function (arr, el) {
-	arr.push(el);
-	return arr;
-};
-
-var findNearestSource = function (pos) {
-	var room = Game.rooms[pos.roomName];
-	var sources = [];
-	
-	sources = room.find(FIND_STRUCTURES, {filter:function(structure){return structure.structureType===STRUCTURE_CONTAINER && structure.store[RESOURCE_ENERGY]}}).reduce(cat, sources);
-	
-	sources = _.sortBy(sources, function (source) {
-		var energy;
-		
-		if (source.store && source.store[RESOURCE_ENERGY]) {
-			energy = source.store[RESOURCE_ENERGY];
-		} else if (source.amount) {
-			energy = source.amount;
-		}
-		
-		return -energy;
-	});
-	
-	var target = sources.reduce(function (obj, source) {
-		if (obj) {
-			return obj;
-		}
-		
-		if (pos.findPath(source)) {
-			return source;
-		}
-	});
-	
-	
-	if (target) {
-		return target;
-	}
-	
-	if (!target) {
-		sources = room.find(FIND_SOURCES).reduce(cat, sources);
-		sources = room.find(FIND_DROPPED_RESOURCES, {filter: {resourceType:RESOURCE_ENERGY}}).reduce(cat, sources);
-		target = pos.findClosestByPath(sources);
-	}
-	
-	return target;
-};
 
 Spawn.prototype.makeUpgrader = function (init) {
 	init = init || {};
-	var mem = init.mem || {};
-	mem.pq = init.pq;
-	mem.run = 'gotoThen';
-	mem.state = FILLING;
-	mem.genesis = 'makeUpgrader';
+	var mem = {};
 
-	var destinationInfo = {
-		'range': 1,
-		'then': 'fillUpgrader'
-	};
-	
-	var target = findNearestSource(this.pos);
-	destinationInfo.target = target.pos;
-	destinationInfo.source = target.id;
-	
-	mem.destination = destinationInfo;
+	mem.resource = init.resource || RESOURCE_ENERGY;
+	mem.run = 'startUpgrader';
+	mem.genesis = 'makeUpgrader';
+	mem.room = init.room;
+
 
 	var body = [MOVE, WORK, CARRY]; // bare minimum creep body definition
-	var extras = [];
-	var bonus = [];
+	var extras = [MOVE, WORK, CARRY];
+	var bonus = [MOVE, WORK, CARRY];
 	var extraBonus = [MOVE, WORK, MOVE, CARRY];
-	
+
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);
+};
+
+Creep.prototype.startUpgrader = function () {
+	var creep = this;
+	var resource = creep.memory.resource;
+
+	var target = creep.pos.findNearestSource(resource, creep.carryCapacity);
+
+	if (target) {
+		creep.memory.target = target.id;
+		creep.setGoing(target, 'fillUpgrader', 1, 'movingTargetUpgrader');
+	} else {
+		creep.log('cannot find a ' + creep.memory.resource + ' source');
+	}
 };
 
 Creep.prototype.movingTargetUpgrader = function () {
 	var creep = this;
-	var target;
-	if (Game.constructionSites[creep.memory.site]) {
-		target = Game.getObjectById(creep.memory.site);
-	}
-	if (!target && Object.keys(Game.constructionSites).length) {
+	this.basicCreepRespawn({'room':creep.memory.room});
+	var mem = creep.memory;
 
-		var pq = new PriorityQueue(creep.memory.pq);
-		while (!target) {
-			var prioritySite = pq.dequeue();
-			
-			if (!prioritySite) {
-				break;
-			}
-			target = Game.getObjectById(prioritySite);
+	var target = Game.getObjectById(mem.target);
+	var neededResource = creep.carryCapacity - creep.carry[RESOURCE_ENERGY];
+	// make sure it's still a valid target
+	if (target) {
+
+		var predicate = s => true;
+		if (target instanceof StructureController) {
+			predicate = s => s === creep.carryCapacity;
+
+		} else if (target instanceof StructureContainer || target instanceof StructureStorage) {
+			predicate = s => s > target.store[RESOURCE_ENERGY];
+
+		} else if (target instanceof Resource) {
+			predicate = s => s > target.amount;
+
+		} else if (target instanceof Source) {
+			predicate = s => s > target.energy;
+
+		} else {
+			console.log(mem.genesis + ' ' + creep.name + ' is going to an unplanned target:' + target.id + ', ', JSON.stringify(target));
 		}
-		
-		if (!target) {
-			target = creep.pos.findClosestByRange(Object.keys(Game.constructionSites).map(function (id) {return Game.constructionSites[id]}));
+
+		if (predicate(neededResource)) {
+			target = undefined;
 		}
-	} 
-	if (!target) {
-		//console.log('upgrader found moving target: controller')
-		creep.memory.destination.then = 'upgraderUpgrader';
-		creep.memory.destination.range = 3;
-		target = creep.room.controller;
-	} else {
-		creep.memory.site = target.id;
-		creep.memory.destination.then = 'runUpgrader';
-		creep.memory.destination.range = 3;
 	}
-	
+
+	// target is gone/invalid, get a new one
+	if (!target) {
+		var room = Game.rooms[creep.memory.room];
+
+		if (creep.carry[RESOURCE_ENERGY] <= 0) {
+			target = creep.pos.findNearestSource(RESOURCE_ENERGY, creep.carryCapacity, false);
+			creep.memory.destination.range = 1;
+			creep.memory.destination.then = 'fillUpgrader';
+
+		} else if (room && creep.room.name === room.name) {
+			target = room.controller;
+			creep.memory.destination.range = 3;
+			creep.memory.destination.then = 'runUpgrader';
+		} else {
+			target = {};
+			target.pos = new RoomPosition(25, 25, creep.room.name);
+		}
+	}
+
+	// if we still don't have a target, fuuuuck
+	if (!target) {
+		throw '' + mem.genesis + ' ' + creep.name + ' cannot find anywhere to go';
+	}
+
+	creep.memory.target = target.id;
+
 	return target.pos;
 };
 
 Creep.prototype.fillUpgrader = function () {
 	var creep = this;
-	var source = Game.getObjectById(creep.memory.destination.source);
-	if (_.sum(creep.carry) >= creep.carryCapacity || !source) {
-		creep.say('full');
-		creep.memory.destination.movingTarget = 'movingTargetUpgrader';
-		creep.memory.destination.range = 3;
-		creep.memory.destination.then = 'runUpgrader';
-		creep.setAndRun('gotoThen');
+	var source = Game.getObjectById(creep.memory.target);
+	this.basicCreepRespawn({'room':creep.memory.room});
+	// find a new one
+	if (!source || _.sum(creep.carry) >= creep.carryCapacity) {
+		delete creep.memory.target;
+		creep.setRun('gotoThen');
 		return;
 	}
-	
-	var res;
-	switch (source.structureType) {
-		case STRUCTURE_CONTAINER:
-		case STRUCTURE_STORAGE:
-			res = source.transfer(creep, RESOURCE_ENERGY);
-			break;
-		default:
-			break;
-	}
-	if (typeof res === 'undefined') {
-		if (source.resourceType===RESOURCE_ENERGY) {
-			res = creep.pickup(source);
-		} else if (source.energy) {
-			res = creep.harvest(source);
-		} else {
-		}
-	}
+
+	var res = creep.takeResource(source, creep.memory.resource);
 	if (res === ERR_NOT_ENOUGH_ENERGY) {
-		creep.say('empty');
-		delete creep.memory.destination.movingTarget;
-		source = findNearestSource(creep.pos);
-		if (!source) {
-			return;
-		}
-		creep.memory.destination.target = source.pos;
-		creep.memory.destination.source = source.id;
-		creep.memory.destination.then ='fillUpgrader';
-		creep.memory.destination.range = 1;
-		creep.setAndRun('gotoThen');
+		delete creep.memory.target;
+		creep.setRun('gotoThen');
 	} else if (res !== OK) {
 		console.log('error filling upgrader ' + creep.name + ':' + strerror(res));
 	}
 };
 
-Creep.prototype.upgraderUpgrader = function () {
-	var creep = this;
-	if (_.sum(creep.carry) <= 0) {
-		creep.say('empty');
-		delete creep.memory.destination.movingTarget;
-		var source = findNearestSource(creep.pos);
-		if (!source) {
-			return;
-		}
-		creep.memory.destination.target = source.pos;
-		creep.memory.destination.source = source.id;
-		creep.memory.destination.then ='fillUpgrader';
-		creep.memory.destination.range = 1;
-		creep.setAndRun('gotoThen');
-		return;
-	}
-	
-	var controller = creep.room.controller;
-	
-	var res = creep.upgradeController(controller);
-	if (res !== OK) {
-		console.log('upgrader ' + creep.name + ' unable to upgrade room ' + creep.room.name + ':' + strerror(res));
-		delete creep.memory.destination.movingTarget;
-		creep.memory.destination.then = 'fillUpgrader';
-		creep.setAndRun('gotoThen');
-	}
-};
-
 Creep.prototype.runUpgrader = function () {
 	var creep = this;
-	var res;
-	var site = Game.getObjectById(creep.memory.site);
-
-	if (_.sum(creep.carry) <= 0 || !site) {
-		delete creep.memory.destination.movingTarget;
-		var source = findNearestSource(creep.pos);
-		creep.memory.destination.target = source.pos;
-		creep.memory.destination.source = source.id;
-		creep.memory.destination.then = 'fillUpgrader';
-		creep.memory.destination.range = 1;
-		creep.setAndRun('gotoThen');
+	var controller = Game.getObjectById(creep.memory.target);
+	this.basicCreepRespawn({'room':creep.memory.room});
+	// find a new one
+	var totalCarry = _.sum(creep.carry);
+	if (!controller || totalCarry <= 0) {
+		creep.memory.range = totalCarry ? 3 : 1;
+		delete creep.memory.target;
+		creep.setRun('gotoThen');
 		return;
 	}
 
-	res = creep.build(site);
-	if (res !== OK) {
-		console.log('upgrader ' + creep.name + 'cannot build site:' + site.id + ':' +strerror(res));
-	} else {
-		creep.memory.pq = new PriorityQueue(creep.memory.pq).queue(0, site.id);
+	var res = creep.upgradeController(controller);
+	if (res === ERR_NOT_ENOUGH_ENERGY) {
+		creep.memory.range = 1;
+		delete creep.memory.target;
+		creep.setRun('gotoThen');
+	} else if (res !== OK) {
+		creep.log('error upgrading controller ' + creep.name + ':' + strerror(res));
 	}
-	
-	
 };
 
 module.exports = {};
