@@ -89,7 +89,7 @@ Creep.prototype.movingTargetUpgrader = function () {
 			creep.memory.destination.then = 'runUpgrader';
 		} else {
 			target = {};
-			target.pos = new RoomPosition(25, 25, creep.room.name);
+			target.pos = new RoomPosition(25, 25, creep.memory.room);
 		}
 	}
 

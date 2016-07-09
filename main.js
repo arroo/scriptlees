@@ -90,6 +90,8 @@ module.exports.loop = function () {
 		spawn.population();
 	});
 
+	Object.keys(Game.flags).map(n => Game.flags[n]).forEach(f => f.memory.room = f.pos.roomName);
+	
 	Object.keys(Game.rooms).forEach(function (name) {
 		var room = Game.rooms[name];
 		room.memory.warZone = room.findCentroid(room.find(FIND_HOSTILE_CREEPS));

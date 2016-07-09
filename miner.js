@@ -18,57 +18,19 @@ Spawn.prototype.makeMiner = function (init) {
 	init = init || {};
 	var mem = {};
 	mem.flag = init.flag;
-	mem.run = 'gotoThen';
+	mem.run = 'startMiner';
 	mem.state = MINING;
 	mem.genesis = 'makeMiner';
-	
-	
-	var destinationInfo = {
-		'range': 0,
-		'then': 'runMiner'
-	};
-	//console.log('flag name: ' + init.flag)
-	//console.log(JSON.stringify(Game.flags[init.flag]))
-	var flag = Game.flags[init.flag];
-	//console.log('makeMiner:finding location of flag:' + init.flag);
-	var spots = flag.room.openSpotsNear(flag);//flag.room.memory.sourceFlags[init.flag].adjacent;
 
-	var adjacent = spots.reduce(function (pos, spot) {
-		if (Object.keys(pos).length) {
-			return pos;
-		}
-
-		var isContainer = function (dobj) {
-			return dobj && dobj.structureType && dobj.structureType === STRUCTURE_CONTAINER;
-		};
-
-		//console.log('dsd:' + JSON.stringify(spot));
-		var pos2 = new RoomPosition(spot.x, spot.y, spot.roomName);
-
-		if (pos2.lookFor(LOOK_STRUCTURES).filter(isContainer).length) {
-			return spot;
-		}
-
-		if (pos2.lookFor(LOOK_CONSTRUCTION_SITES).filter(isContainer).length) {
-			return spot;
-		}
-
-		return pos;
-
-	}, {});
-	if (!Object.keys(adjacent).length) {
-		adjacent = this.pos.findClosestByRange(spots);
+	var flag = Game.flags[mem.flag];
+	if (flag) {
+		mem.room = flag.pos.roomName;
+	} else if (Memory.flags[mem.flag] && Memory.flags[mem.flag].room) {
+		mem.room = Memory.flags[mem.flag].room
+	} else if (init.room) {
+		mem.room = init.room
 	}
-	
-	// hack because it's not working for some reason
-	if (init.flag === 'Flag2') {
-		//adjacent = this.room.getPositionAt(17,40);
-	}
-	
-	//console.log('makeMiner: found closest spot to flag:', JSON.stringify(adjacent));
-	destinationInfo.target = adjacent;
-	mem.destination = destinationInfo;
-	
+
 
 	var body = [MOVE, WORK]; // bare minimum creep body definition
 	var extras = [WORK, WORK, WORK, WORK];
@@ -78,7 +40,99 @@ Spawn.prototype.makeMiner = function (init) {
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);
 };
 
-Creep.prototype.startMiner = function () {};
+Creep.prototype.startMiner = function () {
+
+	var creep = this;
+	var mem = creep.memory;
+	var movingTarget;
+	var target;
+	var range;
+	var flag = Game.flags[mem.flag];
+	if (flag) {
+		var spots = flag.room.openSpotsNear(flag);//flag.room.memory.sourceFlags[init.flag].adjacent;
+		var spawn = flag.pos.findNearestFriendlySpawn();
+		target = spots.reduce(function (pos, spot) {
+				if (pos) {
+					return pos;
+				}
+
+				var isContainer = function (dobj) {
+					return dobj && dobj.structureType && dobj.structureType === STRUCTURE_CONTAINER;
+				};
+
+				var pos2 = new RoomPosition(spot.x, spot.y, spot.roomName);
+
+				if (pos2.lookFor(LOOK_STRUCTURES).filter(isContainer).length) {
+					return spot;
+				}
+
+				if (pos2.lookFor(LOOK_CONSTRUCTION_SITES).filter(isContainer).length) {
+					return spot;
+				}
+
+				return pos;
+
+			}, undefined) ||
+		spawn.pos.findClosestByRange(spots) ||
+		flag.room.find(Map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
+
+		range = 0;
+		mem.room = flag.room.name;
+
+	} else if (mem.room) {
+		target = new RoomPosition(25, 25, mem.room);
+		range = 0;
+		movingTarget = 'movingTargetMiner';
+	}
+
+
+	if (target) {
+		mem.target = target;
+		creep.setGoing(target, 'runMiner', range, movingTarget);
+	} else {
+		creep.log('cannot begin mining at flag ' + mem.flag);
+	}
+};
+
+Creep.prototype.movingTargetMiner = function () {
+	var creep = this;
+	var mem = creep.memory;
+	var flag = Game.flags[mem.flag];
+	var target;
+	if (flag && flag.room.name === creep.room.name) {
+		var spots = flag.room.openSpotsNear(flag);
+		var spawn = flag.pos.findNearestFriendlySpawn();
+		target = spots.reduce(function (pos, spot) {
+			if (pos) {
+				return pos;
+			}
+
+			var isContainer = function (dobj) {
+				return dobj && dobj.structureType && dobj.structureType === STRUCTURE_CONTAINER;
+			};
+
+			var pos2 = new RoomPosition(spot.x, spot.y, spot.roomName);
+
+			if (pos2.lookFor(LOOK_STRUCTURES).filter(isContainer).length) {
+				return spot;
+			}
+
+			if (pos2.lookFor(LOOK_CONSTRUCTION_SITES).filter(isContainer).length) {
+				return spot;
+			}
+
+			return pos;
+
+		}, undefined) || spawn.pos.findClosestByRange(spots) ||flag.room.find(Map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
+		if (target) {
+			delete creep.memory.destination.movingTarget;
+		}
+	} else {
+		target = mem.target;
+	}
+
+	return target;
+};
 
 Creep.prototype.runMiner = function() {
 	var creep = this;
