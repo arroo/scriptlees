@@ -133,7 +133,7 @@ Room.prototype.init = function () {
 		return obj;
 	}, {});
 
-	var nearestSpawn = room.getPositionAt(25,25).findNearestFriendlySpawn();
+	var nearestSpawn;// = room.getPositionAt(25,25).findNearestFriendlySpawn();
 	if (nearestSpawn) {
 		nearestSpawn.memory.pq = Object.keys(room.memory.sourceFlags).reduce(function (pq, flagName) {
 			var creepInfo = {};

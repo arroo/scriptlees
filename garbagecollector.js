@@ -20,6 +20,7 @@ var gc = function () {
 			if (mem.flags && mem.flags.role) {
 				try {
 					Game.flags[mem.flags.role].remove();
+					delete Memory.flags[mem.flags.role]
 				} catch (e) {
 					console.log('unable to remove ' + name + '\'s flag:', e)
 				}

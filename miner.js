@@ -48,7 +48,7 @@ Creep.prototype.startMiner = function () {
 	var target;
 	var range;
 	var flag = Game.flags[mem.flag];
-	if (flag) {
+	try {
 		var spots = flag.room.openSpotsNear(flag);//flag.room.memory.sourceFlags[init.flag].adjacent;
 		var spawn = flag.pos.findNearestFriendlySpawn();
 		target = spots.reduce(function (pos, spot) {
@@ -79,10 +79,13 @@ Creep.prototype.startMiner = function () {
 		range = 0;
 		mem.room = flag.room.name;
 
-	} else if (mem.room) {
-		target = new RoomPosition(25, 25, mem.room);
-		range = 0;
-		movingTarget = 'movingTargetMiner';
+	} catch (err) {
+		
+		if (mem.room) {
+			target = new RoomPosition(25, 25, mem.room);
+			range = 0;
+			movingTarget = 'movingTargetMiner';
+		}
 	}
 
 

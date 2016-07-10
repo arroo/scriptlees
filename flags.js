@@ -76,8 +76,22 @@ var isSource = function (flag, type) {
 	return combos[type] && flag.color === combos[type][0] && flag.secondaryColor === combos[type][1];
 };
 
-var isAnySource = function (flag) {
-	return flag.color === COLOR_GREEN;
+Flag.prototype.isAnySource = function () {
+	return this.color === COLOR_GREEN;
+};
+
+Flag.prototype.isAnySink = function () {
+	var building = this.getBuilding();
+	switch (building) {
+		case STRUCTURE_EXTENSION:
+		case STRUCTURE_SPAWN:
+		case STRUCTURE_LAB:
+		case STRUCTURE_CONTROLLER:
+		case STRUCTURE_TOWER:
+			return true;
+		default:
+			return false;
+	}
 };
 
 var makeSource = function (type, room, pos) {
@@ -187,6 +201,5 @@ Creep.prototype.makeRoleFlag = function (name) {
 module.exports = {
 	'makeSource': makeSource,
 	'isSource': isSource,
-	'isSourceClosure': isSourceClosure,
-	'isAnySource': isAnySource
+	'isSourceClosure': isSourceClosure
 };

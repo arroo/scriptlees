@@ -72,8 +72,8 @@ module.exports.loop = function () {
 	if (Memory.makeTempMinions) {
 	
 		var tempCreeps = [
-			{'priority':4,'item':{'genesis':'makeCourier', 'init':{'endpointFlags':['Flag3', 'Flag11']}}},
-			{'priority':4,'item':{'genesis':'makeCourier', 'init':{'endpointFlags':['Flag10', 'Flag11']}}}
+			{'priority':4,'item':{'genesis':'makeCourier', 'init':{'endpointFlags':['Flag3', 'Flag11']}}}
+			//{'priority':4,'item':{'genesis':'makeCourier', 'init':{'endpointFlags':['Flag10', 'Flag11']}}}
 			//{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}}
 		];
 		Game.spawns.Spawn1.memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
@@ -90,7 +90,9 @@ module.exports.loop = function () {
 		spawn.population();
 	});
 
-	Object.keys(Game.flags).map(n => Game.flags[n]).forEach(f => f.memory.room = f.pos.roomName);
+	if (Game.time % 25 === 0) {
+		Object.keys(Game.flags).filter(n => !Game.creeps[n]).map(n => Game.flags[n]).forEach(f => f.memory.room = f.pos.roomName);
+	}
 	
 	Object.keys(Game.rooms).forEach(function (name) {
 		var room = Game.rooms[name];
