@@ -264,8 +264,8 @@ Creep.prototype.run2Courier = function () {
 	totalCarry =  _.sum(creep.carry);
 	if (totalCarry === 0 || totalCarry === creep.carryCapacity) {
 		creep.memory.targetFlag = otherFlag;
-		var range = Game.flags[otherFlag].pos.isWalkable() ? 0 : 1;
-		creep.setGoing(Game.flags[otherFlag].pos, 'run2Courier', range);
+		var targetInfo = getTargetPosition(creep, Game.flags[otherFlag]);
+		creep.setGoing(targetInfo.target, 'run2Courier', targetInfo.range);
 	}
 };
 
