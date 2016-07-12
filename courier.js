@@ -274,9 +274,9 @@ Creep.prototype.run2Courier = function () {
 		let resourcePile = targetPos.lookFor(LOOK_RESOURCES).filter(r => r.resourceType === creep.memory.resource)[0];
 		if (resourcePile) {
 			creep.takeResource(resourcePile, creep.memory.resource)
-		} else {
+		} //else {
 			creep.takeResource(targetBuilding, creep.memory.resource);
-		}
+		//}
 
 		// if at a sink, deposit
 	} else if ((flag.isAnySink() || otherIsSource)  && totalCarry > 0) {

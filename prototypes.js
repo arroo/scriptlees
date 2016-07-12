@@ -428,12 +428,17 @@ Creep.prototype.takeResource = function (target, resource, amount) {
 		return this.pickup(target);
 	}
 
+	// new withdraw behaviour
+	if (target instanceof Structure) {
+		return this.withdraw(target, resource, amount);
+	}
+
 	if (target instanceof StructureContainer ||
 		target instanceof StructureTerminal ||
 		target instanceof StructureStorage ||
 		target instanceof StructureLab ||
 		target instanceof Creep) {
-			return target.transfer(this, resource, amount);
+			return this.withdraw(target, resource, amount);
 	}
 
 	if (target instanceof StructurePowerSpawn ||
@@ -441,7 +446,7 @@ Creep.prototype.takeResource = function (target, resource, amount) {
 		target instanceof StructureTower ||
 		target instanceof StructureSpawn ||
 		target instanceof StructureLink) {
-			return target.transferEnergy(this, amount);
+			return this.withdraw(target, resource, amount);
 	}
 
 	return ERR_INVALID_TARGET;

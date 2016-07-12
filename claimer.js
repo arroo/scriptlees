@@ -22,7 +22,7 @@ Spawn.prototype.makeClaimer = function (init) {
 	mem.genesis = 'makeClaimer';
 	var mine = false;
 	try {
-		mine = Game.room[mem.room].controller.my;
+		mine = Game.rooms[mem.room].controller.my;
 	} catch (err) {}
 
 	if (mine) {
