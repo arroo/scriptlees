@@ -25,7 +25,7 @@ var findNearestSource = function (pos) {
 Spawn.prototype.makeHarvester = function (init) {
 	init = init || {};
 	var mem = {};
-	mem.pq = init.pq;
+	
 	mem.run = 'gotoThen';
 	mem.state = FILLING;
 	mem.genesis = 'makeHarvester';
@@ -166,7 +166,7 @@ Creep.prototype.runHarvester = function () {
 	if (res !== OK) {
 		console.log('harvester ' + creep.name + 'cannot transfer to site:' + site.id + ':' +strerror(res));
 	} else {
-		creep.memory.pq = new PriorityQueue(creep.memory.pq).queue(0, site.id);
+
 	}
 	
 	

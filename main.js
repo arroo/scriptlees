@@ -77,7 +77,7 @@ module.exports.loop = function () {
 			//{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}}
 		];
 		Game.spawns.Spawn1.memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
-			return pq.queue(creepInfo);
+			return pq.enqueue(creepInfo);
 		}, new PriorityQueue(Game.spawns.Spawn1.memory.pq));
 		Memory.makeTempMinions = false;
 	}

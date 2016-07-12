@@ -35,7 +35,7 @@ if (!Memory.init) {
 	});
 	
 	Game.spawns.Spawn1.memory.pq = initialCreeps.reduce(function (pq, creepInfo) {
-		return pq.queue(creepInfo);
+		return pq.enqueue(creepInfo);
 	}, new PriorityQueue());
 	console.log(JSON.stringify(Game.spawns.Spawn1.memory.pq));
 }

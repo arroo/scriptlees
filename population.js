@@ -21,11 +21,13 @@ Spawn.prototype.population = function() {
 
 	var pq = new PriorityQueue(spawn.memory.pq);
 	//console.log(JSON.stringify(pq));
-	var creepInfo = pq.dequeue();
-	if (!creepInfo) {
+	var queueItem = pq.dequeue();
+	if (!queueItem) {
 //        console.log(spawn.name + ' has nothing to spawn!');
 	} else {
 		//    console.log(JSON.stringify(creepInfo))
+			var creepInfo = queueItem.item;
+			var priority = queueItem.priority;
 			var genesis = spawn[creepInfo.genesis];
 			var name;
 			if (creepInfo.genesis === 'makeHarvester' || creepInfo.genesis === 'makeCourier') {
@@ -52,7 +54,7 @@ Spawn.prototype.population = function() {
 			
 			if (!success) {
 				console.log(spawn.name + ' cannot spawning ' + creepInfo.genesis + ' ' + strerror(name));
-				pq.queue(0, creepInfo);
+				pq.enqueue(priority, creepInfo);
 			} else {
 				console.log(spawn.name + ' spawning:' +creepInfo.genesis + ' ' + name);
 			}

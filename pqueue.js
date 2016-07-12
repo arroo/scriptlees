@@ -17,7 +17,7 @@ function PriorityQueue(init) {
 	return this;
 }
 
-PriorityQueue.prototype.queue = function (priority, item) {
+PriorityQueue.prototype.enqueue = function (priority, item) {
 	if (_.isNumber(priority)) {
 		
 	} else if (_.isObject(priority) && _.isNumber(priority.priority) && typeof priority.item !== 'undefined') {
@@ -61,7 +61,11 @@ PriorityQueue.prototype.dequeue = function () {
 		this.p.shift();
 	}
 	
-	return highestPriorityItem;
+	var item = {};
+	item.priority = highestPriority;
+	item.item = highestPriorityItem;
+	
+	return item;
 };
 
 module.exports = PriorityQueue;

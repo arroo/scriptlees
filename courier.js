@@ -509,7 +509,7 @@ Creep.prototype.runCourier = function () {
 	if (res !== OK) {
 		console.log('harvester ' + creep.name + 'cannot transfer to site:' + site.id + ':' +strerror(res));
 	} else {
-		//creep.memory.pq = new PriorityQueue(creep.memory.pq).queue(0, site.id);
+		//creep.memory.pq = new PriorityQueue(creep.memory.pq).enqueue(0, site.id);
 	}
 
 

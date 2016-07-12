@@ -39,7 +39,7 @@ var gc = function () {
 			init.genesis = mem.genesis;
 
 			if (init.genesis === 'makeHarvester' || init.genesis === 'makeCourier') {
-				var anyMiners = new RoomPosition();
+				//var anyMiners = new RoomPosition();
 				var anyMiners = Game.rooms[pos.roomName].find(FIND_MY_CREEPS, {
 					filter: function (creep) {
 						return creep.memory.genesis === 'makeMiner'
@@ -61,7 +61,7 @@ var gc = function () {
 			} else {
 				priority = 0;
 			}
-			spawn.memory.pq = new PriorityQueue(spawn.memory.pq).queue(priority, init);
+			spawn.memory.pq = new PriorityQueue(spawn.memory.pq).enqueue(priority, init);
 			console.log('recycled ' + mem.genesis + ' ' + name + ' at ' + spawn.name);
 
 			delete Memory.creeps[name];
@@ -76,8 +76,8 @@ var gc = function () {
 			
 			if (Memory.spawns[name]) {
 				var spawnPQ = new PriorityQueue(Memory.spawns[name]);
-				for (let creepInfo = spawnPQ.dequeue(); creepInfo; creepInfo = spawnPQ.dequeue()) {
-					workersToSpawn.queue(0, creepInfo);
+				for (let queueItem = spawnPQ.dequeue(); queueItem; queueItem = spawnPQ.dequeue()) {
+					workersToSpawn.enqueue(queueItem.priority, queueItem.item);
 				}
 			}
 			
@@ -89,9 +89,9 @@ var gc = function () {
 	var spawns = Object.keys(Game.spawns).map(n => Game.spawns[n]);
 	var i = 0;
 	if (spawns.length) {
-		for (var recycleCreepInfo = workersToSpawn.dequeue(); recycleCreepInfo; recycleCreepInfo = workersToSpawn.dequeue()) {
+		for (var recycleQueueItem = workersToSpawn.dequeue(); recycleQueueItem; recycleQueueItem = workersToSpawn.dequeue()) {
 			var spawn = spawns[i];
-			spawn.memory.pq = new PriorityQueue(spawn.memory.pq).queue(0, recycleCreepInfo);
+			spawn.memory.pq = new PriorityQueue(spawn.memory.pq).enqueue(recycleQueueItem.priority, recycleQueueItem.item);
 			i = (i + 1) % spawns.length;
 		}
 	}
