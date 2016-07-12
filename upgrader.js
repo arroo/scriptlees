@@ -19,7 +19,16 @@ Spawn.prototype.makeUpgrader = function (init) {
 	mem.genesis = 'makeUpgrader';
 	mem.room = init.room;
 
+	var mine = false;
+	try {
+		mine = Game.room[mem.room].controller.my;
+	} catch (err) {}
 
+	if (!mine) {
+		init.task = 1;
+		return this.makeClaimer(init);
+	}
+	
 	var body = [MOVE, WORK, CARRY]; // bare minimum creep body definition
 	var extras = [MOVE, WORK, CARRY];
 	var bonus = [MOVE, WORK, CARRY];

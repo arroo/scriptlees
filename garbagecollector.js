@@ -52,15 +52,46 @@ var gc = function () {
 					init.genesis = 'makeHarvester';
 				}
 			}
+
+			if (init.genesis === 'makeClaimer' || init.genesis === 'makeUpgrader') {
+				let roomMine = false;
+				try {
+					roomMine = Game.rooms[mem.room].controller.my;
+				} catch (error) {}
+				if (roomMine) {
+					init.genesis = 'makeUpgrader';
+				} else {
+					init.genesis = 'makeClaimer';
+				}
+			}
+
 			var spawn = pos.findNearestFriendlySpawn();
 
 
 			var priority;
-			if (init.genesis === 'makeMiner') {
-				priority = 0;
-			} else {
-				priority = 0;
+			switch (init.genesis) {
+				case 'makeRepairer':
+					priority = 5;
+					break;
+				case 'makeBuilder':
+					priority = 4;
+					break;
+				case 'makeClaimer':
+				case 'makeUpgrader':
+					priority = 3;
+					break;
+				case 'makeMiner':
+					priority = 2;
+					break;
+				case 'makeCourier':
+				case 'makeHarvester':
+					priority = 1;
+					break;
+				default:
+					priority = 4;
+					break;
 			}
+
 			spawn.memory.pq = new PriorityQueue(spawn.memory.pq).enqueue(priority, init);
 			console.log('recycled ' + mem.genesis + ' ' + name + ' at ' + spawn.name);
 

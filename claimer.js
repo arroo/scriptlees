@@ -20,7 +20,14 @@ Spawn.prototype.makeClaimer = function (init) {
 
 	mem.run = 'startClaimer';
 	mem.genesis = 'makeClaimer';
+	var mine = false;
+	try {
+		mine = Game.room[mem.room].controller.my;
+	} catch (err) {}
 
+	if (mine) {
+		return this.makeUpgrader(init);
+	}
 
 	var body = [MOVE, CLAIM]; // bare minimum creep body definition
 	var extras = [MOVE, CLAIM];
@@ -99,16 +106,28 @@ Creep.prototype.reserveClaimer = function () {
 	this.basicCreepRespawn(makeInit(creep));
 
 	var reservation = creep.reserveController(creep.room.controller);
-	
-	if (reservation !== OK) {
+	if (reservation === ERR_INVALID_TARGET) {
+		creep.log('failed reserving controller in ' + creep.room.name + ', suicide time.');
+		creep.suicide();
+	} else if (reservation !== OK) {
 		creep.log('unable to reserve controller in ' + creep.room.name + ':' + strerror(reservation));
 	}
 };
 
 Creep.prototype.claimClaimer = function () {
 	var creep = this;
-	creep.log('build claim claim');
+	//creep.log('build claim claim');
 	this.basicCreepRespawn(makeInit(creep));
+
+	var claim = creep.claimController(creep.room.controller);
+
+	if (claim === OK) {
+		creep.log('successfully claimed room ' + creep.room.name + ', suiciding');
+		creep.notify('successfully claimed room ' + creep.room.name + ', suiciding');
+		creep.suicide();
+	} else {
+		creep.log('unable to claim room ' + creep.room.name + ': ' + strerror(claim));
+	}
 };
 
 module.exports = {};

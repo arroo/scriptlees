@@ -25,7 +25,9 @@ var utils = require('utils');
 var strerror = utils.strerror;
 
 var profiler = require('screeps-profiler');
-profiler.enable();
+if (Memory.enableProfiler) {
+	profiler.enable();
+}
 module.exports.loop = function () {
 	profiler.wrap(function() {
 		//return;
