@@ -23,8 +23,8 @@ Spawn.prototype.makeClaimer = function (init) {
 
 
 	var body = [MOVE, CLAIM]; // bare minimum creep body definition
-	var extras = [CLAIM];
-	var bonus = [MOVE, MOVE, CLAIM, CLAIM, CLAIM, MOVE, MOVE];
+	var extras = [MOVE, CLAIM];
+	var bonus = [MOVE, CLAIM, CLAIM, CLAIM, MOVE, MOVE];
 	var extraBonus = [TOUGH];
 
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);

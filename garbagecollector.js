@@ -39,6 +39,7 @@ var gc = function () {
 			init.genesis = mem.genesis;
 
 			if (init.genesis === 'makeHarvester' || init.genesis === 'makeCourier') {
+				var anyMiners = new RoomPosition();
 				var anyMiners = Game.rooms[pos.roomName].find(FIND_MY_CREEPS, {
 					filter: function (creep) {
 						return creep.memory.genesis === 'makeMiner'
@@ -48,7 +49,7 @@ var gc = function () {
 				if (anyMiners) {
 					init.genesis = 'makeCourier';
 				} else {
-					init.genesis = 'makeMiner';
+					init.genesis = 'makeHarvester';
 				}
 			}
 			var spawn = pos.findNearestFriendlySpawn();

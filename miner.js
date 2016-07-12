@@ -129,9 +129,11 @@ Creep.prototype.movingTargetMiner = function () {
 		}, undefined) || spawn.pos.findClosestByRange(spots) ||flag.room.find(Map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
 		if (target) {
 			delete creep.memory.destination.movingTarget;
+			creep.memory.destination.target = target;
 		}
 	} else {
 		target = mem.target;
+		target = new RoomPosition(target.x, target.y, target.roomName);
 	}
 
 	return target;

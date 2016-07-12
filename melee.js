@@ -7,13 +7,13 @@
  * mod.thing == 'a thing'; // true
  */
 
-Spawn.prototype.makeBuilder = function (init) {
+Spawn.prototype.makeMelee = function (init) {
 	init = init || {};
 	var mem = {};
 	mem.pq = init.pq;
 	mem.run = 'gotoThen';
 	mem.state = FILLING;
-	mem.genesis = 'makeBuilder';
+	mem.genesis = 'makeMelee';
 
 	var destinationInfo = {
 		'range': 1,

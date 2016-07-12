@@ -120,7 +120,7 @@ Flag.prototype.getBuilding = function () {
 
 Flag.prototype.getSource = function () {
 	var resource = backwards[this.color + delimiter + this.secondaryColor];
-	if (resource && RESOURCES_ALL.indexOf(resource)) {
+	if (resource && RESOURCES_ALL.indexOf(resource) >= 0) {
 		return resource;
 	}
 };
