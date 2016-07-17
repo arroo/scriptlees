@@ -44,14 +44,7 @@ StructureTower.prototype.doAttacksAndTriage = function () {
 };
 
 StructureTower.prototype.doRepairs = function () {
-	var target = _.min(this.room.find(FIND_MY_STRUCTURES, {filter: needsRepair}), howDamaged);
-	if (target === Infinity) {
-		target = undefined;
-	}
-
-	if (!target) {
-		target = _.min(this.room.find(FIND_STRUCTURES, {filter: needsRepair}), howDamaged);
-	}
+	var target = _.min(this.room.find(FIND_STRUCTURES, {filter: needsRepair}), howDead); // try doing raw hitpoint count
 	if (target === Infinity) {
 		target = undefined;
 	}

@@ -23,6 +23,7 @@ Spawn.prototype.makeRepairer = function (init) {
 	mem.run = 'startRepairer';
 	mem.genesis = 'makeRepairer';
 	mem.resource = RESOURCE_ENERGY;
+	mem.room = init.room;
 
 	var body = [MOVE, WORK, CARRY]; // bare minimum creep body definition
 	var extras = [];
@@ -34,7 +35,12 @@ Spawn.prototype.makeRepairer = function (init) {
 
 Creep.prototype.startRepairer = function () {
 	var creep = this;
-
+	var mem = creep.memory;
+	
+	if (mem.room && mem.room !== creep.room.name) {
+		creep.setGoing(new RoomPosition(25, 25, mem.room), 'startRepairer', 20);
+		return;
+	}
 	var target = creep.pos.findNearestSource(RESOURCE_ENERGY, creep.carryCapacity);
 
 	if (target) {
