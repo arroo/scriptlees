@@ -74,7 +74,7 @@ Creep.prototype.startMiner = function () {
 
 			}, undefined) ||
 		spawn.pos.findClosestByRange(spots) ||
-		flag.room.find(Map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
+		flag.room.find(Game.map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
 
 		range = 0;
 		mem.room = flag.room.name;
@@ -102,7 +102,7 @@ Creep.prototype.movingTargetMiner = function () {
 	var mem = creep.memory;
 	var flag = Game.flags[mem.flag];
 	var target;
-	if (flag && flag.room.name === creep.room.name) {
+	if (flag && flag.pos.roomName === creep.room.name) {
 		var spots = flag.room.openSpotsNear(flag);
 		var spawn = flag.pos.findNearestFriendlySpawn();
 		target = spots.reduce(function (pos, spot) {
@@ -126,7 +126,7 @@ Creep.prototype.movingTargetMiner = function () {
 
 			return pos;
 
-		}, undefined) || spawn.pos.findClosestByRange(spots) ||flag.room.find(Map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
+		}, undefined) || spawn.pos.findClosestByRange(spots) ||flag.room.find(Game.map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
 		if (target) {
 			delete creep.memory.destination.movingTarget;
 			creep.memory.destination.target = target;

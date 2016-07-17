@@ -90,13 +90,13 @@ Room.prototype.openSpotsNear = function(obj) {
 
 RoomPosition.prototype.openSpotsNear = function () {
 	var posString = this.x + ',' + this.y;
-
+	Memory.rooms[this.roomName].spots = Memory.rooms[this.roomName].spots || {};
 	Memory.rooms[this.roomName].spots[posString] = Memory.rooms[this.roomName].spots[posString] ||
 			Game.rooms[this.roomName].lookAtArea(this.y-1, this.x-1, this.y+1, this.x+1, true).
 				filter(a => a.type === 'terrain' && (a.terrain === 'plain' || a.tarrain === 'swamp')).
 				map(a => new RoomPosition(a.x, a.y, this.roomName));
 
-	return Memory.rooms[this.roomName].spots[posString].map(s => new RoomPosition(s.x, s.y, roomName));
+	return Memory.rooms[this.roomName].spots[posString].map(s => new RoomPosition(s.x, s.y, this.roomName));
 };
 
 Room.prototype.init = function () {
@@ -532,7 +532,20 @@ RoomPosition.prototype.getRoom = function () {
 
 RoomPosition.prototype.fullySurrounded = function () {
 
-	return !this.openSpotsNear().some(s => s.isWalkable() && !s.lookFor(LOOK_CREEPS));
+	//console.log('looking for unoccupied spots around:' + JSON.stringify(this))
+	var spots = this.openSpotsNear();
+
+	return !spots.some(function (spot) {
+		var w = spot.isWalkable();
+		var c = !!spot.lookFor(LOOK_CREEPS).length;
+		var r = (w && !c);
+
+		//console.log('looking at ' + JSON.stringify(spot) + ': walkable:' + w + ', occupied:' + c + ', result:' + r)
+
+		return r;
+	});
+
+	return !this.openSpotsNear().some(s => s.isWalkable() && !s.lookFor(LOOK_CREEPS).length);
 };
 
 RoomPosition.prototype.findNearestSource = function (resource, min, ignoreSources) {

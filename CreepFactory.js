@@ -7,7 +7,7 @@
  * mod.thing == 'a thing'; // true
  */
 
-var roomEnergyCreepMax = 1.0;
+var roomEnergyCreepMax = 0.7;
 
 
 Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {

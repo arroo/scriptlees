@@ -78,7 +78,7 @@ Creep.prototype.movingTargetUpgrader = function () {
 			console.log(mem.genesis + ' ' + creep.name + ' is going to an unplanned target:' + target.id + ', ', JSON.stringify(target));
 		}
 
-		if (predicate(neededResource)) {
+		if (predicate(neededResource) || target.pos.fullySurrounded()) {
 			target = undefined;
 		}
 	}
