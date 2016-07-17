@@ -38,7 +38,11 @@ directionStrings[BOTTOM_LEFT] = 'BOTTOM_LEFT';
 directionStrings[BOTTOM_RIGHT] = 'BOTTOM_RIGHT';
 
 Creep.prototype.run = function () {
-	try{this.moveRoleFlag();}catch(e) {
+	try{
+		if (Memory.showFlags) {
+			this.moveRoleFlag();
+		}
+	}catch(e) {
 		console.log(this.memory.genesis +' ' + this.name+ ' unable to move flag:', e);
 	}
 	this[this.memory.run]();
