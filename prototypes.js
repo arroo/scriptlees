@@ -81,23 +81,23 @@ Room.prototype.openSpotsClosest = function (obj) {
 };
 
 Room.prototype.openSpotsNear = function(obj) {
-	Memory.rooms[this.name].spots = Memory.rooms[this.name].spots || {};
-	var that = this;
+	var roomName = obj.pos.roomName;
+	Memory.rooms[roomName].spots = Memory.rooms[roomName].spots || {};
 	var posString = obj.pos.x + ',' + obj.pos.y;
-	if(!Memory.rooms[this.name].spots[posString]) {
+	if(!Memory.rooms[roomName].spots[posString]) {
 		let pp = obj.pos;
 		
-		var openSpots = this.lookAtArea(pp.y-1,pp.x-1,pp.y+1,pp.x+1, true)
+		var openSpots = Game.rooms[roomName].lookAtArea(pp.y-1,pp.x-1,pp.y+1,pp.x+1, true)
 		.filter(function (areaObj) {
 			return areaObj.type=='terrain' && (areaObj.terrain=='plain' || areaObj.terrain=='swamp');
 		})
 		.map(function (areaInfo) {
-			return new RoomPosition(areaInfo.x, areaInfo.y, obj.name)
+			return new RoomPosition(areaInfo.x, areaInfo.y, roomName)
 		});
 		
-		Memory.rooms[this.name].spots[posString] = openSpots;
+		Memory.rooms[roomName].spots[posString] = openSpots;
 	}
-	return Memory.rooms[this.name].spots[posString].map(s => new RoomPosition(s.x, s.y, s.roomName));
+	return Memory.rooms[roomName].spots[posString].map(s => new RoomPosition(s.x, s.y, roomName));
 };
 
 Room.prototype.init = function () {
