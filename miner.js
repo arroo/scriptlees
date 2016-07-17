@@ -31,12 +31,27 @@ Spawn.prototype.makeMiner = function (init) {
 		mem.room = init.room
 	}
 
-
 	var body = [MOVE, WORK]; // bare minimum creep body definition
-	var extras = [WORK, WORK, WORK, WORK];
-	var bonus = [MOVE, MOVE, MOVE, MOVE];
+	var extras = [];
+	var bonus = [];
 	var extraBonus = [];
-	
+
+	var capacity;
+	try {
+		capacity = flag.pos.lookFor(LOOK_SOURCES)[0].energyCapacity;
+	} catch (error) {
+		capacity = SOURCE_ENERGY_CAPACITY;
+	}
+
+	var partsNeededCount = Math.ceil(ENERGY_REGEN_TIME * HARVEST_POWER / capacity) - 1;
+
+	while (partsNeededCount--) {
+		extras.push(WORK);
+		bonus.push(MOVE);
+	}
+
+	console.log('making miner for flag ' + mem.flag + ' with body:' + JSON.stringify(body) + ', extras:' + JSON.stringify(extras) + ', bonus:' + JSON.stringify(bonus));
+
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);
 };
 
@@ -126,7 +141,7 @@ Creep.prototype.movingTargetMiner = function () {
 
 			return pos;
 
-		}, undefined) || spawn.pos.findClosestByRange(spots) ||flag.room.find(Game.map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
+		}, undefined) || spawn.pos.findClosestByRange(spots) ||flag.room.find(Game.map.findExit(spawn.room, flag.room))[0].findClosestByRange(spots);
 		if (target) {
 			delete creep.memory.destination.movingTarget;
 			creep.memory.destination.target = target;

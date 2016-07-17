@@ -106,11 +106,6 @@ Room.prototype.init = function () {
 		return;
 	}
 	
-	if (!room.controller) {
-		room.memory.init = true;
-		return;
-	}
-	
 	// place a flag next to all sources
 	room.memory.sourceFlags = room.memory.sourceFlags || room.find(FIND_SOURCES).reduce(function (obj, source) {
 		
@@ -131,6 +126,11 @@ Room.prototype.init = function () {
 		
 		return obj;
 	}, {});
+
+	if (!room.controller) {
+		room.memory.init = true;
+		return;
+	}
 
 	var nearestSpawn;// = room.getPositionAt(25,25).findNearestFriendlySpawn();
 	if (nearestSpawn) {
