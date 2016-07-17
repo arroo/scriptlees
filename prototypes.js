@@ -85,23 +85,18 @@ Room.prototype.openSpotsClosest = function (obj) {
 };
 
 Room.prototype.openSpotsNear = function(obj) {
-	var roomName = obj.pos.roomName;
-	Memory.rooms[roomName].spots = Memory.rooms[roomName].spots || {};
-	var posString = obj.pos.x + ',' + obj.pos.y;
-	if(!Memory.rooms[roomName].spots[posString]) {
-		let pp = obj.pos;
-		
-		var openSpots = Game.rooms[roomName].lookAtArea(pp.y-1,pp.x-1,pp.y+1,pp.x+1, true)
-		.filter(function (areaObj) {
-			return areaObj.type=='terrain' && (areaObj.terrain=='plain' || areaObj.terrain=='swamp');
-		})
-		.map(function (areaInfo) {
-			return new RoomPosition(areaInfo.x, areaInfo.y, roomName)
-		});
-		
-		Memory.rooms[roomName].spots[posString] = openSpots;
-	}
-	return Memory.rooms[roomName].spots[posString].map(s => new RoomPosition(s.x, s.y, roomName));
+	return obj.pos.openSpotsNear();
+};
+
+RoomPosition.prototype.openSpotsNear = function () {
+	var posString = this.x + ',' + this.y;
+
+	Memory.rooms[this.roomName].spots[posString] = Memory.rooms[this.roomName].spots[posString] ||
+			Game.rooms[this.roomName].lookAtArea(this.y-1, this.x-1, this.y+1, this.x+1, true).
+				filter(a => a.type === 'terrain' && (a.terrain === 'plain' || a.tarrain === 'swamp')).
+				map(a => new RoomPosition(a.x, a.y, this.roomName));
+
+	return Memory.rooms[this.roomName].spots[posString].map(s => new RoomPosition(s.x, s.y, roomName));
 };
 
 Room.prototype.init = function () {
@@ -530,20 +525,30 @@ RoomPosition.prototype.findNearestThing = function (findFunction) {
 
 	return target;
 };
+
+RoomPosition.prototype.getRoom = function () {
+	return Game.rooms[this.roomName];
+};
+
+RoomPosition.prototype.fullySurrounded = function () {
+
+	return !this.openSpotsNear().some(s => s.isWalkable() && !s.lookFor(LOOK_CREEPS));
+};
+
 RoomPosition.prototype.findNearestSource = function (resource, min, ignoreSources) {
 	var pos = this;
 	min = min || 0;
 	var nearestSource = pos.findNearestThing(function (room) {
 		var sources = [];
 
-		sources = room.find(FIND_DROPPED_RESOURCES, {filter: r => r.resourceType === resource && r.amount >= min}).reduce(cat, sources);
-		sources = room.find(FIND_STRUCTURES, {filter: s=> (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) && s.store[resource] && s.store[resource] >= min}).reduce(cat, sources);
+		sources = room.find(FIND_DROPPED_RESOURCES, {filter: r => r.resourceType === resource && r.amount >= min && !r.pos.fullySurrounded()}).reduce(cat, sources);
+		sources = room.find(FIND_STRUCTURES, {filter: s=> (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) && s.store[resource] && s.store[resource] >= min && !s.pos.fullySurrounded()}).reduce(cat, sources);
 
 		if (!sources.length && !ignoreSources) {
 			if (resource === RESOURCE_ENERGY) {
-				sources = room.find(FIND_SOURCES, {filter: s => s.energy >= min}).reduce(cat, sources);
+				sources = room.find(FIND_SOURCES, {filter: s => s.energy >= min && !s.pos.fullySurrounded()}).reduce(cat, sources);
 			} else {
-				sources = room.find(FIND_MINERALS, { filter: s => s.mineralAmount && s.mineralType === resource && s.mineralAmount >= min}).reduce(cat, sources);
+				sources = room.find(FIND_MINERALS, { filter: s => s.mineralAmount && s.mineralType === resource && s.mineralAmount >= min && !s.pos.fullySurrounded()}).reduce(cat, sources);
 			}
 		}
 
