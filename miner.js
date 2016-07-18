@@ -43,7 +43,7 @@ Spawn.prototype.makeMiner = function (init) {
 		capacity = SOURCE_ENERGY_CAPACITY;
 	}
 
-	var partsNeededCount = Math.ceil(ENERGY_REGEN_TIME * HARVEST_POWER / capacity) - 1;
+	var partsNeededCount = Math.ceil(capacity / (ENERGY_REGEN_TIME * HARVEST_POWER)) - 1;
 
 	while (partsNeededCount--) {
 		extras.push(WORK);

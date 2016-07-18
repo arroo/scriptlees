@@ -98,7 +98,7 @@ Creep.prototype.movingTargetRepairer = function () {
 
 	var target = Game.getObjectById(mem.target);
 	
-	this.basicCreepRespawn({});
+	this.basicCreepRespawn(this.memory);
 	var neededResource = creep.carryCapacity - _.sum(creep.carry);
 	// make sure it's still a valid target
 	if (target) {
@@ -167,7 +167,7 @@ Creep.prototype.movingTargetRepairer = function () {
 Creep.prototype.fillRepairer = function () {
 	var creep = this;
 	var source = Game.getObjectById(creep.memory.target);
-	this.basicCreepRespawn({});
+	this.basicCreepRespawn(this.memory);
 	// find a new one
 	if (!source || _.sum(creep.carry) >= creep.carryCapacity) {
 		delete creep.memory.target;
@@ -187,7 +187,7 @@ Creep.prototype.fillRepairer = function () {
 Creep.prototype.upgraderRepairer = function () {
 	var creep = this;
 	var controller = Game.getObjectById(creep.memory.target);
-	this.basicCreepRespawn({});
+	this.basicCreepRespawn(this.memory);
 	// find a new one
 	var totalCarry = _.sum(creep.carry);
 	if (!controller || totalCarry <= 0) {
@@ -211,7 +211,7 @@ Creep.prototype.runRepairer = function () {
 	var creep = this;
 	var res;
 	var site = Game.getObjectById(creep.memory.target);
-	this.basicCreepRespawn({});
+	this.basicCreepRespawn(this.memory);
 	var totalCarry = _.sum(creep.carry);
 	if (totalCarry <= 0 || !site || site.hits >= site.hitsMax) {
 		creep.memory.range = totalCarry ? 3 : 1;
