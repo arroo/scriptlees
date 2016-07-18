@@ -9,26 +9,6 @@
 
 var roomEnergyCreepMax = 0.7;
 
-var bodyPartSorter = function (a, b) {
-	if (a === TOUGH) {
-		return -1;
-	}
-	
-	if (b === TOUGH) {
-		return 1;
-	}
-	
-	if (a === MOVE) {
-		return -1;
-	}
-	
-	if (b === MOVE) {
-		return 1;
-	}
-	
-	return 0;
-};
-
 Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 
 	var energyCapacityAvailable = this.room.energyCapacityAvailable;
@@ -68,6 +48,34 @@ Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 	body = body.sort(bodyPartSorter);
 
 	return this.createCreep(body, undefined, mem);
+};
+
+var bodyPartSorter = function (a, b) {
+	if (a === TOUGH) {
+		return -1;
+	}
+
+	if (b === TOUGH) {
+		return 1;
+	}
+
+	if (a === CARRY) {
+		return -1;
+	}
+
+	if (b === CARRY) {
+		return 1;
+	}
+
+	if (a === MOVE) {
+		return -1;
+	}
+
+	if (b === MOVE) {
+		return 1;
+	}
+
+	return 0;
 };
 
 module.exports = {};
