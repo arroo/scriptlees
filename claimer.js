@@ -123,7 +123,7 @@ Creep.prototype.claimClaimer = function () {
 
 	if (claim === OK) {
 		creep.log('successfully claimed room ' + creep.room.name + ', suiciding');
-		creep.notify('successfully claimed room ' + creep.room.name + ', suiciding');
+		Game.notify('successfully claimed room ' + creep.room.name + ', suiciding');
 		creep.suicide();
 	} else {
 		creep.log('unable to claim room ' + creep.room.name + ': ' + strerror(claim));

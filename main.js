@@ -20,6 +20,7 @@ var courier = require('courier');
 var repairer = require('repairer');
 var tower = require('tower');
 var claimer = require('claimer');
+var siege = require('siege');
 
 var utils = require('utils');
 var strerror = utils.strerror;

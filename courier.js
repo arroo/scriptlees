@@ -74,24 +74,14 @@ var getTargetPosition = function (creep, flag) {
 			return pos;
 
 		}, undefined);
-		if (target instanceof RoomPosition) {creep.log('bloop')} else {creep.log('blaap')}
+
 		if (!target) {
-			creep.log('2');
 			var spawn = flag.pos.findNearestFriendlySpawn();
 			target = spawn.pos.findClosestByRange(spots) ||
 				flag.room.find(Game.map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
-		} else {
-			creep.log('target is:'+JSON.stringify(target))
 		}
 	} else {
-		creep.log('target is not a source');
 		range = target.isWalkable() ? 0 : 1;
-	}
-
-	if (target instanceof RoomPosition) {
-		creep.log('target is a roomposition')
-	} else {
-		creep.log('target is a NOT roomposition')
 	}
 
 

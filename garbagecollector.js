@@ -105,8 +105,8 @@ var gc = function () {
 	Object.keys(Memory.spawns).forEach(function (name) {
 		if (!Game.spawns[name]) {
 			
-			if (Memory.spawns[name]) {
-				var spawnPQ = new PriorityQueue(Memory.spawns[name]);
+			if (Memory.spawns[name] && Memory.spawns[name].pq) {
+				var spawnPQ = new PriorityQueue(Memory.spawns[name].pq);
 				for (let queueItem = spawnPQ.dequeue(); queueItem; queueItem = spawnPQ.dequeue()) {
 					workersToSpawn.enqueue(queueItem.priority, queueItem.item);
 				}
@@ -116,6 +116,10 @@ var gc = function () {
 		}
 	});
 
+	// clear open spots cache periodically
+	if (Game.time % 1000 === 0) {
+		Object.keys(Memory.rooms).forEach(r => Memory.rooms[r].spots = {})
+	}
 	// add all workers to be made at different spawns randomly (for now)
 	var spawns = Object.keys(Game.spawns).map(n => Game.spawns[n]);
 	var i = 0;
@@ -136,7 +140,7 @@ var gc = function () {
 	});
 	Object.keys(Game.flags).forEach(function (name) {
 		Memory.flags[name] = Memory.flags[name] || {};
-		Memory.flags[name].room = Game.flags[name].pos.roomName;
+		//Memory.flags[name].room = Game.flags[name].pos.roomName;
 	});
 };
 

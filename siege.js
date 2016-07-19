@@ -15,7 +15,7 @@ Spawn.prototype.makeSiege = function (init) {
 	var mem = {};
 
 	mem.room = init.room;
-
+	mem.clipping = true;
 	mem.run = 'startSiege';
 	mem.genesis = 'makeSiege';
 	var mine = false;
@@ -66,6 +66,10 @@ Creep.prototype.movingTargetSiege = function () {
 	if (creep.room.name === mem.room) {
 		// switch to walking to controller
 		target = creep.pos.findClosestByRange(FIND_HOSTILE_STRUCTURES);
+//		creep.log('looking for hostile structures...:' + JSON.stringify(target))
+		if (target && creep.pos.isNearTo(target)) {
+			creep.dismantle(target)
+		}
 	}
 
 	if (!target) {
