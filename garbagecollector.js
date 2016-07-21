@@ -40,11 +40,14 @@ var gc = function () {
 
 			if (init.genesis === 'makeHarvester' || init.genesis === 'makeCourier') {
 				//var anyMiners = new RoomPosition();
-				var anyMiners = Game.rooms[pos.roomName].find(FIND_MY_CREEPS, {
-					filter: function (creep) {
-						return creep.memory.genesis === 'makeMiner'
-					}
-				}).length;
+				var anyMiners;
+				try {
+					anyMiners = Game.rooms[pos.roomName].find(FIND_MY_CREEPS, {
+						filter: function (creep) {
+							return creep.memory.genesis === 'makeMiner'
+						}
+					}).length;
+				} catch (err) {}
 
 				if (anyMiners) {
 					init.genesis = 'makeCourier';

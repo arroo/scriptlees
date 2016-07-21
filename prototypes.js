@@ -17,6 +17,12 @@ Source.prototype.mineralType = RESOURCE_ENERGY;
 var OBSTACLE_OBJECT_TYPES_OBJ;
 var STALL_LIMIT = 5;
 
+var CRIT = 0;
+var WARN = 1;
+var INFO = 2;
+var DEBUG = 3;
+var VERBOSE = 4;
+
 var directionOpposites = {};
 directionOpposites[TOP_LEFT] = [BOTTOM_RIGHT, BOTTOM, RIGHT, BOTTOM_LEFT, TOP_RIGHT, LEFT, TOP];
 directionOpposites[TOP] = [BOTTOM, BOTTOM_LEFT, BOTTOM_RIGHT, LEFT, RIGHT, TOP_LEFT, TOP_RIGHT];
@@ -599,6 +605,17 @@ Creep.prototype.log = function () {
 	var creepClass = this.memory.genesis || 'unknown role';
 	var name = this.name;
 	[].unshift.call(arguments, creepClass + ' ' + name + ': ');
+	console.log.apply(console, arguments);
+};
+
+Creep.prototype.debug = function () {
+	if (!this.memory.logLevel > DEBUG) {
+		return;
+	}
+	var creepClass = this.memory.genesis || 'unknown role';
+	var name = this.name;
+
+	[].unshift.call(arguments, `D ${creepClass} ${name}: `);
 	console.log.apply(console, arguments);
 };
 

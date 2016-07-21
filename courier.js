@@ -299,12 +299,20 @@ Creep.prototype.run2Courier = function () {
 
 var giveEnergyToSink = function (creep, target, flag) {
 	var building = flag.getBuilding();
-	if (building === STRUCTURE_EXTENSION) {
-		target = flag.room.lookForAtArea(LOOK_STRUCTURES, pos.y-range, pos.x-range,pos.y+range, pos.x+range, true)
-		.filter(s => s.structureType === STRUCTURE_EXTENSION && s.energy < s.energyCapacity )[0];
+	var pos = creep.pos;
+	var range = 1;
 
+	if (building === STRUCTURE_EXTENSION) {
+		var extensions = flag.room.lookForAtArea(LOOK_STRUCTURES, pos.y-range, pos.x-range,pos.y+range, pos.x+range, true)
+		.filter(s => s.structureType === STRUCTURE_EXTENSION && s.energy < s.energyCapacity );
+
+	} else {
+		return creep.transfer(target, creep.memory.resource);
 	}
-	return creep.transfer(target, creep.memory.resource);
+
+	extensions.forEach(e => creep.transfer(e, creep.memory.resource));
+
+	return OK;
 };
 
 
