@@ -13,6 +13,7 @@ Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 
 	var energyCapacityAvailable = this.room.energyCapacityAvailable;
 
+	var minParts = body.length;
 	extras = extras || [];
 	bonus = bonus || [];
 	extraBonus = extraBonus || [];
@@ -41,7 +42,7 @@ Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
 	}
 
 	// make sure room can support this creep
-	if (bodyCost(body) > energyCapacityAvailable || (hasExtras && bodyCost(body) > this.room.energyAvailable)) {
+	if (body.length > minParts && bodyCost(body) > energyCapacityAvailable || (hasExtras && bodyCost(body) > this.room.energyAvailable)) {
 		body.pop();
 	}
 
