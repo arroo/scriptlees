@@ -52,9 +52,9 @@ Spawn.prototype.population = function() {
 
 				var spawningIntoHostile = true;
 				if (creepInfo.room && Game.rooms[creepInfo.room]) {
-					spawningIntoHostile = !!Game.rooms[creepInfo.room].memory.warZone;
+					spawningIntoHostile = !!Game.rooms[creepInfo.room].memory.warZone && !Game.rooms[creepInfo.room].controller.my;
 				} else if (creepInfo.lastPos && Game.rooms[creepInfo.lastPos.roomName]) {
-					spawningIntoHostile = !!Game.rooms[creepInfo.lastPos.roomName].memory.warZone;
+					spawningIntoHostile = !!Game.rooms[creepInfo.lastPos.roomName].memory.warZone && !Game.rooms[creepInfo.lastPos.roomName].controller.my;
 				}
 
 				let isCombat = Creep.prototype.isCombat.apply({memory:creepInfo});

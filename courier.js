@@ -321,7 +321,7 @@ Creep.prototype.movingTargetCourier = function () {
 	var target;
 	var sinks = [];
 
-	if (creep.room.warZone) {
+	if (creep.room.memory.warZone) {
 		sinks = creep.room.find(FIND_MY_STRUCTURES, {filter:function (structure) {
 			switch (structure.structureType) {
 				case STRUCTURE_TOWER:

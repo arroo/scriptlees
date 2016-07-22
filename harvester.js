@@ -29,6 +29,7 @@ Spawn.prototype.makeHarvester = function (init) {
 	mem.run = 'gotoThen';
 	mem.state = FILLING;
 	mem.genesis = 'makeHarvester';
+	mem.endpointFlags = init.endpointFlags;
 
 	var destinationInfo = {
 		'range': 1,

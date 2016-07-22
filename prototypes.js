@@ -17,6 +17,20 @@ Source.prototype.mineralType = RESOURCE_ENERGY;
 var OBSTACLE_OBJECT_TYPES_OBJ;
 var STALL_LIMIT = 5;
 
+var spawnPriorities = {
+	makeBuilder: 4,
+	makeClaimer: 7,
+	makeCourier: 1,
+	makeHarvester: 1,
+	makeCleric: 5,
+	makeMelee: 6,
+	makeMiner: 2,
+	makeRepairer: 4,
+	makeSiege: 5,
+	makeUpgrader: 7,
+	makeScout: 8
+};
+
 var CRIT = 0;
 var WARN = 1;
 var INFO = 2;
@@ -42,6 +56,10 @@ directionStrings[TOP_LEFT] = 'TOP_LEFT';
 directionStrings[TOP_RIGHT] = 'TOP_RIGHT';
 directionStrings[BOTTOM_LEFT] = 'BOTTOM_LEFT';
 directionStrings[BOTTOM_RIGHT] = 'BOTTOM_RIGHT';
+
+Creep.prototype.getSpawnPriority = function () {
+	return spawnPriorities[this.memory.genesis] || 10;
+};
 
 Creep.prototype.run = function () {
 	try{
@@ -643,7 +661,7 @@ Creep.prototype.signalRespawn = function (init, spawn) {
 	}
 
 	// don't set the highest priority for some reason?
-	var priority = 0;
+	var priority = this.getSpawnPriority();
 	spawn.memory.pq = new PriorityQueue(spawn.memory.pq).enqueue(priority, creepInit);
 
 	creep.memory.signalledDemise = true;
