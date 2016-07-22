@@ -266,7 +266,8 @@ Creep.prototype.gotoThen = function () {
 		return;
 	}
 
-	creep.memory.tired = creep.moveTo(target, {'reusePath':pathReuse, 'avoidCreeps': avoidCreeps}) === ERR_TIRED;
+	var clipping = creep.memory.clipping;
+	creep.memory.tired = creep.moveTo(target, {'reusePath':pathReuse, 'avoidCreeps': avoidCreeps,'ignoreDestructibleStructures':clipping}) === ERR_TIRED;
 
 };
 
@@ -785,4 +786,16 @@ var t = function (type, opts) {
 	return result;
 }
 */
+
+Creep.prototype.isCombat = function () {
+	switch (this.memory.genesis) {
+		case 'makeSiege':
+		case 'makeMelee':
+		case 'makeCleric':
+			return true;
+		
+		default:
+			return false;
+	}
+};
 module.exports = {};

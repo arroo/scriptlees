@@ -11,7 +11,13 @@
 var PriorityQueue = require('pqueue');
 
 if (!Memory.init) {
-	
+
+	if (!Memory.init2) {
+		Object.keys(Game.flags).map(n => Game.flags[n]).forEach(f => f.remove());
+		Object.keys(Memory).forEach(k => delete Memory[k])
+	}
+	Memory.init2 = true;
+
 	var initialCreeps = [
 		//{'priority':4,'item':{'genesis':'makeMiner', 'init':{'flag':'Flag1'}}},
 		//{'priority':2,'item':{'genesis':'makeMiner', 'init':{'flag':'Flag2'}}},

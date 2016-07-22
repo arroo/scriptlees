@@ -31,11 +31,14 @@ Spawn.prototype.population = function() {
 			var genesis = spawn[creepInfo.genesis];
 			var name;
 			if (creepInfo.genesis === 'makeHarvester' || creepInfo.genesis === 'makeCourier') {
-				var anyMiners = Game.rooms[spawn.room.name].find(FIND_MY_CREEPS, {
-					filter: function (creep) {
-						return creep.memory.genesis === 'makeMiner'
-					}
-				}).length;
+				var anyMiners;
+				try {
+					anyMiners = Game.rooms[spawn.room.name].find(FIND_MY_CREEPS, {
+						filter: function (creep) {
+							return creep.memory.genesis === 'makeMiner'
+						}
+					}).length;
+				} catch (e) {}
 
 				if (anyMiners) {
 					creepInfo.init.genesis = creepInfo.genesis = 'makeCourier';
@@ -46,8 +49,22 @@ Spawn.prototype.population = function() {
 			
 			var success = false;
 			try {
-				name = spawn[creepInfo.genesis](creepInfo.init);
-				success = _.isString(name);
+
+				var spawningIntoHostile = true;
+				if (creepInfo.room && Game.rooms[creepInfo.room]) {
+					spawningIntoHostile = !!Game.rooms[creepInfo.room].memory.warZone;
+				} else if (creepInfo.lastPos && Game.rooms[creepInfo.lastPos.roomName]) {
+					spawningIntoHostile = !!Game.rooms[creepInfo.lastPos.roomName].memory.warZone;
+				}
+
+				let isCombat = Creep.prototype.isCombat.apply({memory:creepInfo});
+
+				if (!spawningIntoHostile || isCombat) {
+					name = spawn[creepInfo.genesis](creepInfo.init);
+					success = _.isString(name);
+				} else {
+					name = ERR_NOT_OWNER;
+				}
 			} catch (error) {
 				console.log('error spawning ' + creepInfo.genesis + ':',error)
 			}
