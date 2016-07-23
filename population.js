@@ -50,7 +50,7 @@ Spawn.prototype.population = function() {
 			var success = false;
 			try {
 
-				var spawningIntoHostile = true;
+				var spawningIntoHostile = false;
 				if (creepInfo.room && Game.rooms[creepInfo.room]) {
 					spawningIntoHostile = !!Game.rooms[creepInfo.room].memory.warZone && !Game.rooms[creepInfo.room].controller.my;
 				} else if (creepInfo.lastPos && Game.rooms[creepInfo.lastPos.roomName]) {
