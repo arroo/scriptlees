@@ -67,7 +67,7 @@ Creep.prototype.movingTargetSiege = function () {
 	var nearTarget = false;
 	if (creep.room.name === mem.room) {
 		// switch to walking to controller
-		var structs = creep.room.find(FIND_HOSTILE_STRUCTURES).filter(s => s.structureType !== STRUCTURE_CONTROLLER);
+		var structs = creep.room.find(FIND_HOSTILE_STRUCTURES).filter(s => s.structureType !== STRUCTURE_CONTROLLER && s.structureType !== STRUCTURE_STORAGE);
 		target = creep.pos.findClosestByRange(structs);
 //		creep.log('looking for hostile structures...:' + JSON.stringify(target))
 		if (target && creep.pos.isNearTo(target)) {

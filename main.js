@@ -82,9 +82,10 @@ module.exports.loop = function () {
 				//{'priority':4,'item':{'genesis':'makeCourier', 'init':{'endpointFlags':['Flag10', 'Flag11']}}}
 				//{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}}
 			];
-			Game.spawns.Spawn1.memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
+			let spawner = 'Spawn1';
+			Game.spawns[spawner].memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
 				return pq.enqueue(creepInfo);
-			}, new PriorityQueue(Game.spawns.Spawn1.memory.pq));
+			}, new PriorityQueue(Game.spawns[spawner].memory.pq));
 			Memory.makeTempMinions = false;
 		}
 		// process all structures that have something to do
