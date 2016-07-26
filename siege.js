@@ -29,9 +29,9 @@ Spawn.prototype.makeSiege = function (init) {
 
 	mem.signalledDemise = true;
 	var body = [MOVE, WORK, ATTACK]; // bare minimum creep body definition
-	var extras = [MOVE, WORK, TOUGH];
-	var bonus = [MOVE, WORK, TOUGH, MOVE, WORK, TOUGH];
-	var extraBonus = [TOUGH];
+	var extras = [MOVE, WORK, MOVE, TOUGH];
+	var bonus = [MOVE, WORK, MOVE, TOUGH, MOVE, WORK, MOVE, TOUGH];
+	var extraBonus = [MOVE, TOUGH];
 
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);
 };

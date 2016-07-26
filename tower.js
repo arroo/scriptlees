@@ -1,12 +1,12 @@
 
 var BATTLE_RESERVE_PERCENT = 0.75;
+var MAX_SIEGE_HP = Math.min(CREEP_LIFE_TIME * DISMANTLE_POWER * (MAX_CREEP_SIZE / 2) * 5, WALL_HITS_MAX);
+
 
 var needsRepair = function (thing) {
 	if (thing.hits && thing.hitsMax) {
-		return thing.hits < thing.hitsMax;
+		return thing.hits < thing.hitsMax && thing.hits < MAX_SIEGE_HP;
 	}
-
-	
 };
 
 var howDamaged = function (a) {
