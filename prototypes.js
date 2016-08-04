@@ -816,4 +816,25 @@ Creep.prototype.isCombat = function () {
 			return false;
 	}
 };
+
+RoomPosition.prototype.serialize = function () {
+	var serPos = this.x + this.y * 50; // works because this.x < 50
+
+	var serialized = serPos.toString(36) + '|' + this.roomName;
+
+	return serialized;
+};
+
+RoomPosition.deserialize = function (serialized) {
+	var x, y, roomName;
+
+	var arr = serialized.split('|');
+	roomName = arr[1];
+
+	var serPos = Number.parseInt(arr[0], 36);
+	x = serPos % 50;
+	y = (serPos - x) / 50;
+
+	return new RoomPosition(x, y, roomName);
+};
 module.exports = {};

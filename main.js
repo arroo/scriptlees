@@ -29,6 +29,13 @@ var profiler = require('screeps-profiler');
 if (Memory.enableProfiler) {
 	profiler.enable();
 }
+
+var tempCreeps = [
+	{'priority': 4, 'item': {'genesis': 'makeCourier', 'init': {'endpointFlags': ['Flag3', 'Flag11']}}}
+	//{'priority':4,'item':{'genesis':'makeCourier', 'init':{'endpointFlags':['Flag10', 'Flag11']}}}
+	//{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}}
+];
+
 module.exports.loop = function () {
 	profiler.wrap(function() {
 		//return;
@@ -77,16 +84,14 @@ module.exports.loop = function () {
 
 		if (Memory.makeTempMinions) {
 
-			var tempCreeps = [
-				{'priority': 4, 'item': {'genesis': 'makeCourier', 'init': {'endpointFlags': ['Flag3', 'Flag11']}}}
-				//{'priority':4,'item':{'genesis':'makeCourier', 'init':{'endpointFlags':['Flag10', 'Flag11']}}}
-				//{'priority':4,'item':{'genesis':'makeRepairer', 'init':{}}}
-			];
+
 			let spawner = 'Spawn1';
-			Game.spawns[spawner].memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
-				return pq.enqueue(creepInfo);
-			}, new PriorityQueue(Game.spawns[spawner].memory.pq));
-			Memory.makeTempMinions = false;
+			try {
+				Game.spawns[spawner].memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
+					return pq.enqueue(creepInfo);
+				}, new PriorityQueue(Game.spawns[spawner].memory.pq));
+				Memory.makeTempMinions = false;
+			} catch (e) {}
 		}
 		// process all structures that have something to do
 		Object.keys(Game.structures).forEach(id => Game.structures[id].run && Game.structures[id].run());

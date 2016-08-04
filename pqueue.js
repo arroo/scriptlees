@@ -13,6 +13,8 @@ function PriorityQueue(init) {
 	this.p = _.isArray(init.p) ? init.p : [];
 	if (init.sorter) {
 		this.sorter = init.sorter;
+	} else {
+		this.sorter = (a, b) => a - b;
 	}
 	return this;
 }

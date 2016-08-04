@@ -228,18 +228,18 @@ Creep.prototype.run2Courier = function () {
 	var otherFlag = creep.memory.endpointFlags.filter(n => n !== creep.memory.targetFlag)[0];
 	var res;
 	var targetInfo;
-	creep.log('at flag ' + creep.memory.targetFlag);
+	//creep.log('at flag ' + creep.memory.targetFlag);
 	var targetPos = new RoomPosition(creep.memory.target.x, creep.memory.target.y, creep.memory.target.roomName);
 	if (creep.room.name !== Memory.flags[creep.memory.targetFlag].room || !creep.pos.isNearTo(targetPos)) {
-		creep.log('flag ' + creep.memory.targetFlag + ' has moved rooms to ' + Memory.flags[creep.memory.targetFlag].room);
-		creep.log(' is at ' + JSON.stringify(creep.pos) + ' not near enough to ' + JSON.stringify(creep.memory.target) + ':' + creep.pos.isNearTo(targetPos));
+		//creep.log('flag ' + creep.memory.targetFlag + ' has moved rooms to ' + Memory.flags[creep.memory.targetFlag].room);
+		//creep.log(' is at ' + JSON.stringify(creep.pos) + ' not near enough to ' + JSON.stringify(creep.memory.target) + ':' + creep.pos.isNearTo(targetPos));
 		targetInfo = getTargetPosition(creep, Game.flags[creep.memory.targetFlag]);
-		console.log('setting target to:' + JSON.stringify(targetInfo));
+		//console.log('setting target to:' + JSON.stringify(targetInfo));
 		creep.memory.target = targetInfo.target;
 		creep.setGoing(targetInfo.target, 'run2Courier', targetInfo.range);
 		return;
 	}
-	creep.log('beep');
+	//creep.log('beep');
 	var otherIsSource;
 	var otherIsSink;
 	try {
@@ -260,7 +260,7 @@ Creep.prototype.run2Courier = function () {
 	// if at a source, withdraw
 	if ((flag.isAnySource() || otherIsSink) && totalCarry < creep.carryCapacity) {
 		// look at what source it is
-		creep.log(3);
+		//creep.log(3);
 		let resourcePile = targetPos.lookFor(LOOK_RESOURCES).filter(r => r.resourceType === creep.memory.resource)[0];
 		if (resourcePile) {
 			creep.takeResource(resourcePile, creep.memory.resource)
@@ -271,12 +271,12 @@ Creep.prototype.run2Courier = function () {
 		// if at a sink, deposit
 	} else if ((flag.isAnySink() || otherIsSource)  && totalCarry > 0) {
 		res = giveEnergyToSink(creep, targetBuilding, flag);
-		creep.log('giving energy to flag:' + flag.name);
+		//creep.log('giving energy to flag:' + flag.name);
 		if (res === ERR_FULL) {
 			let b = flag.getBuilding();
 			if (b === STRUCTURE_CONTAINER || b === STRUCTURE_STORAGE) {
 				creep.drop(creep.memory.resource);
-				creep.log('dropping it instead')
+				//creep.log('dropping it instead')
 			} else {
 				return;
 			}

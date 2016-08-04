@@ -33,7 +33,11 @@ var gc = function () {
 			}
 
 			var pos = mem.lastPos;
-			pos = new RoomPosition(pos.x, pos.y, pos.roomName);
+			try {
+				pos = new RoomPosition(pos.x, pos.y, pos.roomName);
+			} catch (e) {
+				pos = new RoomPosition(25, 25, 'W43N43'); // temp
+			}
 			var init = {};
 			init.init = mem;
 			init.genesis = mem.genesis;
