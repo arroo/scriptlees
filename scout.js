@@ -40,6 +40,7 @@ Creep.prototype.startScout = function () {
 };
 
 Creep.prototype.runScout = function () {
+	this.basicCreepRespawn(this.memory);
 	if (this.room.name !== this.memory.room) {
 		this.setGoing(new RoomPosition(25, 25, this.memory.room), 'runScout', 20);
 	}

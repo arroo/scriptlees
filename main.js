@@ -21,7 +21,7 @@ var repairer = require('repairer');
 var tower = require('tower');
 var claimer = require('claimer');
 var siege = require('siege');
-
+var scout = require('scout');
 var utils = require('utils');
 var strerror = utils.strerror;
 
