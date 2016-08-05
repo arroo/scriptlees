@@ -9,13 +9,6 @@
 
 require('CreepFactory');
 //var PriorityQueue = require('pqueue');
-var utils = require('utils');
-var strerror = utils.strerror;
-//var cat = utils.cat;
-
-var REPAIRING = 0;
-var UPGRADING = 1;
-var FILLING = 2;
 
 Spawn.prototype.makeScout = function (init) {
 	//init = init || {};

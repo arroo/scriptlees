@@ -76,6 +76,14 @@ var bodyPartSorter = function (a, b) {
 		return 1;
 	}
 
+	if (a === HEAL) {
+		return -1;
+	}
+
+	if (b === HEAL) {
+		return 1;
+	}
+
 	return 0;
 };
 

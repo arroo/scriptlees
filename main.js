@@ -22,6 +22,8 @@ var tower = require('tower');
 var claimer = require('claimer');
 var siege = require('siege');
 var scout = require('scout');
+var kite = require('kite');
+
 var utils = require('utils');
 var strerror = utils.strerror;
 
