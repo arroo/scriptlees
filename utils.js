@@ -65,6 +65,8 @@ var strerror = function (errno) {
 	}
 };
 
+var allCreeps = Object.keys(Game.creeps).map(n => Game.creeps[n]).filter(c => c.my);
+
 var coerceToPositions = function (things, keepEmpties) {
 
 	return things.reduce(function (arr, thing) {
@@ -276,5 +278,6 @@ module.exports = {
 	'cat': cat,
 	'findMinSpanningTree': findMinSpanningTree,
 	'coerceToPositions': coerceToPositions,
-	'allPairs': allPairs
+	'allPairs': allPairs,
+	'allCreeps': allCreeps
 };
