@@ -145,7 +145,7 @@ Creep.prototype.movingTargetMiner = function () {
 
 			return pos;
 
-		}, undefined) || spawn.pos.findClosestByRange(spots) ||flag.room.find(Game.map.findExit(spawn.room, flag.room))[0].findClosestByRange(spots);
+		}, undefined) || spawn.pos.findClosestByRange(spots) ||flag.room.find(Game.map.findExit(flag.room, spawn.room))[0].findClosestByRange(spots);
 		if (target) {
 			delete creep.memory.destination.movingTarget;
 			creep.memory.destination.target = target;
