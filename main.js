@@ -58,7 +58,7 @@ module.exports.loop = function () {
 				return;
 			}
 
-
+			creep.memory.lastPos = creep.pos;
 			if (Memory.unsafe) {
 				creep.run();
 			} else {
@@ -68,7 +68,7 @@ module.exports.loop = function () {
 					console.log(creep.memory.genesis + ' ' + name + ' run error:', error.stack);
 				}
 			}
-			creep.memory.lastPos = creep.pos;
+
 		});
 
 		Memory.minionsToMake = Memory.minionsToMake || [];
