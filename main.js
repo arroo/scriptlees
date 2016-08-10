@@ -65,7 +65,7 @@ module.exports.loop = function () {
 				try {
 					creep.run();
 				} catch (error) {
-					console.log(creep.memory.genesis + ' ' + name + ' run error:', error);
+					console.log(creep.memory.genesis + ' ' + name + ' run error:', error.stack);
 				}
 			}
 			creep.memory.lastPos = creep.pos;
