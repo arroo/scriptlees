@@ -78,7 +78,7 @@ var getTargetPosition = function (creep, flag) {
 		if (!target) {
 			var spawn = flag.pos.findNearestFriendlySpawn();
 			target = spawn.pos.findClosestByRange(spots) ||
-				flag.room.find(Game.map.findExit(creep.room, flag.room))[0].findClosestByRange(spots);
+				flag.room.find(Game.map.findExit(flag.room, spawn.room))[0].findClosestByRange(spots);
 		}
 	} else {
 		range = target.isWalkable() ? 0 : 1;
