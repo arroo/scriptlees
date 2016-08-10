@@ -63,6 +63,10 @@ Creep.prototype.startMiner = function () {
 	var target;
 	var range;
 	var flag = Game.flags[mem.flag];
+	if (creep.room.name !== flag.room.name) {
+		creep.setGoing(flag.pos, 'startMiner', 40);
+		return;
+	}
 	try {
 		var spots = flag.room.openSpotsNear(flag);//flag.room.memory.sourceFlags[init.flag].adjacent;
 		var spawn = flag.pos.findNearestFriendlySpawn();
