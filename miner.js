@@ -63,7 +63,7 @@ Creep.prototype.startMiner = function () {
 	var target;
 	var range;
 	var flag = Game.flags[mem.flag];
-	if (creep.room.name !== flag.room.name) {
+	if (creep.room.name !== flag.pos.roomName) {
 		creep.setGoing(flag.pos, 'startMiner', 40);
 		return;
 	}
