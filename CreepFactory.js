@@ -7,9 +7,43 @@
  * mod.thing == 'a thing'; // true
  */
 
-var roomEnergyCreepMax = 0.5;
+var maxCreepRoomEnergyPercentage = function (level) {
+	var percent = 1;
+
+	if (level === 1) {
+		percent = 1;
+
+	} else if (level === 2) {
+		percent = 0.9;
+
+	} else if (level === 3) {
+		percent = 0.8;
+
+	} else if (level === 4) {
+		percent = 0.75;
+
+	} else if (level === 5) {
+		percent = 0.7;
+
+	} else if (level === 6) {
+		percent = 0.65;
+
+	} else if (level === 7) {
+		percent = 0.6;
+
+	} else if (level === 8) {
+		percent = 0.5;
+
+	} else {
+		percent = 1;
+	}
+
+	return percent;
+};
 
 Spawn.prototype.CreepFactory = function (body, mem, extras, bonus, extraBonus) {
+
+	var roomEnergyCreepMax = maxCreepRoomEnergyPercentage(this.room.controller.level);
 
 	var energyCapacityAvailable = this.room.energyCapacityAvailable;
 
