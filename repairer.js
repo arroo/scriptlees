@@ -74,8 +74,9 @@ RoomPosition.prototype.findNearestDamagedStructure = function () {
 				//return pos.findClosestByRange(damagedStructureTypes);
 				
 				// hack to allow for ramparts to be made once and fixed immediately
-				var mostDamagedStructure = _.min(damagedStructureTypes, s => s.hits/s.hitsMax);
-				
+				//var mostDamagedStructure = _.min(damagedStructureTypes, s => s.hits/s.hitsMax);
+				var mostDamagedStructure = _.min(damagedStructureTypes, s => s.hits);
+
 				if (mostDamagedStructure === Infinity) {
 					return this.findClosestByRange(damagedStructureTypes);
 				}
