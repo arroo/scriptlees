@@ -45,7 +45,11 @@ module.exports.loop = function () {
 		console.log('-------------------  tick  -------------------');
 		// Cleanup dead objects
 		if (Game.time % 10 === 0) {
-			gc();
+			try {
+				gc();
+			} catch (err) {
+				console.log('garbage collection error: ' + err.stack);
+			}
 		}
 		Memory.congestionSites = {};
 		Memory.constructionSites = Game.constructionSites;
