@@ -13,6 +13,7 @@ var gc = function () {
 
 	Memory.creeps = Memory.creeps || {};
 	Object.keys(Memory.creeps).forEach(function (name) {
+		try {
 		if (!Game.creeps[name]) {
 			var mem = Memory.creeps[name];
 			console.log('clearing memory for defunct ' + mem.genesis + ' ' + name);
@@ -51,7 +52,8 @@ var gc = function () {
 							return creep.memory.genesis === 'makeMiner'
 						}
 					}).length;
-				} catch (err) {}
+				} catch (err) {
+				}
 
 				if (anyMiners) {
 					init.genesis = 'makeCourier';
@@ -64,7 +66,8 @@ var gc = function () {
 				let roomMine = false;
 				try {
 					roomMine = Game.rooms[mem.room].controller.my;
-				} catch (error) {}
+				} catch (error) {
+				}
 				if (roomMine) {
 					init.genesis = 'makeUpgrader';
 				} else {
@@ -104,6 +107,9 @@ var gc = function () {
 
 			delete Memory.creeps[name];
 		}
+	} catch (err) {
+		console.log('error respawning creep:' + err.stack);
+	}
 	});
 
 	// Cleanup dead spawns
