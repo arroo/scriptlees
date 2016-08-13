@@ -7,6 +7,8 @@
  * mod.thing == 'a thing'; // true
  */
 
+let username = 'robox';
+
 var PriorityQueue = require('pqueue');
 var flags = require('flags');
 var utils = require('utils');
@@ -573,16 +575,25 @@ RoomPosition.prototype.fullySurrounded = function () {
 	return !this.openSpotsNear().some(s => s.isWalkable() && !s.lookFor(LOOK_CREEPS).length);
 };
 
+RoomPosition.prototype.canHarvestFrom = function () {
+	let controller = this.controller;
+
+	canHarvest =  controller && (controller.my || (controller.reservation && controller.reservation.username === username) || (controller.owner && controller.owner.username === username));
+
+	return canHarvest;
+};
+
 RoomPosition.prototype.findNearestSource = function (resource, min, ignoreSources) {
 	var pos = this;
 	min = min || 0;
+
 	var nearestSource = pos.findNearestThing(function (room) {
 		var sources = [];
 
 		sources = room.find(FIND_DROPPED_RESOURCES, {filter: r => r.resourceType === resource && r.amount >= min && !r.pos.fullySurrounded()}).reduce(cat, sources);
 		sources = room.find(FIND_STRUCTURES, {filter: s=> (s.structureType === STRUCTURE_CONTAINER || s.structureType === STRUCTURE_STORAGE) && s.store[resource] && s.store[resource] >= min && !s.pos.fullySurrounded()}).reduce(cat, sources);
 
-		if (!sources.length && !ignoreSources) {
+		if (!sources.length && !ignoreSources && room.canHarvestFrom()) {
 			if (resource === RESOURCE_ENERGY) {
 				sources = room.find(FIND_SOURCES, {filter: s => s.energy >= min && !s.pos.fullySurrounded()}).reduce(cat, sources);
 			} else {
