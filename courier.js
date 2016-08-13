@@ -155,8 +155,8 @@ Spawn.prototype.makeCourier = function (init) {
 
 	var body = [MOVE, CARRY]; // bare minimum creep body definition
 	var extras = [MOVE, CARRY, MOVE, CARRY];
-	var bonus = [];
-	var extraBonus = [MOVE, CARRY];
+	var bonus = [MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY, MOVE, CARRY];
+	var extraBonus = [];
 
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);
 };
