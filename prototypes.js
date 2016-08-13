@@ -575,7 +575,7 @@ RoomPosition.prototype.fullySurrounded = function () {
 	return !this.openSpotsNear().some(s => s.isWalkable() && !s.lookFor(LOOK_CREEPS).length);
 };
 
-RoomPosition.prototype.canHarvestFrom = function () {
+Room.prototype.canHarvestFrom = function () {
 	let controller = this.controller;
 
 	canHarvest =  controller && (controller.my || (controller.reservation && controller.reservation.username === username) || (controller.owner && controller.owner.username === username));
