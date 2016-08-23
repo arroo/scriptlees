@@ -10,7 +10,7 @@ var gc = require('garbagecollector');
 
 // Process the creeps
 var builder = require('builder');
-//var guard = require('guard');
+var guard = require('guard');
 var harvester = require('harvester');
 var healer = require('healer');
 var population = require('population');
@@ -31,7 +31,7 @@ var profiler = require('screeps-profiler');
 if (Memory.enableProfiler) {
 	profiler.enable();
 }
-
+let spawner = 'Spawn1';
 var tempCreeps = [
 	{'priority': 4, 'item': {'genesis': 'makeCourier', 'init': {'endpointFlags': ['Flag3', 'Flag11']}}}
 	//{'priority':4,'item':{'genesis':'makeCourier', 'init':{'endpointFlags':['Flag10', 'Flag11']}}}
@@ -88,9 +88,6 @@ module.exports.loop = function () {
 		Memory.minionsToMake = [];
 
 		if (Memory.makeTempMinions) {
-
-
-			let spawner = 'Spawn1';
 			try {
 				Game.spawns[spawner].memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
 					return pq.enqueue(creepInfo);

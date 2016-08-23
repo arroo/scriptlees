@@ -578,7 +578,7 @@ RoomPosition.prototype.fullySurrounded = function () {
 Room.prototype.canHarvestFrom = function () {
 	let controller = this.controller;
 
-	canHarvest =  controller && (controller.my || (controller.reservation && controller.reservation.username === username) || (controller.owner && controller.owner.username === username));
+	let canHarvest =  controller && (controller.my || (controller.reservation && controller.reservation.username === username) || (controller.owner && controller.owner.username === username));
 
 	return canHarvest;
 };
@@ -848,4 +848,9 @@ RoomPosition.deserialize = function (serialized) {
 
 	return new RoomPosition(x, y, roomName);
 };
+
+Room.prototype.mid = function () {
+	return this.getPositionAt(25, 25);
+};
+
 module.exports = {};
