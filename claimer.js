@@ -29,16 +29,20 @@ Spawn.prototype.makeClaimer = function (init) {
 		return this.makeUpgrader(init);
 	}
 
-	var body = [MOVE, CLAIM]; // bare minimum creep body definition
+	var body = []; // bare minimum creep body definition
 	var extras = [];
 	var bonus = [];
 	var extraBonus = [MOVE, TOUGH];
 
-	if (mem.task !== CLAIMING) {
-		extras = [MOVE, CLAIM];
-		if (mem.task === ATTACKING) {
+	switch (mem.task) {
+		case ATTACKING:
 			bonus = [MOVE, CLAIM, CLAIM, CLAIM, MOVE, MOVE];
-		}
+		case RESERVING:
+			extras = [MOVE, CLAIM];
+		case CLAIMING:
+			body = [MOVE, CLAIM];
+		default:
+			break;
 	}
 
 	return this.CreepFactory(body, mem, extras, bonus, extraBonus);

@@ -634,7 +634,7 @@ RoomPosition.prototype.findNearestStructureTypes = function (types, mineOnly) {
 Creep.prototype.log = function () {
 	var creepClass = this.memory.genesis || 'unknown role';
 	var name = this.name;
-	[].unshift.call(arguments, creepClass + ' ' + name + ': ');
+	[].unshift.call(arguments, this.pos.getPosString() + ' ' + creepClass + ' ' + name + ': ');
 	console.log.apply(console, arguments);
 };
 

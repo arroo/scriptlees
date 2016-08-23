@@ -75,7 +75,7 @@ var gc = function () {
 				}
 			}
 
-			var spawn = pos.findNearestFriendlySpawn();
+			var spawn = pos.findNearestFriendlySpawn() || Game.spawns.Spawn1;
 
 
 			var priority;
