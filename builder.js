@@ -79,7 +79,7 @@ Creep.prototype.movingTargetBuilder = function () {
 			console.log(mem.genesis + ' ' + creep.name + ' is going to an unplanned target:' + target.id + ', ', JSON.stringify(target));
 		}
 
-		if (predicate(neededResource) || target.pos.fullySurrounded()) {
+		if (predicate(neededResource) || target.pos.fullySurrounded() && !creep.pos.isNearTo(target)) {
 			target = undefined;
 		}
 	}
