@@ -19,7 +19,7 @@ Spawn.prototype.population = function() {
 		return;
 	}
 
-	var pq = new PriorityQueue(spawn.memory.pq);
+	var pq = new PriorityQueue(spawn.room.memory.pq);
 	//console.log(JSON.stringify(pq));
 	var queueItem = pq.dequeue();
 	if (!queueItem) {
@@ -77,7 +77,7 @@ Spawn.prototype.population = function() {
 			}
 	}
 
-	spawn.memory.pq = pq;
+	spawn.room.memory.pq = pq;
 	
 //    console.log('after spawn loop:' + JSON.stringify(spawn.memory.pq));
 	

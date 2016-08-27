@@ -167,7 +167,7 @@ Room.prototype.init = function () {
 			creepInfo.init.flag = flagName;
 			
 			return pq.enqueue(5, creepInfo);	
-		}, new PriorityQueue(nearestSpawn.memory.pq));
+		}, new PriorityQueue(nearestSpawn.room.memory.pq));
 	}
 
 	room.memory.init = true;
@@ -673,7 +673,7 @@ Creep.prototype.signalRespawn = function (init, spawn) {
 
 	// don't set the highest priority for some reason?
 	var priority = this.getSpawnPriority();
-	spawn.memory.pq = new PriorityQueue(spawn.memory.pq).enqueue(priority, creepInit);
+	spawn.memory.pq = new PriorityQueue(spawn.room.memory.pq).enqueue(priority, creepInit);
 
 	creep.memory.signalledDemise = true;
 	

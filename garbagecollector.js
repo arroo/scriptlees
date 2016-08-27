@@ -102,7 +102,7 @@ var gc = function () {
 					break;
 			}
 
-			spawn.memory.pq = new PriorityQueue(spawn.memory.pq).enqueue(priority, init);
+			spawn.room.memory.pq = new PriorityQueue(spawn.memory.pq).enqueue(priority, init);
 			console.log('recycled ' + mem.genesis + ' ' + name + ' at ' + spawn.name);
 
 			delete Memory.creeps[name];
@@ -116,7 +116,8 @@ var gc = function () {
 	Memory.spawns = Memory.spawns || {};
 	var workersToSpawn = new PriorityQueue();
 	Object.keys(Memory.spawns).forEach(function (name) {
-		if (!Game.spawns[name]) {
+		if (!Game.spawns[name] ||
+		Game.spawns[name].memory.pq) { // temporary fix to get spawns to not have queues
 			
 			if (Memory.spawns[name] && Memory.spawns[name].pq) {
 				var spawnPQ = new PriorityQueue(Memory.spawns[name].pq);
@@ -139,7 +140,7 @@ var gc = function () {
 	if (spawns.length) {
 		for (var recycleQueueItem = workersToSpawn.dequeue(); recycleQueueItem; recycleQueueItem = workersToSpawn.dequeue()) {
 			var spawn = spawns[i];
-			spawn.memory.pq = new PriorityQueue(spawn.memory.pq).enqueue(recycleQueueItem.priority, recycleQueueItem.item);
+			spawn.room.memory.pq = new PriorityQueue(spawn.room.memory.pq).enqueue(recycleQueueItem.priority, recycleQueueItem.item);
 			i = (i + 1) % spawns.length;
 		}
 	}

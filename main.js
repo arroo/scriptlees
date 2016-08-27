@@ -31,7 +31,7 @@ var profiler = require('screeps-profiler');
 if (Memory.enableProfiler) {
 	profiler.enable();
 }
-let spawner = 'Spawn1';
+let spawner = 'W44N43';
 var tempCreeps = [
 	{'priority': 4, 'item': {'genesis': 'makeCourier', 'init': {'endpointFlags': ['Flag3', 'Flag11']}}}
 	//{'priority':4,'item':{'genesis':'makeCourier', 'init':{'endpointFlags':['Flag10', 'Flag11']}}}
@@ -91,7 +91,7 @@ module.exports.loop = function () {
 			try {
 				Game.spawns[spawner].memory.pq = tempCreeps.reduce(function (pq, creepInfo) {
 					return pq.enqueue(creepInfo);
-				}, new PriorityQueue(Game.spawns[spawner].memory.pq));
+				}, new PriorityQueue(Game.rooms[spawner].memory.pq));
 				Memory.makeTempMinions = false;
 			} catch (e) {}
 		}

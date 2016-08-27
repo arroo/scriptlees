@@ -1,5 +1,5 @@
 require('CreepFactory');
-var PriorityQueue = require('pqueue');
+
 var utils = require('utils');
 var strerror = utils.strerror;
 
