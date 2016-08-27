@@ -102,7 +102,7 @@ var gc = function () {
 					break;
 			}
 
-			spawn.room.memory.pq = new PriorityQueue(spawn.memory.pq).enqueue(priority, init);
+			spawn.room.memory.pq = new PriorityQueue(spawn.room.memory.pq).enqueue(priority, init);
 			console.log('recycled ' + mem.genesis + ' ' + name + ' at ' + spawn.name);
 
 			delete Memory.creeps[name];
